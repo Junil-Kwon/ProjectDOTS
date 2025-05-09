@@ -1,0 +1,349 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7036014d867800c4aa5ea60009305b2c, type: 3}
+  m_Name: SpriteAtlasMap
+  m_EditorClassIdentifier: 
+  m_Data:
+  - SourceTexture: Assets/Textures/SpriteBases
+    TargetTexture: {fileID: 2800000, guid: 6adc2443a2be13f45ba5c0150afac6c1, type: 3}
+    FallbackColor:
+      serializedVersion: 2
+      rgba: 0
+  - SourceTexture: Assets/Textures/SpriteMasks
+    TargetTexture: {fileID: 2800000, guid: a5d54a71869b81b4ba25c95ba8bcc4ba, type: 3}
+    FallbackColor:
+      serializedVersion: 2
+      rgba: 0
+  - SourceTexture: Assets/Textures/SpriteNormals
+    TargetTexture: {fileID: 2800000, guid: 024db03547984f34fa6ce24d50f01557, type: 3}
+    FallbackColor:
+      serializedVersion: 2
+      rgba: 4294934399
+  m_MaximumAtlasSize: 16384
+  m_Padding: 2
+  m_PixelPerUnit: 16
+  m_MergeDuplicate: 1
+  m_AtlasMap:
+    k:
+    - None
+    - Player_Death_0_0_0100
+    - Player_Death_0_1_0100
+    - Player_Death_0_2_9999
+    - Player_Dodge_0_0_0100
+    - Player_Dodge_0_1_0100
+    - Player_Dodge_0_2_0100
+    - Player_Dodge_0_3_0100
+    - Player_Dodge_0_4_0100
+    - Player_Dodge_0_5_0100
+    - Player_Idle_0_0_0500
+    - Player_Idle_0_1_0500
+    - Player_Idle_0_2_0500
+    - Player_Idle_0_3_0500
+    - Player_Jump_0_0_0100
+    - Player_Jump_0_1_0100
+    - Player_Jump_0_2_0100
+    - Player_Jump_0_3_9999
+    - Player_Move_0_0_0100
+    - Player_Move_0_1_0100
+    - Player_Move_0_2_0100
+    - Player_Move_0_3_0100
+    - Player_Move_0_4_0100
+    - Player_Move_0_5_0100
+    v:
+    - scale:
+        x: 1
+        y: 1
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.0625
+        y: 0.0625
+      offset:
+        x: 0.9296875
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.265625
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.3984375
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.53125
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.6640625
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.796875
+        y: 0
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.265625
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.3984375
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.53125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.6640625
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0
+        y: 0.796875
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.265625
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.3984375
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.53125
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.6640625
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.796875
+        y: 0.1328125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0.265625
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0.3984375
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0.53125
+    - scale:
+        x: 2
+        y: 2
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.125
+        y: 0.125
+      offset:
+        x: 0.1328125
+        y: 0.6640625

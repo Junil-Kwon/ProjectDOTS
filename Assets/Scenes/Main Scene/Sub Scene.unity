@@ -1,0 +1,1727 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!29 &1
+OcclusionCullingSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_OcclusionBakeSettings:
+    smallestOccluder: 5
+    smallestHole: 0.25
+    backfaceThreshold: 100
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
+--- !u!104 &2
+RenderSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 10
+  m_Fog: 0
+  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_FogMode: 3
+  m_FogDensity: 0.01
+  m_LinearFogStart: 0
+  m_LinearFogEnd: 300
+  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
+  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_AmbientIntensity: 1
+  m_AmbientMode: 0
+  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_HaloStrength: 0.5
+  m_FlareStrength: 1
+  m_FlareFadeSpeed: 3
+  m_HaloTexture: {fileID: 0}
+  m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
+  m_DefaultReflectionMode: 0
+  m_DefaultReflectionResolution: 128
+  m_ReflectionBounces: 1
+  m_ReflectionIntensity: 1
+  m_CustomReflection: {fileID: 0}
+  m_Sun: {fileID: 0}
+  m_UseRadianceAmbientProbe: 0
+--- !u!157 &3
+LightmapSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
+  m_GISettings:
+    serializedVersion: 2
+    m_BounceScale: 1
+    m_IndirectOutputScale: 1
+    m_AlbedoBoost: 1
+    m_EnvironmentLightingMode: 0
+    m_EnableBakedLightmaps: 1
+    m_EnableRealtimeLightmaps: 0
+  m_LightmapEditorSettings:
+    serializedVersion: 12
+    m_Resolution: 2
+    m_BakeResolution: 40
+    m_AtlasSize: 1024
+    m_AO: 0
+    m_AOMaxDistance: 1
+    m_CompAOExponent: 1
+    m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
+    m_Padding: 2
+    m_LightmapParameters: {fileID: 0}
+    m_LightmapsBakeMode: 1
+    m_TextureCompression: 1
+    m_ReflectionCompression: 2
+    m_MixedBakeMode: 2
+    m_BakeBackend: 1
+    m_PVRSampling: 1
+    m_PVRDirectSampleCount: 32
+    m_PVRSampleCount: 512
+    m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 256
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 1
+    m_PVRDenoiserTypeDirect: 1
+    m_PVRDenoiserTypeIndirect: 1
+    m_PVRDenoiserTypeAO: 1
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
+    m_PVREnvironmentMIS: 1
+    m_PVRCulling: 1
+    m_PVRFilteringGaussRadiusDirect: 1
+    m_PVRFilteringGaussRadiusIndirect: 1
+    m_PVRFilteringGaussRadiusAO: 1
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
+  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingSettings: {fileID: 0}
+--- !u!196 &4
+NavMeshSettings:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_BuildSettings:
+    serializedVersion: 3
+    agentTypeID: 0
+    agentRadius: 0.5
+    agentHeight: 2
+    agentSlope: 45
+    agentClimb: 0.4
+    ledgeDropHeight: 0
+    maxJumpAcrossDistance: 0
+    minRegionArea: 2
+    manualCellSize: 0
+    cellSize: 0.16666667
+    manualTileSize: 0
+    tileSize: 256
+    buildHeightMesh: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
+    debug:
+      m_Flags: 0
+  m_NavMeshData: {fileID: 0}
+--- !u!1001 &23888871
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.223012
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.4228492
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883430157158324649, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+      propertyPath: m_Name
+      value: Temp
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
+--- !u!1 &71377502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 71377503}
+  - component: {fileID: 71377507}
+  - component: {fileID: 71377511}
+  - component: {fileID: 71377505}
+  - component: {fileID: 71377504}
+  - component: {fileID: 71377512}
+  - component: {fileID: 71377508}
+  - component: {fileID: 71377509}
+  - component: {fileID: 71377506}
+  - component: {fileID: 71377513}
+  - component: {fileID: 71377510}
+  m_Layer: 0
+  m_Name: Singleton Bridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &71377503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &71377504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd95064455e08845bc07b2aa1a1e8f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2146dd7a07183a848b7d8161bf8b0ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83bc0eeccc9e3d1419a0abee819e207f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def5cc887ff7b65479193883e4ed5fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee28acb1c69d9e043a050c9f21a8c1fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b7893ab2a2f5a342a04694d17d8443e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c5c0eb19c45c3b4585608e1ce820410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7d238498fe9b864c9f93f18e2b541d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 055ebdea342dfeb4d87fc8a3bfe1a75c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349f68e42db786747ad38c0ceba97049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &165012040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165012044}
+  - component: {fileID: 165012043}
+  - component: {fileID: 165012045}
+  m_Layer: 0
+  m_Name: Physics Config
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &165012043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165012040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d30974bf68d61043b1572197db94cdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SimulationType: 1
+  m_Gravity:
+    x: -0
+    y: -9.81
+    z: -0
+  m_SolverIterationCount: 1
+  m_EnableSolverStabilizationHeuristic: 0
+  m_MultiThreaded: 1
+  m_CollisionTolerance: 0.01
+  m_SynchronizeCollisionWorld: 0
+  m_IncrementalDynamicBroadphase: 0
+  m_IncrementalStaticBroadphase: 0
+--- !u!4 &165012044
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165012040}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &165012045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165012040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bd6bf266b32e49ac8c5951317b6b250, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PhysicGroupRunMode: 2
+  EnableLagCompensation: 1
+  ServerHistorySize: 0
+  ClientHistorySize: 0
+  ClientNonGhostWorldIndex: 1
+  DeepCopyDynamicColliders: 1
+  DeepCopyStaticColliders: 0
+--- !u!114 &482439298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e495c735e99e6d047b3731eb9bcb96fe, type: 3}
+  m_Name: GameObject
+  m_EditorClassIdentifier: 
+  m_Entry:
+    rid: 114364745289039947
+  references:
+    version: 2
+    RefIds:
+    - rid: 114364745289039947
+      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 8c69869f-1aae-43d0-b91c-b71ab1692417
+        prev: []
+        next:
+        - rid: 114364811341464232
+        position: {x: 0, y: 0}
+        async: 0
+    - rid: 114364811341464232
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464233
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464233
+      type: {class: GameStateEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: b59790e9-9947-4381-ae65-0efd4a6b4db3
+        prev:
+        - rid: 114364811341464234
+        next:
+        - rid: 114364811341464235
+        position: {x: 121, y: 0}
+        async: 0
+        state: 1
+    - rid: 114364811341464234
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464236
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464235
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464237
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464236
+      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 8c69869f-1aae-43d0-b91c-b71ab1692417
+        prev: []
+        next:
+        - rid: 114364811341464232
+        position: {x: 0, y: 0}
+        async: 0
+    - rid: 114364811341464237
+      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 2b32b888-5709-4a2b-9787-e5d465bd4768
+        prev:
+        - rid: 114364811341464238
+        next:
+        - rid: 114364811341464239
+        position: {x: 255, y: 0}
+        async: 0
+        time: 0.1
+    - rid: 114364811341464238
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464233
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464239
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464240
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464240
+      type: {class: DialogueEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 8892f348-3c0a-4e41-be15-1249bf5897c4
+        prev:
+        - rid: 114364811341464241
+        next:
+        - rid: 114364811341464242
+        position: {x: 422, y: 45}
+        async: 0
+        directives:
+        - 
+        - 
+        - 
+        keys:
+        - 
+        - 
+        - 
+        - 
+        - 
+    - rid: 114364811341464241
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464237
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464242
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464243
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464243
+      type: {class: BranchEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 3ac28596-c8cc-4a1f-b330-18db44c5f9f4
+        prev:
+        - rid: 114364811341464244
+        next:
+        - rid: 114364811341464245
+        - rid: 114364811341464246
+        - rid: 114364811341464247
+        position: {x: 683, y: 0}
+        async: 0
+        keys:
+        - 
+        - 
+        - 
+    - rid: 114364811341464244
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464240
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464245
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464248
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464246
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464249
+        iPort: 0
+        oPort: 1
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464247
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464250
+        iPort: 0
+        oPort: 2
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464248
+      type: {class: FadeOutEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 77a94149-8fdf-4523-8ceb-4d901cb9171b
+        prev:
+        - rid: 114364811341464251
+        next:
+        - rid: 114364811341464252
+        position: {x: 988, y: -71}
+        async: 0
+        duration: 0.2
+    - rid: 114364811341464249
+      type: {class: InstantiateObjectEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 0bc22ba0-a23f-4a7d-91ab-75eca436fa2a
+        prev:
+        - rid: 114364811341464253
+        next:
+        - rid: 114364811341464254
+        - rid: 114364811341464255
+        position: {x: 988, y: 137}
+        async: 0
+        prefab: {fileID: 2126016868}
+        anchor: {fileID: 0}
+        offset: {x: -3.6673675, y: 0, z: -3.1796212}
+    - rid: 114364811341464250
+      type: {class: FocusDistanceEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: fea40fe4-d219-477c-ac7f-a7eda9cb9f26
+        prev:
+        - rid: 114364811341464256
+        next:
+        - rid: 114364811341464257
+        position: {x: 988, y: 548}
+        async: 0
+        distance: 64
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        duration: 0
+    - rid: 114364811341464251
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464243
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464252
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464258
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464253
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464243
+        iPort: 0
+        oPort: 1
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464254
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464259
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464255
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464260
+        iPort: 1
+        oPort: 1
+        iPortType: 1
+        oPortType: 1
+    - rid: 114364811341464256
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464243
+        iPort: 0
+        oPort: 2
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464257
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464261
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464258
+      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 3b6fc20b-38d4-488b-9a19-3c1e4d984a74
+        prev:
+        - rid: 114364811341464262
+        next:
+        - rid: 114364811341464263
+        position: {x: 1122, y: -71}
+        async: 0
+        time: 2
+    - rid: 114364811341464259
+      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: f9534ed5-f479-4671-8322-1caca490ac7d
+        prev:
+        - rid: 114364811341464264
+        next:
+        - rid: 114364811341464265
+        position: {x: 1237, y: 107}
+        async: 0
+        time: 0.1
+    - rid: 114364811341464260
+      type: {class: DestroyObjectEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 8ee34f02-06d4-4379-b4f7-d9eba29bac6f
+        prev:
+        - rid: 114364811341464266
+        - rid: 114364811341464267
+        - rid: 114364811341464268
+        next:
+        - rid: 114364811341464269
+        position: {x: 1399, y: 137}
+        async: 0
+    - rid: 114364811341464261
+      type: {class: ProjectionEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: fe85bfec-0ac1-4474-8dea-e8ff95bb9059
+        prev:
+        - rid: 114364811341464270
+        next:
+        - rid: 114364811341464271
+        position: {x: 1208, y: 548}
+        async: 0
+        value: 1
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        duration: 0
+    - rid: 114364811341464262
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464248
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464263
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464272
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464264
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464249
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464265
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464260
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464266
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464259
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464267
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464249
+        iPort: 1
+        oPort: 1
+        iPortType: 1
+        oPortType: 1
+    - rid: 114364811341464268
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464273
+        iPort: 1
+        oPort: 0
+        iPortType: 1
+        oPortType: 1
+    - rid: 114364811341464269
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464274
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464270
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464250
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464271
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464275
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464272
+      type: {class: FadeInEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 0b3e8ede-429e-493f-bb6e-9def74bd8dcc
+        prev:
+        - rid: 114364811341464276
+        next:
+        - rid: 114364811341464277
+        position: {x: 1256, y: -71}
+        async: 0
+        duration: 0.2
+    - rid: 114364811341464273
+      type: {class: ObjectEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 48a62506-09b9-46fd-99c7-77d5bfda4088
+        prev: []
+        next:
+        - rid: 114364811341464278
+        position: {x: 1074, y: 297}
+        async: 0
+        instance: {fileID: 0}
+    - rid: 114364811341464274
+      type: {class: GameStateEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: e2dec7b6-5474-48b0-b925-d34244a83c4c
+        prev:
+        - rid: 114364811341464279
+        - rid: 114364811341464280
+        next: []
+        position: {x: 1623, y: 25}
+        async: 0
+        state: 0
+    - rid: 114364811341464275
+      type: {class: FreezePositionEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 8e73cc2d-cd4d-40fb-94a5-825c97bc620a
+        prev:
+        - rid: 114364811341464281
+        next:
+        - rid: 114364811341464282
+        position: {x: 1428, y: 548}
+        async: 0
+        axis:
+          x: 0
+          y: 0
+          z: 0
+    - rid: 114364811341464276
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464258
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464277
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464274
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464278
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464260
+        iPort: 1
+        oPort: 0
+        iPortType: 1
+        oPortType: 1
+    - rid: 114364811341464279
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464260
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464280
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464272
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464281
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464261
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464282
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464283
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464283
+      type: {class: FreezeRotationEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: e5ff2276-59b5-46ce-839e-388e41017d33
+        prev:
+        - rid: 114364811341464284
+        next:
+        - rid: 114364811341464285
+        position: {x: 1562, y: 548}
+        async: 0
+        axis:
+          x: 1
+          y: 0
+          z: 1
+    - rid: 114364811341464284
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464275
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464285
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464286
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464286
+      type: {class: MoveCameraEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 284a5ec9-1e62-411a-8233-f895711cd01f
+        prev:
+        - rid: 114364811341464287
+        next:
+        - rid: 114364811341464288
+        position: {x: 988, y: 765}
+        async: 0
+        target: {fileID: 0}
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        duration: 1
+    - rid: 114364811341464287
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464283
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464288
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464289
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464289
+      type: {class: TrackCameraEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 55adc829-8506-4845-963a-24b341b26f2b
+        prev:
+        - rid: 114364811341464290
+        next:
+        - rid: 114364811341464291
+        position: {x: 1208, y: 765}
+        async: 0
+        anchor: {fileID: 0}
+        track:
+          point:
+          - {x: -12.784733, y: 0, z: -3.3377151}
+          - {x: -6.0411124, y: 0, z: -11.300101}
+          - {x: 3.2918613, y: 0, z: -16.58368}
+          - {x: 8.370454, y: 0, z: -24.195618}
+          - {x: -4.432722, y: 0, z: -27.283152}
+          - {x: -9.321751, y: 0, z: -32.26566}
+          - {x: -22.652504, y: 0, z: -28.657452}
+          - {x: -28.1716, y: 0, z: -18.513367}
+          - {x: -26.837597, y: 0, z: -9.193258}
+          - {x: -22.515718, y: 0, z: -6.244335}
+          curve: 01010101010101010101
+          distance:
+          - 0
+          - 10.444653
+          - 21.169613
+          - 30.578222
+          - 43.762722
+          - 50.77211
+          - 64.70014
+          - 76.41222
+          - 85.92346
+          - 91.22718
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        duration: 1
+    - rid: 114364811341464290
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464286
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464291
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464292
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464292
+      type: {class: ShakeCameraEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 782673ec-103a-4c76-bfa5-a8c5c312f584
+        prev:
+        - rid: 114364811341464293
+        next:
+        - rid: 114364811341464294
+        position: {x: 1428, y: 765}
+        async: 0
+        strength: 0
+        duration: 0
+        axis:
+          x: 1
+          y: 1
+    - rid: 114364811341464293
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464289
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464294
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464295
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364811341464295
+      type: {class: LookAtEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: c4a48301-04ae-481e-8ad8-9a81d82bd340
+        prev:
+        - rid: 114364811341464296
+        next: []
+        position: {x: 1562, y: 765}
+        async: 0
+        target: {fileID: 0}
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        duration: 0
+    - rid: 114364811341464296
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364811341464292
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+--- !u!4 &787911232 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+  m_PrefabInstance: {fileID: 2153330443138603617}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1079543674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1079543678}
+  - component: {fileID: 1079543677}
+  - component: {fileID: 1079543676}
+  - component: {fileID: 1079543675}
+  m_Layer: 0
+  m_Name: Plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &1079543675
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079543674}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &1079543676
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079543674}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1079543677
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079543674}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1079543678
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079543674}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1126928742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1126928745}
+  - component: {fileID: 1126928744}
+  - component: {fileID: 1126928743}
+  m_Layer: 0
+  m_Name: Terrains
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1126928743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126928742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
+--- !u!114 &1126928744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126928742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 2
+  m_Smoothing: 0
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_WorldIndex: 0
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
+--- !u!4 &1126928745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1126928742}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 787911232}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1496405520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1496405521}
+  - component: {fileID: 1496405522}
+  m_Layer: 0
+  m_Name: Prefab Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1496405521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1496405520}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1496405522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1496405520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67808b79288f22a4b91a33541050908a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1572561411
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1572561415}
+  - component: {fileID: 1572561414}
+  - component: {fileID: 1572561413}
+  - component: {fileID: 1572561412}
+  m_Layer: 0
+  m_Name: Plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &1572561412
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572561411}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &1572561413
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572561411}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1572561414
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572561411}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1572561415
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572561411}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2126016868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126016870}
+  - component: {fileID: 2126016869}
+  m_Layer: 0
+  m_Name: Temp Event
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2126016869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126016868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c2c54e589f81a4f86cacaf96c5f249, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventGraph: {fileID: 482439298}
+--- !u!4 &2126016870
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126016868}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2153330443138603617
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1126928745}
+    m_Modifications:
+    - target: {fileID: 362312251402167067, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_Name
+      value: GoldMetal
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 165012044}
+  - {fileID: 71377503}
+  - {fileID: 1496405521}
+  - {fileID: 1126928745}
+  - {fileID: 1572561415}
+  - {fileID: 1079543678}
+  - {fileID: 23888871}
+  - {fileID: 2126016870}
