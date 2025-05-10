@@ -196,7 +196,7 @@ public abstract class BaseEvent {
 	public virtual bool Update() => true;
 	public virtual void End   () { }
 
-	public virtual BaseEvent  GetNext  () => next[0]?.data;
+	public virtual BaseEvent  GetNext  () => (0 < next.Count) ? next[0].data : null;
 	public virtual GameObject GetObject() => null;
 
 	#if UNITY_EDITOR
@@ -488,6 +488,55 @@ public class RandomEvent : BaseEvent {
 		}
 		return null;
 	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Debug
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Logic/Debug")]
+public class DebugEvent : BaseEvent {
+
+	// Node
+
+	#if UNITY_EDITOR
+		public class DebugEventNode : BaseEventNode {
+			DebugEvent I => target as DebugEvent;
+
+			public DebugEventNode() : base() {
+				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+			}
+
+			public override void ConstructData() {
+				var log = new TextField() { value = I.log, multiline = true };
+				log.RegisterValueChangedCallback(evt => I.log = evt.newValue);
+				mainContainer.Add(log);
+			}
+		}
+	#endif
+
+
+
+	// Fields
+
+	public string log = "";
+
+
+
+	// Methods
+
+	public override void CopyFrom(BaseEvent data) {
+		base.CopyFrom(data);
+		if (data is DebugEvent delay) {
+			log = delay.log;
+		}
+	}
+
+	#if UNITY_EDITOR
+		public override void End() => Debug.Log(log);
+	#endif
 }
 
 

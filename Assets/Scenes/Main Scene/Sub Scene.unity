@@ -186,7 +186,7 @@ GameObject:
   m_Component:
   - component: {fileID: 71377503}
   - component: {fileID: 71377507}
-  - component: {fileID: 71377511}
+  - component: {fileID: 71377514}
   - component: {fileID: 71377505}
   - component: {fileID: 71377504}
   - component: {fileID: 71377512}
@@ -301,18 +301,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c5c0eb19c45c3b4585608e1ce820410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &71377511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 71377502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7d238498fe9b864c9f93f18e2b541d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &71377512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,6 +323,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 349f68e42db786747ad38c0ceba97049, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &71377514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71377502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f524f16f7888e24c99b6c65b0ea036b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &165012040
@@ -413,832 +413,6 @@ MonoBehaviour:
   ClientNonGhostWorldIndex: 1
   DeepCopyDynamicColliders: 1
   DeepCopyStaticColliders: 0
---- !u!114 &482439298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e495c735e99e6d047b3731eb9bcb96fe, type: 3}
-  m_Name: GameObject
-  m_EditorClassIdentifier: 
-  m_Entry:
-    rid: 114364745289039947
-  references:
-    version: 2
-    RefIds:
-    - rid: 114364745289039947
-      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 8c69869f-1aae-43d0-b91c-b71ab1692417
-        prev: []
-        next:
-        - rid: 114364811341464232
-        position: {x: 0, y: 0}
-        async: 0
-    - rid: 114364811341464232
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464233
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464233
-      type: {class: GameStateEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: b59790e9-9947-4381-ae65-0efd4a6b4db3
-        prev:
-        - rid: 114364811341464234
-        next:
-        - rid: 114364811341464235
-        position: {x: 121, y: 0}
-        async: 0
-        state: 1
-    - rid: 114364811341464234
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464236
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464235
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464237
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464236
-      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 8c69869f-1aae-43d0-b91c-b71ab1692417
-        prev: []
-        next:
-        - rid: 114364811341464232
-        position: {x: 0, y: 0}
-        async: 0
-    - rid: 114364811341464237
-      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 2b32b888-5709-4a2b-9787-e5d465bd4768
-        prev:
-        - rid: 114364811341464238
-        next:
-        - rid: 114364811341464239
-        position: {x: 255, y: 0}
-        async: 0
-        time: 0.1
-    - rid: 114364811341464238
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464233
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464239
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464240
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464240
-      type: {class: DialogueEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 8892f348-3c0a-4e41-be15-1249bf5897c4
-        prev:
-        - rid: 114364811341464241
-        next:
-        - rid: 114364811341464242
-        position: {x: 422, y: 45}
-        async: 0
-        directives:
-        - 
-        - 
-        - 
-        keys:
-        - 
-        - 
-        - 
-        - 
-        - 
-    - rid: 114364811341464241
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464237
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464242
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464243
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464243
-      type: {class: BranchEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 3ac28596-c8cc-4a1f-b330-18db44c5f9f4
-        prev:
-        - rid: 114364811341464244
-        next:
-        - rid: 114364811341464245
-        - rid: 114364811341464246
-        - rid: 114364811341464247
-        position: {x: 683, y: 0}
-        async: 0
-        keys:
-        - 
-        - 
-        - 
-    - rid: 114364811341464244
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464240
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464245
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464248
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464246
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464249
-        iPort: 0
-        oPort: 1
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464247
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464250
-        iPort: 0
-        oPort: 2
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464248
-      type: {class: FadeOutEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 77a94149-8fdf-4523-8ceb-4d901cb9171b
-        prev:
-        - rid: 114364811341464251
-        next:
-        - rid: 114364811341464252
-        position: {x: 988, y: -71}
-        async: 0
-        duration: 0.2
-    - rid: 114364811341464249
-      type: {class: InstantiateObjectEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 0bc22ba0-a23f-4a7d-91ab-75eca436fa2a
-        prev:
-        - rid: 114364811341464253
-        next:
-        - rid: 114364811341464254
-        - rid: 114364811341464255
-        position: {x: 988, y: 137}
-        async: 0
-        prefab: {fileID: 2126016868}
-        anchor: {fileID: 0}
-        offset: {x: -3.6673675, y: 0, z: -3.1796212}
-    - rid: 114364811341464250
-      type: {class: FocusDistanceEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: fea40fe4-d219-477c-ac7f-a7eda9cb9f26
-        prev:
-        - rid: 114364811341464256
-        next:
-        - rid: 114364811341464257
-        position: {x: 988, y: 548}
-        async: 0
-        distance: 64
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 1
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 1
-            inSlope: 1
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        duration: 0
-    - rid: 114364811341464251
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464243
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464252
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464258
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464253
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464243
-        iPort: 0
-        oPort: 1
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464254
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464259
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464255
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464260
-        iPort: 1
-        oPort: 1
-        iPortType: 1
-        oPortType: 1
-    - rid: 114364811341464256
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464243
-        iPort: 0
-        oPort: 2
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464257
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464261
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464258
-      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 3b6fc20b-38d4-488b-9a19-3c1e4d984a74
-        prev:
-        - rid: 114364811341464262
-        next:
-        - rid: 114364811341464263
-        position: {x: 1122, y: -71}
-        async: 0
-        time: 2
-    - rid: 114364811341464259
-      type: {class: DelayEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: f9534ed5-f479-4671-8322-1caca490ac7d
-        prev:
-        - rid: 114364811341464264
-        next:
-        - rid: 114364811341464265
-        position: {x: 1237, y: 107}
-        async: 0
-        time: 0.1
-    - rid: 114364811341464260
-      type: {class: DestroyObjectEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 8ee34f02-06d4-4379-b4f7-d9eba29bac6f
-        prev:
-        - rid: 114364811341464266
-        - rid: 114364811341464267
-        - rid: 114364811341464268
-        next:
-        - rid: 114364811341464269
-        position: {x: 1399, y: 137}
-        async: 0
-    - rid: 114364811341464261
-      type: {class: ProjectionEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: fe85bfec-0ac1-4474-8dea-e8ff95bb9059
-        prev:
-        - rid: 114364811341464270
-        next:
-        - rid: 114364811341464271
-        position: {x: 1208, y: 548}
-        async: 0
-        value: 1
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 1
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 1
-            inSlope: 1
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        duration: 0
-    - rid: 114364811341464262
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464248
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464263
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464272
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464264
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464249
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464265
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464260
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464266
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464259
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464267
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464249
-        iPort: 1
-        oPort: 1
-        iPortType: 1
-        oPortType: 1
-    - rid: 114364811341464268
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464273
-        iPort: 1
-        oPort: 0
-        iPortType: 1
-        oPortType: 1
-    - rid: 114364811341464269
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464274
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464270
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464250
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464271
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464275
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464272
-      type: {class: FadeInEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 0b3e8ede-429e-493f-bb6e-9def74bd8dcc
-        prev:
-        - rid: 114364811341464276
-        next:
-        - rid: 114364811341464277
-        position: {x: 1256, y: -71}
-        async: 0
-        duration: 0.2
-    - rid: 114364811341464273
-      type: {class: ObjectEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 48a62506-09b9-46fd-99c7-77d5bfda4088
-        prev: []
-        next:
-        - rid: 114364811341464278
-        position: {x: 1074, y: 297}
-        async: 0
-        instance: {fileID: 0}
-    - rid: 114364811341464274
-      type: {class: GameStateEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: e2dec7b6-5474-48b0-b925-d34244a83c4c
-        prev:
-        - rid: 114364811341464279
-        - rid: 114364811341464280
-        next: []
-        position: {x: 1623, y: 25}
-        async: 0
-        state: 0
-    - rid: 114364811341464275
-      type: {class: FreezePositionEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 8e73cc2d-cd4d-40fb-94a5-825c97bc620a
-        prev:
-        - rid: 114364811341464281
-        next:
-        - rid: 114364811341464282
-        position: {x: 1428, y: 548}
-        async: 0
-        axis:
-          x: 0
-          y: 0
-          z: 0
-    - rid: 114364811341464276
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464258
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464277
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464274
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464278
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464260
-        iPort: 1
-        oPort: 0
-        iPortType: 1
-        oPortType: 1
-    - rid: 114364811341464279
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464260
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464280
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464272
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464281
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464261
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464282
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464283
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464283
-      type: {class: FreezeRotationEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: e5ff2276-59b5-46ce-839e-388e41017d33
-        prev:
-        - rid: 114364811341464284
-        next:
-        - rid: 114364811341464285
-        position: {x: 1562, y: 548}
-        async: 0
-        axis:
-          x: 1
-          y: 0
-          z: 1
-    - rid: 114364811341464284
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464275
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464285
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464286
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464286
-      type: {class: MoveCameraEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 284a5ec9-1e62-411a-8233-f895711cd01f
-        prev:
-        - rid: 114364811341464287
-        next:
-        - rid: 114364811341464288
-        position: {x: 988, y: 765}
-        async: 0
-        target: {fileID: 0}
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 1
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 1
-            inSlope: 1
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        duration: 1
-    - rid: 114364811341464287
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464283
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464288
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464289
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464289
-      type: {class: TrackCameraEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 55adc829-8506-4845-963a-24b341b26f2b
-        prev:
-        - rid: 114364811341464290
-        next:
-        - rid: 114364811341464291
-        position: {x: 1208, y: 765}
-        async: 0
-        anchor: {fileID: 0}
-        track:
-          point:
-          - {x: -12.784733, y: 0, z: -3.3377151}
-          - {x: -6.0411124, y: 0, z: -11.300101}
-          - {x: 3.2918613, y: 0, z: -16.58368}
-          - {x: 8.370454, y: 0, z: -24.195618}
-          - {x: -4.432722, y: 0, z: -27.283152}
-          - {x: -9.321751, y: 0, z: -32.26566}
-          - {x: -22.652504, y: 0, z: -28.657452}
-          - {x: -28.1716, y: 0, z: -18.513367}
-          - {x: -26.837597, y: 0, z: -9.193258}
-          - {x: -22.515718, y: 0, z: -6.244335}
-          curve: 01010101010101010101
-          distance:
-          - 0
-          - 10.444653
-          - 21.169613
-          - 30.578222
-          - 43.762722
-          - 50.77211
-          - 64.70014
-          - 76.41222
-          - 85.92346
-          - 91.22718
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        duration: 1
-    - rid: 114364811341464290
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464286
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464291
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464292
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464292
-      type: {class: ShakeCameraEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: 782673ec-103a-4c76-bfa5-a8c5c312f584
-        prev:
-        - rid: 114364811341464293
-        next:
-        - rid: 114364811341464294
-        position: {x: 1428, y: 765}
-        async: 0
-        strength: 0
-        duration: 0
-        axis:
-          x: 1
-          y: 1
-    - rid: 114364811341464293
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464289
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464294
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464295
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
-    - rid: 114364811341464295
-      type: {class: LookAtEvent, ns: , asm: Assembly-CSharp}
-      data:
-        guid: c4a48301-04ae-481e-8ad8-9a81d82bd340
-        prev:
-        - rid: 114364811341464296
-        next: []
-        position: {x: 1562, y: 765}
-        async: 0
-        target: {fileID: 0}
-        curve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 1
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 1
-            inSlope: 1
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        duration: 0
-    - rid: 114364811341464296
-      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
-      data:
-        data:
-          rid: 114364811341464292
-        iPort: 0
-        oPort: 0
-        iPortType: 0
-        oPortType: 0
 --- !u!4 &787911232 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4513346571681769964, guid: 2ad27716d60bbb4429ed708d060f2580, type: 3}
@@ -1502,6 +676,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67808b79288f22a4b91a33541050908a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1571895954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e495c735e99e6d047b3731eb9bcb96fe, type: 3}
+  m_Name: Local Event
+  m_EditorClassIdentifier: 
+  m_Entry:
+    rid: 114364832942653516
+  references:
+    version: 2
+    RefIds:
+    - rid: 114364832942653516
+      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 587a91c1-cbe9-45a0-817b-8718de9e20f2
+        prev: []
+        next:
+        - rid: 114364832942653517
+        position: {x: 0, y: 0}
+        async: 0
+    - rid: 114364832942653517
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364832942653518
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364832942653518
+      type: {class: DebugEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 79be9fba-02af-4eae-8266-1677a69b6adb
+        prev:
+        - rid: 114364832942653519
+        next: []
+        position: {x: 76, y: 0}
+        async: 0
+        log: Debug
+    - rid: 114364832942653519
+      type: {class: BaseEvent/Connection, ns: , asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 114364832942653520
+        iPort: 0
+        oPort: 0
+        iPortType: 0
+        oPortType: 0
+    - rid: 114364832942653520
+      type: {class: EntryEvent, ns: , asm: Assembly-CSharp}
+      data:
+        guid: 587a91c1-cbe9-45a0-817b-8718de9e20f2
+        prev: []
+        next:
+        - rid: 114364832942653517
+        position: {x: 0, y: 0}
+        async: 0
 --- !u!1 &1572561411
 GameObject:
   m_ObjectHideFlags: 0
@@ -1620,27 +857,16 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2126016870}
-  - component: {fileID: 2126016869}
+  - component: {fileID: 2126016873}
+  - component: {fileID: 2126016872}
+  - component: {fileID: 2126016871}
   m_Layer: 0
-  m_Name: Temp Event
+  m_Name: Local Event
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2126016869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2126016868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19c2c54e589f81a4f86cacaf96c5f249, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EventGraph: {fileID: 482439298}
 --- !u!4 &2126016870
 Transform:
   m_ObjectHideFlags: 0
@@ -1650,12 +876,182 @@ Transform:
   m_GameObject: {fileID: 2126016868}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2126016871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126016868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShapeType: 0
+  m_PrimitiveCenter:
+    x: 0
+    y: 0.5
+    z: 0
+  m_PrimitiveSize:
+    x: 1
+    y: 1
+    z: 1
+  m_PrimitiveOrientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_Capsule:
+    Height: 1
+    Radius: 0.5
+    Axis: 2
+  m_Cylinder:
+    Height: 1
+    Radius: 0.5
+    Axis: 2
+  m_CylinderSideCount: 20
+  m_SphereRadius: 0.5
+  m_MinimumSkinnedVertexWeight: 0.1
+  m_ConvexHullGenerationParameters:
+    m_SimplificationTolerance: 0.015
+    m_BevelRadius: 0
+    m_MinimumAngle: 2.5000002
+  m_CustomMesh: {fileID: 0}
+  m_ForceUnique: 0
+  m_Material:
+    m_SupportsTemplate: 1
+    m_Template: {fileID: 11400000, guid: 4716103ad0ad9b74790047909551a119, type: 2}
+    m_CollisionResponse:
+      m_Override: 0
+      m_Value: 3
+    m_Friction:
+      m_Override: 0
+      m_Value:
+        Value: 0.5
+        CombineMode: 0
+    m_Restitution:
+      m_Override: 0
+      m_Value:
+        Value: 0
+        CombineMode: 2
+    m_BelongsToCategories:
+      m_Override: 0
+      m_Value:
+        Category00: 1
+        Category01: 1
+        Category02: 1
+        Category03: 1
+        Category04: 1
+        Category05: 1
+        Category06: 1
+        Category07: 1
+        Category08: 1
+        Category09: 1
+        Category10: 1
+        Category11: 1
+        Category12: 1
+        Category13: 1
+        Category14: 1
+        Category15: 1
+        Category16: 1
+        Category17: 1
+        Category18: 1
+        Category19: 1
+        Category20: 1
+        Category21: 1
+        Category22: 1
+        Category23: 1
+        Category24: 1
+        Category25: 1
+        Category26: 1
+        Category27: 1
+        Category28: 1
+        Category29: 1
+        Category30: 1
+        Category31: 1
+    m_CollidesWithCategories:
+      m_Override: 0
+      m_Value:
+        Category00: 1
+        Category01: 1
+        Category02: 1
+        Category03: 1
+        Category04: 1
+        Category05: 1
+        Category06: 1
+        Category07: 1
+        Category08: 1
+        Category09: 1
+        Category10: 1
+        Category11: 1
+        Category12: 1
+        Category13: 1
+        Category14: 1
+        Category15: 1
+        Category16: 1
+        Category17: 1
+        Category18: 1
+        Category19: 1
+        Category20: 1
+        Category21: 1
+        Category22: 1
+        Category23: 1
+        Category24: 1
+        Category25: 1
+        Category26: 1
+        Category27: 1
+        Category28: 1
+        Category29: 1
+        Category30: 1
+        Category31: 1
+    m_CustomMaterialTags:
+      m_Override: 0
+      m_Value:
+        Tag00: 0
+        Tag01: 0
+        Tag02: 0
+        Tag03: 0
+        Tag04: 0
+        Tag05: 0
+        Tag06: 0
+        Tag07: 0
+    m_SerializedVersion: 1
+  m_SerializedVersion: 1
+--- !u!114 &2126016872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126016868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 991eb2267e096d443b00dc0406777a52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2126016873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126016868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4ccfe6add0827a4db1d7aee2f7209ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Event: {fileID: 1571895954}
+  m_Count: 255
+  m_Timer: -1
 --- !u!1001 &2153330443138603617
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -66,7 +66,7 @@ public struct EnvironmentManagerBridge : IComponentData {
 		get => m_TimeOfDay;
 		set {
 			m_TimeOfDay = value;
-			m_Flag |= 0x01u;
+			m_Flag |= 0x0001u;
 		}
 	}
 
@@ -98,7 +98,7 @@ public partial class EnvironmentManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<EnvironmentManagerBridge>();
 		var flag   = bridge.ValueRO.Flag;
 
-		if ((flag & 0x01u) != 0u) EnvironmentManager.TimeOfDay = bridge.ValueRO.TimeOfDay;
+		if ((flag & 0x0001u) != 0u) EnvironmentManager.TimeOfDay = bridge.ValueRO.TimeOfDay;
 
 		bridge.ValueRW.TimeOfDay = EnvironmentManager.TimeOfDay;
 

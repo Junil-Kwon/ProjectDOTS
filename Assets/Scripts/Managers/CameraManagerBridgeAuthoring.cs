@@ -71,14 +71,14 @@ public struct CameraManagerBridge : IComponentData {
 		get => m_Position;
 		set {
 			m_Position = value;
-			Flag |= 0x01u;
+			Flag |= 0x0001u;
 		}
 	}
 	public quaternion Rotation {
 		get => m_Rotation;
 		set {
 			m_Rotation = value;
-			Flag |= 0x02u;
+			Flag |= 0x0002u;
 		}
 	}
 	public float3 EulerRotation {
@@ -97,7 +97,7 @@ public struct CameraManagerBridge : IComponentData {
 		get => m_Constraints;
 		set {
 			m_Constraints = value;
-			Flag |= 0x04u;
+			Flag |= 0x0004u;
 		}
 	}
 	public bool3 FreezePosition => Constraints.position;
@@ -109,28 +109,28 @@ public struct CameraManagerBridge : IComponentData {
 		get => m_FocusDistance;
 		set  {
 			m_FocusDistance = value;
-			Flag |= 0x08u;
+			Flag |= 0x0008u;
 		}
 	}
 	public float FieldOfView {
 		get => m_FieldOfView;
 		set {
 			m_FieldOfView = value;
-			Flag |= 0x10u;
+			Flag |= 0x0010u;
 		}
 	}
 	public float OrthographicSize {
 		get => m_OrthographicSize;
 		set {
 			m_OrthographicSize = value;
-			Flag |= 0x20u;
+			Flag |= 0x0020u;
 		}
 	}
 	public float Projection {
 		get => m_Projection;
 		set {
 			m_Projection = value;
-			Flag |= 0x40u;
+			Flag |= 0x0040u;
 		}
 	}
 
@@ -162,13 +162,13 @@ public partial class CameraBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
 		var flag   = bridge.ValueRO.Flag;
 
-		if ((flag & 0x01u) != 0u) CameraManager.Position         = bridge.ValueRO.Position;
-		if ((flag & 0x02u) != 0u) CameraManager.Rotation         = bridge.ValueRO.Rotation;
-		if ((flag & 0x04u) != 0u) CameraManager.Constraints      = bridge.ValueRO.Constraints;
-		if ((flag & 0x08u) != 0u) CameraManager.FocusDistance    = bridge.ValueRO.FocusDistance;
-		if ((flag & 0x10u) != 0u) CameraManager.FieldOfView      = bridge.ValueRO.FieldOfView;
-		if ((flag & 0x20u) != 0u) CameraManager.OrthographicSize = bridge.ValueRO.OrthographicSize;
-		if ((flag & 0x40u) != 0u) CameraManager.Projection       = bridge.ValueRO.Projection;
+		if ((flag & 0x0001u) != 0u) CameraManager.Position         = bridge.ValueRO.Position;
+		if ((flag & 0x0002u) != 0u) CameraManager.Rotation         = bridge.ValueRO.Rotation;
+		if ((flag & 0x0004u) != 0u) CameraManager.Constraints      = bridge.ValueRO.Constraints;
+		if ((flag & 0x0008u) != 0u) CameraManager.FocusDistance    = bridge.ValueRO.FocusDistance;
+		if ((flag & 0x0010u) != 0u) CameraManager.FieldOfView      = bridge.ValueRO.FieldOfView;
+		if ((flag & 0x0020u) != 0u) CameraManager.OrthographicSize = bridge.ValueRO.OrthographicSize;
+		if ((flag & 0x0040u) != 0u) CameraManager.Projection       = bridge.ValueRO.Projection;
 
 		bridge.ValueRW.Position			= CameraManager.Position;
 		bridge.ValueRW.Rotation			= CameraManager.Rotation;

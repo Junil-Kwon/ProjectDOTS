@@ -115,31 +115,8 @@ public enum Flag : byte {
 	Interactable,
 }
 
-public struct FlagPinned       : IComponentData, IEnableableComponent { }
-public struct FlagFloating     : IComponentData, IEnableableComponent { }
-public struct FlagPiercing     : IComponentData, IEnableableComponent { }
-public struct FlagInvulnerable : IComponentData, IEnableableComponent { }
-public struct FlagInteractable : IComponentData, IEnableableComponent { }
-
 public static class FlagExtensions {
 	public const int Length = 5;
-
-	public static Flag ToEnum(this ComponentType type) => type switch {
-		_ when type == ComponentType.ReadWrite<FlagPinned      >() => Flag.Pinned,
-		_ when type == ComponentType.ReadWrite<FlagFloating    >() => Flag.Floating,
-		_ when type == ComponentType.ReadWrite<FlagPiercing    >() => Flag.Piercing,
-		_ when type == ComponentType.ReadWrite<FlagInvulnerable>() => Flag.Invulnerable,
-		_ when type == ComponentType.ReadWrite<FlagInteractable>() => Flag.Interactable,
-		_ => default,
-	};
-	public static ComponentType ToComponent(this Flag flag) => flag switch {
-		Flag.Pinned       => ComponentType.ReadWrite<FlagPinned      >(),
-		Flag.Floating     => ComponentType.ReadWrite<FlagFloating    >(),
-		Flag.Piercing     => ComponentType.ReadWrite<FlagPiercing    >(),
-		Flag.Invulnerable => ComponentType.ReadWrite<FlagInvulnerable>(),
-		Flag.Interactable => ComponentType.ReadWrite<FlagInteractable>(),
-		_ => default,
-	};
 }
 
 
@@ -149,22 +126,8 @@ public enum Team : byte {
 	Monsters,
 }
 
-public struct TeamPlayers  : IComponentData, IEnableableComponent { }
-public struct TeamMonsters : IComponentData, IEnableableComponent { }
-
 public static class TeamExtensions {
 	public const int Length = 2;
-
-	public static Team ToEnum(this ComponentType type) => type switch {
-		_ when type == ComponentType.ReadWrite<TeamPlayers >() => Team.Players,
-		_ when type == ComponentType.ReadWrite<TeamMonsters>() => Team.Monsters,
-		_ => default,
-	};
-	public static ComponentType ToComponent(this Team team) => team switch {
-		Team.Players  => ComponentType.ReadWrite<TeamPlayers >(),
-		Team.Monsters => ComponentType.ReadWrite<TeamMonsters>(),
-		_ => default,
-	};
 }
 
 
@@ -223,12 +186,12 @@ public static class ImmunityExtensions {
 // Physics
 
 public enum PhysicsCategory : byte {
-	Default,
 	Creature,
 }
+
 public struct PhysicsExtensions {
-	public const float DefaultMass =       1.0f;
-	public const float PinnedMass  = 1000000.0f;
+	public const float DefaultMass       = 1.0000000f;
+	public const float PinnedMass        = 1000000.0f;
 	public const float GravityMultiplier =  -9.81f;
 	public const float KnockMultiplier   = 256.00f;
 }
@@ -394,6 +357,7 @@ public class CreatureAuthoring : MonoBehaviour {
 		get => Enum.TryParse(BodyString, out Body body) ? body : 0;
 		set => m_BodyString = value.ToString();
 	}
+
 	public uint Flag {
 		get => m_Flag;
 		set {
@@ -492,22 +456,15 @@ public class CreatureAuthoring : MonoBehaviour {
 				Energy     = authoring.MaxEnergy,
 
 			});
-			int tagLength  = TagExtensions .Length;
-			int flagLength = FlagExtensions.Length;
-			int teamLength = TeamExtensions.Length;
-			for (int i = 0; i < tagLength;  i++) AddComponent(entity, ((Tag )i).ToComponent());
-			for (int i = 0; i < flagLength; i++) AddComponent(entity, ((Flag)i).ToComponent());
-			for (int i = 0; i < teamLength; i++) AddComponent(entity, ((Team)i).ToComponent());
 			AddBuffer<CreatureEffect>(entity);
-
-			bool hasTileDrawer   = authoring.TryGetComponent(out TileDrawerAuthoring   _);
-			bool hasSpriteDrawer = authoring.TryGetComponent(out SpriteDrawerAuthoring _);
-			bool hasShadowDrawer = authoring.TryGetComponent(out ShadowDrawerAuthoring _);
-			bool hasUIDrawer     = authoring.TryGetComponent(out UIDrawerAuthoring     _);
-			if (!hasTileDrawer  ) AddBuffer<TileDrawer  >(entity);
-			if (!hasSpriteDrawer) AddBuffer<SpriteDrawer>(entity);
-			if (!hasShadowDrawer) AddBuffer<ShadowDrawer>(entity);
-			if (!hasUIDrawer    ) AddBuffer<UIDrawer    >(entity);
+			bool hasTileDrawer   = authoring.TryGetComponent(out TileDrawerAuthoring   tileDrawer  );
+			bool hasSpriteDrawer = authoring.TryGetComponent(out SpriteDrawerAuthoring spriteDrawer);
+			bool hasShadowDrawer = authoring.TryGetComponent(out ShadowDrawerAuthoring shadowDrawer);
+			bool hasUIDrawer     = authoring.TryGetComponent(out UIDrawerAuthoring     uiDrawer    );
+			if (!hasTileDrawer   || !tileDrawer  .enabled) AddBuffer<TileDrawer  >(entity);
+			if (!hasSpriteDrawer || !spriteDrawer.enabled) AddBuffer<SpriteDrawer>(entity);
+			if (!hasShadowDrawer || !shadowDrawer.enabled) AddBuffer<ShadowDrawer>(entity);
+			if (!hasUIDrawer     || !uiDrawer    .enabled) AddBuffer<UIDrawer    >(entity);
 		}
 	}
 }
@@ -552,7 +509,7 @@ public struct CreatureInput : IInputComponentData {
 
 	// Properties
 
-	public uint Key {
+	[CreateProperty] public uint Key {
 		get => (data & KeyMask) >> KeyShift;
 		set => data = (data & ~KeyMask) | (value << KeyShift);
 	}
@@ -568,7 +525,7 @@ public struct CreatureInput : IInputComponentData {
 			data = (data & ~MoveFMask) | (moveFactor << MoveFShift);
 		}
 	}
-	public float3 MoveVector {
+	[CreateProperty] public float3 MoveVector {
 		get {
 			if (MoveFactor == 0f) return float3.zero;
 			else {
@@ -585,11 +542,11 @@ public struct CreatureInput : IInputComponentData {
 		}
 	}
 
-	public Ping Ping {
+	[CreateProperty] public Ping Ping {
 		get => (Ping)((data & PingMask) >> PingShift);
 		set => data = (data & ~PingMask) | ((uint)value << PingShift);
 	}
-	public Emotion Emotion {
+	[CreateProperty] public Emotion Emotion {
 		get => (Emotion)((data & EmotionMask) >> EmotionShift);
 		set => data = (data & ~EmotionMask) | ((uint)value << EmotionShift);
 	}
@@ -996,7 +953,7 @@ public struct CreatureCore : IComponentData {
 // Creature Effect
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[InternalBufferCapacity(4)]
+[InternalBufferCapacity(5)]
 public struct CreatureEffect : IBufferElementData {
 
 	// Constants
@@ -1054,15 +1011,6 @@ public struct CreatureEffect : IBufferElementData {
 		get => Tick * NetworkManager.Ticktime;
 		set => Tick = (int)math.round(value * NetworkManager.Tickrate);
 	}
-
-
-
-	// Constructor
-
-	public CreatureEffect(Effect effect) {
-		data = 0u;
-		Effect = effect;
-	}
 }
 
 
@@ -1083,7 +1031,8 @@ public static class DynamicBufferExtensions {
 		var multiplier = math.max(0f, 1f - core.GetImmunity(effect).ToValue());
 		if (multiplier == 0f) return;
 
-		var element = new CreatureEffect(effect);
+		var element = new CreatureEffect();
+		element.Effect   = effect;
 		element.Strength = strength * multiplier;
 		element.Duration = duration * (element.IsValueType ? 1f : multiplier);
 
@@ -1126,11 +1075,11 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var propertyCheckJob = new CreaturePropertyCheckJob();
-		state.Dependency = propertyCheckJob.ScheduleParallel(state.Dependency);
+		var fieldsComparisonJob = new CreatureFieldsComparisonJob();
+		state.Dependency = fieldsComparisonJob.ScheduleParallel(state.Dependency);
 
 		var buffer = new EntityCommandBuffer(Allocator.TempJob);
-		var initializationJob = new CreatureInitializationJob {
+		var componentsModificationJob = new CreatureComponentsModificationJob {
 			entityManager = state.EntityManager,
 			buffer        = buffer.AsParallelWriter(),
 			prefabArray   = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
@@ -1142,26 +1091,28 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 			shadowArray   = SystemAPI.GetBufferLookup<ShadowDrawer>(true),
 			uiArray       = SystemAPI.GetBufferLookup<UIDrawer    >(true),
 		};
-		state.Dependency = initializationJob.ScheduleParallel(state.Dependency);
+		state.Dependency = componentsModificationJob.ScheduleParallel(state.Dependency);
 		state.Dependency.Complete();
 		buffer.Playback(state.EntityManager);
 		buffer.Dispose();
 
-		var beginSimulationJob = new BeginCreatureSimulationJob();
-		state.Dependency = beginSimulationJob.ScheduleParallel(state.Dependency);
-
 		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
-		var triggerEventJob = new TriggerEventJob {
-			core = SystemAPI.GetComponentLookup<CreatureCore>(),
+		var gravityRemovalJob = new CreatureGravityRemovalJob {
+			core        = SystemAPI.GetComponentLookup<CreatureCore>(),
+			unsteppable = SystemAPI.GetComponentLookup<Unsteppable>(true),
 		};
-		state.Dependency = triggerEventJob.Schedule(simulationSingleton, state.Dependency);
+		state.Dependency = gravityRemovalJob.Schedule(simulationSingleton, state.Dependency);
+
+		var beginSimulationJob = new CreatureBeginSimulationJob();
+		state.Dependency = beginSimulationJob.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(CreatureInitialize))]
 	[WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
-	partial struct CreaturePropertyCheckJob : IJobEntity {
+	partial struct CreatureFieldsComparisonJob : IJobEntity {
+
 		public void Execute(
-			in Simulate _,
+			in Simulate simulate,
 			in CreatureCore core,
 			EnabledRefRW<CreatureInitialize> initialize) {
 
@@ -1173,7 +1124,7 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
-	partial struct CreatureInitializationJob : IJobEntity {
+	partial struct CreatureComponentsModificationJob : IJobEntity {
 		[NativeDisableContainerSafetyRestriction] public EntityManager entityManager;
 		[NativeDisableContainerSafetyRestriction] public EntityCommandBuffer.ParallelWriter buffer;
 		[NativeDisableContainerSafetyRestriction] public DynamicBuffer  <PrefabContainer> prefabArray;
@@ -1184,6 +1135,7 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 		[NativeDisableContainerSafetyRestriction] public BufferLookup<SpriteDrawer> spriteArray;
 		[NativeDisableContainerSafetyRestriction] public BufferLookup<ShadowDrawer> shadowArray;
 		[NativeDisableContainerSafetyRestriction] public BufferLookup<UIDrawer    > uiArray;
+
 		public void Execute(
 			Entity entity,
 			[ChunkIndexInQuery] int sortKey,
@@ -1219,19 +1171,18 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 				core.TempBody = core.Body;
 
 				var prefab = prefabArray[(int)core.Body].Prefab;
-				core.Radius      = coreArray[prefab].Radius;
-				core.Height      = coreArray[prefab].Height;
-				core.MaxShield   = coreArray[prefab].MaxShield;
-				core.MaxHealth   = coreArray[prefab].MaxHealth;
-				core.MaxEnergy   = coreArray[prefab].MaxEnergy;
-				core.Tag         = coreArray[prefab].Tag;
-				core.Immunity    = coreArray[prefab].Immunity;
+				core.Radius    = coreArray[prefab].Radius;
+				core.Height    = coreArray[prefab].Height;
+				core.MaxShield = coreArray[prefab].MaxShield;
+				core.MaxHealth = coreArray[prefab].MaxHealth;
+				core.MaxEnergy = coreArray[prefab].MaxEnergy;
+				core.Tag       = coreArray[prefab].Tag;
+				core.Immunity  = coreArray[prefab].Immunity;
 				for (int i = 0; i < TagExtensions.Length; i++) {
 					var tag = (Tag)i;
 					var y = core.HasTag(tag);
 					buffer.SetComponentEnabled(sortKey, entity, tag.ToComponent(), y);
 				}
-
 				core.MotionX     = coreArray[prefab].MotionX;
 				core.MotionY     = coreArray[prefab].MotionY;
 				core.MotionXTick = coreArray[prefab].MotionXTick;
@@ -1255,7 +1206,6 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 					var x = core.HasTempFlag(flag);
 					var y = core.    HasFlag(flag);
 					if (x == y) continue;
-					buffer.SetComponentEnabled(sortKey, entity, flag.ToComponent(), y);
 					core.SetTempFlag(flag, y);
 
 					var prefab = prefabArray[(int)core.Body].Prefab;
@@ -1283,35 +1233,35 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 					var x = core.HasTempTeam(team);
 					var y = core.    HasTeam(team);
 					if (x == y) continue;
-					buffer.SetComponentEnabled(sortKey, entity, team.ToComponent(), y);
 					core.SetTempTeam(team, y);
 				}
 			}
 		}
 	}
 
-	[BurstCompile, WithAll(typeof(Simulate))]
-	partial struct BeginCreatureSimulationJob : IJobEntity {
-		public void Execute(in CreatureCore core, ref PhysicsVelocity velocity) {
-			velocity.Linear = float3.zero;
+	[BurstCompile]
+	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
+		public ComponentLookup<CreatureCore> core;
+		[ReadOnly] public ComponentLookup<Unsteppable> unsteppable;
+
+		public void Execute(TriggerEvent triggerEvent) {
+			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
+			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
+		}
+
+		public void Execute(Entity entity, Entity target) {
+			if (core.HasComponent(entity) && !unsteppable.HasComponent(target)) {
+				var temp = core[entity];
+				temp.GravityFactor = 0;
+				core[entity] = temp;
+			}
 		}
 	}
 
-	[BurstCompile]
-	partial struct TriggerEventJob : ITriggerEventsJob {
-		public ComponentLookup<CreatureCore> core;
-
-		public void Execute(TriggerEvent triggerEvent) {
-			if (core.HasComponent(triggerEvent.EntityA)) {
-				var temp = core[triggerEvent.EntityA];
-				temp.GravityFactor = 0;
-				core[triggerEvent.EntityA] = temp;
-			}
-			if (core.HasComponent(triggerEvent.EntityB)) {
-				var temp = core[triggerEvent.EntityB];
-				temp.GravityFactor = 0;
-				core[triggerEvent.EntityB] = temp;
-			}
+	[BurstCompile, WithAll(typeof(Simulate))]
+	partial struct CreatureBeginSimulationJob : IJobEntity {
+		public void Execute(in CreatureCore core, ref PhysicsVelocity velocity) {
+			velocity.Linear = float3.zero;
 		}
 	}
 }

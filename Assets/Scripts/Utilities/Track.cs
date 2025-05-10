@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 
@@ -9,7 +10,7 @@ using System.Collections.Generic;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [Serializable]
-public class Track {
+public class Track : IEnumerable<(Vector3 point, bool curve)> {
 
 	// Fields
 
@@ -60,6 +61,12 @@ public class Track {
 		isDirty = true;
 	}
 
+	public void Insert(int index, (Vector3, bool) value) {
+		point.Insert(index, value.Item1);
+		curve.Insert(index, value.Item2);
+		isDirty = true;
+	}
+
 	public void RemoveAt(int index) {
 		point   .RemoveAt(index);
 		curve   .RemoveAt(index);
@@ -82,6 +89,12 @@ public class Track {
 		curve   .AddRange(track.curve   );
 		distance.AddRange(track.distance);
 		isDirty = false;
+	}
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	public IEnumerator<(Vector3 point, bool curve)> GetEnumerator() {
+		for (int i = 0; i < point.Count; i++) yield return (point[i], curve[i]);
 	}
 
 

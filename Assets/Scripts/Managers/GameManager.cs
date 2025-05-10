@@ -66,6 +66,7 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	[SerializeField] GameState m_GameState;
 	List<BaseEvent> m_ActiveEvents = new();
+	List<float    > m_EventElapsed = new();
 
 
 
@@ -84,17 +85,11 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	public static GameState GameState {
 		get => Instance.m_GameState;
-		set {
-			Instance.m_GameState = value;
-			if (Application.isPlaying) InputManager.SwitchActionMap(value switch {
-				GameState.Gameplay => ActionMap.Player,
-				GameState.Paused   => ActionMap.UI,
-				_ => ActionMap.None,
-			});
-		}
+		set => Instance.m_GameState = value;
 	}
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
+	static List<float    > EventElapsed => Instance.m_EventElapsed;
 
 
 
@@ -103,11 +98,38 @@ public class GameManager : MonoSingleton<GameManager> {
 	public static void PlayEvent(EventGraphSO graph) {
 		if (0 < ActiveEvents.Count) return;
 		ActiveEvents.Add(graph.Entry);
+		EventElapsed.Add(-1f);
 	}
 
 	static void SimulateEvents() {
-		if (ActiveEvents.Count == 0) return;
-		//Simulate
+		int i = 0;
+		while (i < ActiveEvents.Count) {
+			while (true) {
+				if (ActiveEvents[i] == null) {
+					ActiveEvents.RemoveAt(i);
+					EventElapsed.RemoveAt(i);
+					break;
+				}
+				if (EventElapsed[i] < 0f) {
+					EventElapsed[i] = 0f;
+					ActiveEvents[i].Start();
+					if (ActiveEvents[i].async) {
+						ActiveEvents.Add(ActiveEvents[i]);
+						EventElapsed.Add(EventElapsed[i]);
+					}
+				}
+				if (ActiveEvents[i].Update() == false && EventElapsed[i] < 20f) {
+					EventElapsed[i] += Time.deltaTime;
+					i++;
+					break;
+				}
+				else {
+					ActiveEvents[i].End();
+					ActiveEvents[i] = ActiveEvents[i].GetNext();
+					EventElapsed[i] = -1f;
+				}
+			}
+		}
 	}
 
 
@@ -116,7 +138,6 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	void Start() {
 		if (0 < TargetFrameRate) Application.targetFrameRate = TargetFrameRate;
-		GameState = GameState;
 	}
 
 	void Update() {

@@ -13,7 +13,6 @@ using System.Collections.Generic;
 // Input Actions
 
 public enum ActionMap : byte {
-	None,
 	Player,
 	UI,
 }

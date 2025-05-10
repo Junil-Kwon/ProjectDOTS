@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f877434772c463192af154345455c9, type: 3}
-  m_Name: CreatureHitbox
+  m_Name: CreatureCollider
   m_EditorClassIdentifier: 
   m_Value:
     m_SupportsTemplate: 0
@@ -31,8 +31,8 @@ MonoBehaviour:
     m_BelongsToCategories:
       m_Override: 0
       m_Value:
-        Category00: 0
-        Category01: 1
+        Category00: 1
+        Category01: 0
         Category02: 0
         Category03: 0
         Category04: 0

@@ -65,7 +65,7 @@ public struct GameManagerBridge : IComponentData {
 		get => m_GameState;
 		set {
 			m_GameState = value;
-			Flag |= 0x01u;
+			Flag |= 0x0001u;
 		}
 	}
 
@@ -74,6 +74,17 @@ public struct GameManagerBridge : IComponentData {
 	public uint Flag {
 		get => m_Flag;
 		set => m_Flag = value;
+	}
+
+
+
+	// Methods
+
+	public UnityObjectRef<EventGraphSO> PlayEvent_graph;
+
+	public void PlayEvent(UnityObjectRef<EventGraphSO> graph) {
+		PlayEvent_graph = graph;
+		Flag |= 0x0100u;
 	}
 }
 
@@ -97,9 +108,14 @@ public partial class GameManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
 		var flag   = bridge.ValueRO.Flag;
 
-		if ((flag & 0x01u) != 0u) GameManager.GameState = bridge.ValueRO.GameState;
+		if ((flag & 0x0001u) != 0u) GameManager.GameState = bridge.ValueRO.GameState;
 
 		bridge.ValueRW.GameState = GameManager.GameState;
+
+		if ((flag & 0x0100u) != 0u) {
+			var graph = bridge.ValueRO.PlayEvent_graph.Value;
+			GameManager.PlayEvent(graph);
+		}
 
 		if (flag != 0u) bridge.ValueRW.Flag = 0u;
 	}
