@@ -8,20 +8,20 @@ using UnityEngine;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Unsteppable Authoring
+// Interactable Authoring
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("Component/Unsteppable")]
-public class UnsteppableAuthoring : MonoBehaviour {
+[AddComponentMenu("Component/Interactable")]
+public class InteractableAuthoring : MonoBehaviour {
 
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(UnsteppableAuthoring))]
-		class UnsteppableAuthoringEditor : EditorExtensions {
-			UnsteppableAuthoring I => target as UnsteppableAuthoring;
+		[CustomEditor(typeof(InteractableAuthoring))]
+		class InteractableAuthoringEditor : EditorExtensions {
+			InteractableAuthoring I => target as InteractableAuthoring;
 			public override void OnInspectorGUI() {
-				Begin("Unsteppable Authoring");
+				Begin("Interactable Authoring");
 
 				End();
 			}
@@ -32,10 +32,10 @@ public class UnsteppableAuthoring : MonoBehaviour {
 
 	// Baker
 
-	public class Baker : Baker<UnsteppableAuthoring> {
-		public override void Bake(UnsteppableAuthoring authoring) {
+	public class Baker : Baker<InteractableAuthoring> {
+		public override void Bake(InteractableAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new Unsteppable());
+			AddComponent(entity, new Interactable());
 		}
 	}
 }
@@ -43,7 +43,7 @@ public class UnsteppableAuthoring : MonoBehaviour {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Unsteppable
+// Interactable
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public struct Unsteppable : IComponentData, IEnableableComponent { }
+public struct Interactable : IComponentData, IEnableableComponent { }

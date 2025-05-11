@@ -193,15 +193,21 @@ public class EventGraphSO : ScriptableObject {
 				}
 				evt.menu.AppendSeparator();
 			}
+			// Cut
+			// Copy
+			// Paste
+			// -
+			// Delete
+			// -
+			// Duplicate
 			base.BuildContextualMenu(evt);
 		}
 
 		BaseEvent.BaseEventNode CreateNode(Type type, Vector2 position) {
-			if (type == null || type.IsInterface || type.IsAbstract) return null;
-			if (typeof(BaseEvent).IsAssignableFrom(type)  ==  false) return null;
-			var name = type.ToString().Split(" ")[0];
-			var full = name + "+" + name + "Node";
-			var node = Activator.CreateInstance(Type.GetType(full)) as BaseEvent.BaseEventNode;
+			if (type == null || !typeof(BaseEvent).IsAssignableFrom(type)) return null;
+			var nodeType = Type.GetType(type.Name + "+" + type.Name + "Node");
+			if (nodeType == null) return null;
+			var node = Activator.CreateInstance(nodeType) as BaseEvent.BaseEventNode;
 			node.SetPosition(new Rect(position, BaseEvent.BaseEventNode.DefaultSize));
 			AddElement(node);
 			return node;
@@ -221,8 +227,10 @@ public class EventGraphSO : ScriptableObject {
 		// IO Methods
 
 		public void Save() {
-			if (graph == null) return;
-
+			if (graph == null) {
+				Debug.LogError("Instance is null");
+				return;
+			}
 			foreach (var node in nodes.OfType<BaseEvent.BaseEventNode>()) {
 				var data = node.target;
 				data.prev.Clear();
@@ -269,8 +277,11 @@ public class EventGraphSO : ScriptableObject {
 		}
 
 		public void Load() {
+			if (graph == null) {
+				Debug.LogError("Instance is null");
+				return;
+			}
 			DeleteElements(graphElements);
-			if (graph == null) return;
 			var stack = new Stack<BaseEvent>();
 			var cache = new Dictionary<string, BaseEvent.BaseEventNode>();
 

@@ -57,6 +57,9 @@ public abstract class BaseEvent {
 	#if UNITY_EDITOR
 		public abstract class BaseEventNode : Node {
 			const Orientation Horizontal = Orientation.Horizontal;
+			const Port.Capacity Single = Port.Capacity.Single;
+			const Port.Capacity Multi  = Port.Capacity.Multi;
+
 			public static readonly Vector2 DefaultSize = new(128f, 96f);
 			public static List<string> Dropdown {
 				get {
@@ -93,44 +96,25 @@ public abstract class BaseEvent {
 				RefreshPorts();
 			}
 
-			protected Port CreatePort(Direction direction) {
-				var port = default(Port);
-				switch (direction) {
-					case Direction.Input:
-						port = InstantiatePort(Horizontal, direction, Port.Capacity.Multi, null);
+			protected Port CreatePort(Direction direction, PortType type = PortType.Default) {
+				var input = direction == Direction.Input;
+				var port  = default(Port);
+				switch (type) {
+					case PortType.Default:
+						port = InstantiatePort(Horizontal, direction, input ? Multi : Single, null);
 						port.portColor = new Color(1.0f, 1.0f, 1.0f);
-						port.portName = "Prev";
-						port.userData = PortType.Default;
-						inputContainer.Add(port);
+						port.portName = input ? "Prev" : "Next";
 						break;
-					case Direction.Output:
-						port = InstantiatePort(Horizontal, direction, Port.Capacity.Single, null);
-						port.portColor = new Color(1.0f, 1.0f, 1.0f);
-						port.portName = "Next";
-						port.userData = PortType.Default;
-						outputContainer.Add(port);
+					case PortType.Object:
+						port = InstantiatePort(Horizontal, direction, Multi, null);
+						port.portColor = new Color(0.0f, 0.8f, 1.0f);
+						port.portName = input ? "In" : "Out";
 						break;
 				}
-				return port;
-			}
-
-			protected Port CreateObjectPort(Direction direction) {
-				var port = default(Port);
-				switch (direction) {
-					case Direction.Input:
-						port = InstantiatePort(Horizontal, direction, Port.Capacity.Multi, null);
-						port.portColor = new Color(0.0f, 0.8f, 1.0f);
-						port.portName = "In";
-						port.userData = PortType.Object;
-						inputContainer.Add(port);
-						break;
-					case Direction.Output:
-						port = InstantiatePort(Horizontal, direction, Port.Capacity.Multi, null);
-						port.portColor = new Color(0.0f, 0.8f, 1.0f);
-						port.portName = "Out";
-						port.userData = PortType.Object;
-						outputContainer.Add(port);
-						break;
+				if (port != null) {
+					port.userData = type;
+					if (input) inputContainer .Add(port);
+					else       outputContainer.Add(port);
 				}
 				return port;
 			}
@@ -196,7 +180,12 @@ public abstract class BaseEvent {
 	public virtual bool Update() => true;
 	public virtual void End   () { }
 
-	public virtual BaseEvent  GetNext  () => (0 < next.Count) ? next[0].data : null;
+	public virtual BaseEvent GetNext() {
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == 0) return next.data;
+		}
+		return null;
+	}
 	public virtual GameObject GetObject() => null;
 
 	#if UNITY_EDITOR
@@ -237,6 +226,55 @@ public class EntryEvent : BaseEvent {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Debug | Log
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Debug/Log")]
+public class LogEvent : BaseEvent {
+
+	// Node
+
+	#if UNITY_EDITOR
+		public class LogEventNode : BaseEventNode {
+			LogEvent I => target as LogEvent;
+
+			public LogEventNode() : base() {
+				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+			}
+
+			public override void ConstructData() {
+				var text = new TextField() { value = I.text, multiline = true };
+				text.RegisterValueChangedCallback(evt => I.text = evt.newValue);
+				mainContainer.Add(text);
+			}
+		}
+	#endif
+
+
+
+	// Fields
+
+	public string text = "Debug";
+
+
+
+	// Methods
+
+	public override void CopyFrom(BaseEvent data) {
+		base.CopyFrom(data);
+		if (data is LogEvent delay) {
+			text = delay.text;
+		}
+	}
+
+	#if UNITY_EDITOR
+		public override void End() => Debug.Log(text);
+	#endif
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Delay
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -267,7 +305,7 @@ public class DelayEvent : BaseEvent {
 
 	public float time = 0.1f;
 
-	float timer;
+	float timer = 0f;
 
 
 
@@ -324,9 +362,12 @@ public class OnceThenEvent : BaseEvent {
 	// Methods
 
 	public override BaseEvent GetNext() {
-		var data = next[!value ? 0 : 1]?.data;
+		var index = !value ? 0 : 1;
 		value = true;
-		return data;
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) return next.data;
+		}
+		return null;
 	}
 }
 
@@ -371,7 +412,7 @@ public class RepeatEvent : BaseEvent {
 
 	public int count = 1;
 
-	int value;
+	int value = 0;
 
 
 
@@ -384,7 +425,17 @@ public class RepeatEvent : BaseEvent {
 		}
 	}
 
-	public override BaseEvent GetNext() => next[0 < value-- ? 0 : 1]?.data;
+	public override void Start () {
+		if (count < value) value = 0;
+	}
+
+	public override BaseEvent GetNext() {
+		var index = value++ < count ? 0 : 1;
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) return next.data;
+		}
+		return null;
+	}
 }
 
 
@@ -451,11 +502,12 @@ public class RandomEvent : BaseEvent {
 			}
 
 			void UpdateProbability() {
-				var total = 0f;
-				foreach (var weight in I.weights) total += weight;
+				var sum = 0f;
+				foreach (var weight in I.weights) sum += weight;
+				if (sum == 0f) sum = 1f;
 				var ports = outputContainer.Children().OfType<Port>().ToList();
 				for (int i = 0; i < ports.Count; i++) {
-					ports[i].portName = $"{(100f * I.weights[i] / total).ToString("F1")}%";
+					ports[i].portName = $"{(100f * I.weights[i] / sum).ToString("F1")}%";
 				}
 			}
 		}
@@ -479,64 +531,16 @@ public class RandomEvent : BaseEvent {
 	}
 
 	public override BaseEvent GetNext() {
-		var total = 0f;
-		foreach (var weight in weights) total += weight;
-		var random = Random.Range(0f, total);
-		for (int i = 0; i < weights.Count; i++) {
-			if (random <= weights[i]) return next[i]?.data;
-			random -= weights[i];
+		var sum = 0f;
+		foreach (var weight in weights) sum += weight;
+		var random = Random.Range(0f, sum);
+		var index = weights.FindIndex(weight => (random -= weight) <= 0f);
+		if (index == -1) index = weights.Count - 1;
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) return next.data;
 		}
 		return null;
 	}
-}
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Debug
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-[NodeMenu("Logic/Debug")]
-public class DebugEvent : BaseEvent {
-
-	// Node
-
-	#if UNITY_EDITOR
-		public class DebugEventNode : BaseEventNode {
-			DebugEvent I => target as DebugEvent;
-
-			public DebugEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
-			}
-
-			public override void ConstructData() {
-				var log = new TextField() { value = I.log, multiline = true };
-				log.RegisterValueChangedCallback(evt => I.log = evt.newValue);
-				mainContainer.Add(log);
-			}
-		}
-	#endif
-
-
-
-	// Fields
-
-	public string log = "";
-
-
-
-	// Methods
-
-	public override void CopyFrom(BaseEvent data) {
-		base.CopyFrom(data);
-		if (data is DebugEvent delay) {
-			log = delay.log;
-		}
-	}
-
-	#if UNITY_EDITOR
-		public override void End() => Debug.Log(log);
-	#endif
 }
 
 
@@ -567,7 +571,7 @@ public class ObjectEvent : BaseEvent {
 			}
 
 			public override void ConstructPort() {
-				CreateObjectPort(Direction.Output);
+				CreatePort(Direction.Output, PortType.Object);
 				RefreshExpandedState();
 				RefreshPorts();
 			}
@@ -635,7 +639,7 @@ public class InstantiateObjectEvent : BaseEvent {
 			public override void ConstructPort() {
 				CreatePort(Direction.Input );
 				CreatePort(Direction.Output);
-				CreateObjectPort(Direction.Output);
+				CreatePort(Direction.Output, PortType.Object);
 				RefreshExpandedState();
 				RefreshPorts();
 			}
@@ -684,9 +688,9 @@ public class InstantiateObjectEvent : BaseEvent {
 	#if UNITY_EDITOR
 		public override void DrawGizmos() {
 			if (!prefab) return;
-			const float Sample = 4.0f;
+			const float Sample = 8.0f;
 			const float Radius = 0.5f;
-			const float Height = 0.2f;
+			const float Height = 0.1f;
 			float sin(float f) => Mathf.Sin(f) * Radius;
 			float cos(float f) => Mathf.Cos(f) * Radius;
 			var segments = Mathf.Max(3, Mathf.RoundToInt(Sample * 2f * Mathf.PI * Radius));
@@ -735,7 +739,7 @@ public class DestroyObjectEvent : BaseEvent {
 			public override void ConstructPort() {
 				CreatePort(Direction.Input );
 				CreatePort(Direction.Output);
-				CreateObjectPort(Direction.Input);
+				CreatePort(Direction.Input, PortType.Object);
 				RefreshExpandedState();
 				RefreshPorts();
 			}

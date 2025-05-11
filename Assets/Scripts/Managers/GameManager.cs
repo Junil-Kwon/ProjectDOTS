@@ -96,7 +96,6 @@ public class GameManager : MonoSingleton<GameManager> {
 	// Methods
 
 	public static void PlayEvent(EventGraphSO graph) {
-		if (0 < ActiveEvents.Count) return;
 		ActiveEvents.Add(graph.Entry);
 		EventElapsed.Add(-1f);
 	}

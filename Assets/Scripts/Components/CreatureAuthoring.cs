@@ -51,31 +51,10 @@ public enum Tag : byte {
 	Boss,
 }
 
-public struct TagUndead : IComponentData, IEnableableComponent { }
-public struct TagBoss   : IComponentData, IEnableableComponent { }
-
-public static class TagExtensions {
-	public const int Length = 2;
-
-	public static Tag ToEnum(this ComponentType type) => type switch {
-		_ when type == ComponentType.ReadWrite<TagUndead>() => Tag.Undead,
-		_ when type == ComponentType.ReadWrite<TagBoss  >() => Tag.Boss,
-		_ => default,
-	};
-	public static ComponentType ToComponent(this Tag tag) => tag switch {
-		Tag.Undead => ComponentType.ReadWrite<TagUndead>(),
-		Tag.Boss   => ComponentType.ReadWrite<TagBoss  >(),
-		_ => default,
-	};
-}
-
-
-
 public enum Head : uint {
 	None,
 	Player,
 }
-
 public static class HeadExtensions {
 	public static Head ToEnum(this ComponentType type) => type switch {
 		_ when type == ComponentType.ReadWrite<PlayerHead>() => Head.Player,
@@ -87,13 +66,10 @@ public static class HeadExtensions {
 	};
 }
 
-
-
 public enum Body : uint {
 	None,
 	Player,
 }
-
 public static class BodyExtensions {
 	public static Body ToEnum(this ComponentType type) => type switch {
 		_ when type == ComponentType.ReadWrite<PlayerBody>() => Body.Player,
@@ -105,8 +81,6 @@ public static class BodyExtensions {
 	};
 }
 
-
-
 public enum Flag : byte {
 	Pinned,
 	Floating,
@@ -115,22 +89,10 @@ public enum Flag : byte {
 	Interactable,
 }
 
-public static class FlagExtensions {
-	public const int Length = 5;
-}
-
-
-
 public enum Team : byte {
 	Players,
 	Monsters,
 }
-
-public static class TeamExtensions {
-	public const int Length = 2;
-}
-
-
 
 public static class ColorExtensions {
 	public const byte Clear = 0;
@@ -170,7 +132,6 @@ public enum Immunity : byte {
 	Half,
 	Full,
 }
-
 public static class ImmunityExtensions {
 	public static float ToValue(this Immunity immunity) => immunity switch {
 		Immunity.Weak => -1.00f,
@@ -188,7 +149,6 @@ public static class ImmunityExtensions {
 public enum PhysicsCategory : byte {
 	Creature,
 }
-
 public struct PhysicsExtensions {
 	public const float DefaultMass       = 1.0000000f;
 	public const float PinnedMass        = 1000000.0f;
@@ -361,7 +321,7 @@ public class CreatureAuthoring : MonoBehaviour {
 	public uint Flag {
 		get => m_Flag;
 		set {
-			for (int i = 0; i < FlagExtensions.Length; i++) {
+			for (int i = 0; i < 8; i++) {
 				var a = (m_Flag & (1u << i)) != 0u;
 				var b = (value  & (1u << i)) != 0u;
 				if (a == b) continue;
@@ -465,6 +425,8 @@ public class CreatureAuthoring : MonoBehaviour {
 			if (!hasSpriteDrawer || !spriteDrawer.enabled) AddBuffer<SpriteDrawer>(entity);
 			if (!hasShadowDrawer || !shadowDrawer.enabled) AddBuffer<ShadowDrawer>(entity);
 			if (!hasUIDrawer     || !uiDrawer    .enabled) AddBuffer<UIDrawer    >(entity);
+			bool hasInteractable = authoring.TryGetComponent(out InteractableAuthoring interactable);
+			if (!hasInteractable || !interactable.enabled) AddComponent(entity, new Interactable());
 		}
 	}
 }
@@ -887,14 +849,14 @@ public struct CreatureCore : IComponentData {
 	public int MotionXTick {
 		get => (int)((data8 & MotionXTickMask) >> TickXShift);
 		set {
-			uint motionXTick = (uint)math.max(0, value % 2047);
+			uint motionXTick = (uint)math.max(0, value % 2048);
 			data8 = (data8 & ~MotionXTickMask) | (motionXTick << TickXShift);
 		}
 	}
 	public int MotionYTick {
 		get => (int)((data8 & MotionYTickMask) >> TickYShift);
 		set {
-			uint motionYTick = (uint)math.max(0, value % 2047);
+			uint motionYTick = (uint)math.max(0, value % 2048);
 			data8 = (data8 & ~MotionYTickMask) | (motionYTick << TickYShift);
 		}
 	}
@@ -1059,26 +1021,29 @@ public static class DynamicBufferExtensions {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Creature Simulation System
+// Creature Initialization System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderFirst = true)]
-[UpdateAfter(typeof(PredictedFixedStepSimulationSystemGroup))]
-partial struct BeginCreatureSimulationSystem : ISystem {
+[UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
+[UpdateBefore(typeof(EndInitializationEntityCommandBufferSystem))]
+partial struct CreatureInitializationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<EndInitializationEntityCommandBufferSystem.Singleton>();
 		state.RequireForUpdate<PrefabContainer>();
 		state.RequireForUpdate<SimulationSingleton>();
 	}
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
+		var singleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
+		var buffer    = singleton.CreateCommandBuffer(state.WorldUnmanaged);
+
 		var fieldsComparisonJob = new CreatureFieldsComparisonJob();
 		state.Dependency = fieldsComparisonJob.ScheduleParallel(state.Dependency);
 
-		var buffer = new EntityCommandBuffer(Allocator.TempJob);
 		var componentsModificationJob = new CreatureComponentsModificationJob {
 			entityManager = state.EntityManager,
 			buffer        = buffer.AsParallelWriter(),
@@ -1092,19 +1057,6 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 			uiArray       = SystemAPI.GetBufferLookup<UIDrawer    >(true),
 		};
 		state.Dependency = componentsModificationJob.ScheduleParallel(state.Dependency);
-		state.Dependency.Complete();
-		buffer.Playback(state.EntityManager);
-		buffer.Dispose();
-
-		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
-		var gravityRemovalJob = new CreatureGravityRemovalJob {
-			core        = SystemAPI.GetComponentLookup<CreatureCore>(),
-			unsteppable = SystemAPI.GetComponentLookup<Unsteppable>(true),
-		};
-		state.Dependency = gravityRemovalJob.Schedule(simulationSingleton, state.Dependency);
-
-		var beginSimulationJob = new CreatureBeginSimulationJob();
-		state.Dependency = beginSimulationJob.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(CreatureInitialize))]
@@ -1178,11 +1130,7 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 				core.MaxEnergy = coreArray[prefab].MaxEnergy;
 				core.Tag       = coreArray[prefab].Tag;
 				core.Immunity  = coreArray[prefab].Immunity;
-				for (int i = 0; i < TagExtensions.Length; i++) {
-					var tag = (Tag)i;
-					var y = core.HasTag(tag);
-					buffer.SetComponentEnabled(sortKey, entity, tag.ToComponent(), y);
-				}
+
 				core.MotionX     = coreArray[prefab].MotionX;
 				core.MotionY     = coreArray[prefab].MotionY;
 				core.MotionXTick = coreArray[prefab].MotionXTick;
@@ -1201,7 +1149,7 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 			}
 
 			if (core.TempFlag != core.Flag) {
-				for (int i = 0; i < FlagExtensions.Length; i++) {
+				for (int i = 0; i < 8; i++) {
 					var flag = (Flag)i;
 					var x = core.HasTempFlag(flag);
 					var y = core.    HasFlag(flag);
@@ -1223,12 +1171,15 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 								collider.Value.Value.SetCollisionFilter(filter);
 							}
 							break;
+						case Flag.Interactable:
+							buffer.SetComponentEnabled<Interactable>(sortKey, entity, y);
+							break;
 					}
 				}
 			}
 
 			if (core.TempTeam != core.Team) {
-				for (int i = 0; i < TeamExtensions.Length; i++) {
+				for (int i = 0; i < 8; i++) {
 					var team = (Team)i;
 					var x = core.HasTempTeam(team);
 					var y = core.    HasTeam(team);
@@ -1238,11 +1189,42 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 			}
 		}
 	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Creature Begin Simulation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[BurstCompile]
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderFirst = true)]
+[UpdateAfter(typeof(PredictedFixedStepSimulationSystemGroup))]
+partial struct CreatureBeginSimulationSystem : ISystem {
+
+	[BurstCompile]
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<PrefabContainer>();
+		state.RequireForUpdate<SimulationSingleton>();
+	}
+
+	[BurstCompile]
+	public void OnUpdate(ref SystemState state) {
+		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
+		var gravityRemovalJob = new CreatureGravityRemovalJob {
+			core    = SystemAPI.GetComponentLookup<CreatureCore>(),
+			trigger = SystemAPI.GetComponentLookup<EventTrigger>(true),
+		};
+		state.Dependency = gravityRemovalJob.Schedule(simulationSingleton, state.Dependency);
+
+		var beginSimulationJob = new CreatureBeginSimulationJob();
+		state.Dependency = beginSimulationJob.ScheduleParallel(state.Dependency);
+	}
 
 	[BurstCompile]
 	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
 		public ComponentLookup<CreatureCore> core;
-		[ReadOnly] public ComponentLookup<Unsteppable> unsteppable;
+		[ReadOnly] public ComponentLookup<EventTrigger> trigger;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
@@ -1250,7 +1232,7 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 		}
 
 		public void Execute(Entity entity, Entity target) {
-			if (core.HasComponent(entity) && !unsteppable.HasComponent(target)) {
+			if (core.HasComponent(entity) && !trigger.HasComponent(target)) {
 				var temp = core[entity];
 				temp.GravityFactor = 0;
 				core[entity] = temp;
@@ -1268,9 +1250,13 @@ partial struct BeginCreatureSimulationSystem : ISystem {
 
 
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Creature End Simulation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [BurstCompile]
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderLast = true)]
-partial struct EndCreatureSimulationSystem : ISystem {
+partial struct CreatureEndSimulationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
@@ -1365,7 +1351,7 @@ partial struct CreaturePresentationSystem : ISystem {
 					ui.ElementAt(5).UI = UI.Bar;
 					ui.ElementAt(4).UI = UI.Bar;
 					ui.ElementAt(3).UI = UI.Bar;
-					ui.ElementAt(6).BaseColor = new color(0xFFFFFF); // 0xD95763
+					ui.ElementAt(6).BaseColor = new color(0xFFFFFF);
 					ui.ElementAt(5).BaseColor = new color(0xFFD36B);
 					ui.ElementAt(4).BaseColor = new color(0x7F7F7F);
 					ui.ElementAt(3).BaseColor = new color(0x5F5F5F);

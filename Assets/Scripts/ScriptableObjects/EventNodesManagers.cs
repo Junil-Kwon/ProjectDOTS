@@ -223,6 +223,15 @@ public class BranchEvent : BaseEvent {
 			keys.AddRange(branch.keys);
 		}
 	}
+
+	public override BaseEvent GetNext() {
+		// Get Index from UI Manager, User Selection
+		var index = 0;
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) return next.data;
+		}
+		return null;
+	}
 }
 
 
@@ -773,7 +782,7 @@ public class TrackCameraEvent : BaseEvent {
 				mainContainer.Add(root);
 				var track = new Foldout() {
 					text = "Track",
-					value = false,
+					value = true,
 				};
 				track.style.marginTop = 2f;
 				for (int i = 0; i < I.track.Count; i++) {
@@ -873,22 +882,16 @@ public class TrackCameraEvent : BaseEvent {
 	#if UNITY_EDITOR
 		public override void DrawGizmos() {
 			if (track.Count == 0) return;
-			const float Sample = 4.0f;
-			const float Height = 0.2f;
-			var step = 1f / Sample;
+			const float Height = 0.1f;
 
 			var position = anchor ? anchor.transform.position : default;
-			var prev = position + track[0].Item1;
-			var next = default(Vector3);
-			for (float i = 0f; i < track.Distance; i += step) {
-				next = position + track.Evaluate(i + 1);
-				Gizmos.DrawLine(prev, next);
-				prev = next;
-			}
+			var prev = default(Vector3);
 			for (float time = 0f; time <= duration; time += NetworkManager.Ticktime) {
 				var s = curve.Evaluate(Mathf.Clamp01(time / duration)) * track.Distance;
-				var p = position + track.Evaluate(s);
-				Gizmos.DrawLine(p, p + new Vector3(0f, -Height, 0f));
+				var next = position + track.Evaluate(s);
+				if (time != 0f) Gizmos.DrawLine(prev, next);
+				Gizmos.DrawLine(prev, prev + new Vector3(0f, -Height, 0f));
+				prev = next;
 			}
 		}
 
