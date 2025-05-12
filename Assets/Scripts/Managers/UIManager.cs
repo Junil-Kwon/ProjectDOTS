@@ -29,8 +29,6 @@ public class UIManager : MonoSingleton<UIManager> {
 			public override void OnInspectorGUI() {
 				Begin("UI Manager");
 				
-
-
 				End();
 			}
 		}

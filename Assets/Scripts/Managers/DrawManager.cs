@@ -20,7 +20,7 @@ using Random = Unity.Mathematics.Random;
 
 
 
-// Draw Data
+// ━
 
 public struct TileDrawData {
 	public float3     position;
@@ -1180,12 +1180,10 @@ public partial class DrawManagerSystem : SystemBase {
 		if (spriteDataMap.IsCreated) spriteDataMap.Dispose();
 		if (shadowDataMap.IsCreated) shadowDataMap.Dispose();
 		if (uiDataMap    .IsCreated) uiDataMap    .Dispose();
-
 		tileRenderer  ?.Dispose();
 		spriteRenderer?.Dispose();
 		shadowRenderer?.Dispose();
 		uiRenderer    ?.Dispose();
-
 		if (tileQuery  .IsCreated) tileQuery  .Dispose();
 		if (spriteQuery.IsCreated) spriteQuery.Dispose();
 		if (shadowQuery.IsCreated) shadowQuery.Dispose();
@@ -1203,8 +1201,6 @@ public partial class DrawManagerSystem : SystemBase {
 		var shadowDrawers = GetBufferLookup   <ShadowDrawer>(true);
 		var uiDrawers     = GetBufferLookup   <UIDrawer    >(true);
 
-
-
 		for (int i = 0; i < tileQuery.Length; i++) if (0 < tileQuery[i].CalculateEntityCount()) {
 			var entities = tileQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
@@ -1217,7 +1213,6 @@ public partial class DrawManagerSystem : SystemBase {
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-
 			var count = indices[entities.Length];
 			if (0 < count) {
 				new DrawTileJob() {
@@ -1241,8 +1236,6 @@ public partial class DrawManagerSystem : SystemBase {
 		tileRenderer.Draw();
 		tileRenderer.Clear(tileQuery.Length - 1);
 
-
-
 		for (int i = 0; i < spriteQuery.Length; i++) if (0 < spriteQuery[i].CalculateEntityCount()) {
 			var entities = spriteQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
@@ -1255,7 +1248,6 @@ public partial class DrawManagerSystem : SystemBase {
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-
 			var count = indices[entities.Length];
 			if (0 < count) {
 				new DrawSpriteJob() {
@@ -1279,8 +1271,6 @@ public partial class DrawManagerSystem : SystemBase {
 		spriteRenderer.Draw();
 		spriteRenderer.Clear(spriteQuery.Length - 1);
 
-
-
 		for (int i = 0; i < shadowQuery.Length; i++) if (0 < shadowQuery[i].CalculateEntityCount()) {
 			var entities = shadowQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
@@ -1293,7 +1283,6 @@ public partial class DrawManagerSystem : SystemBase {
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-
 			var count = indices[entities.Length];
 			if (0 < count) {
 				new DrawShadowJob() {
@@ -1317,8 +1306,6 @@ public partial class DrawManagerSystem : SystemBase {
 		shadowRenderer.Draw();
 		shadowRenderer.Clear(shadowQuery.Length - 1);
 
-
-
 		for (int i = 0; i < uiQuery.Length; i++) if (0 < uiQuery[i].CalculateEntityCount()) {
 			var entities = uiQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
@@ -1331,7 +1318,6 @@ public partial class DrawManagerSystem : SystemBase {
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-
 			var count = indices[entities.Length];
 			if (0 < count) {
 				new DrawUIJob() {
@@ -1355,14 +1341,11 @@ public partial class DrawManagerSystem : SystemBase {
 		uiRenderer.Clear(uiQuery.Length - 1);
 	}
 
-
-
 	[BurstCompile]
 	partial struct GetLengthJob<T> : IJobParallelFor where T : unmanaged, IBufferElementData {
 		[ReadOnly] public NativeArray<Entity> entities;
 		[ReadOnly] public BufferLookup<T> buffers;
 		[NativeDisableParallelForRestriction] public NativeArray<int> indices;
-
 		public void Execute(int i) {
 			indices[1 + i] = buffers[entities[i]].Length;
 		}
@@ -1371,13 +1354,10 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct PrefixSumJob : IJob {
 		public NativeArray<int> indices;
-
 		public void Execute() {
 			for (int i = 1; i < indices.Length; i++) indices[i] += indices[i - 1];
 		}
 	}
-
-
 
 	[BurstCompile]
 	partial struct DrawTileJob : IJobParallelFor {
@@ -1441,8 +1421,6 @@ public partial class DrawManagerSystem : SystemBase {
 			return data;
 		}
 	}
-
-
 
 	[BurstCompile]
 	partial struct DrawSpriteJob : IJobParallelFor {
@@ -1535,8 +1513,6 @@ public partial class DrawManagerSystem : SystemBase {
 		}
 	}
 
-
-
 	[BurstCompile]
 	partial struct DrawShadowJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
@@ -1616,8 +1592,6 @@ public partial class DrawManagerSystem : SystemBase {
 			return data;
 		}
 	}
-
-
 
 	[BurstCompile]
 	partial struct DrawUIJob : IJobParallelFor {

@@ -38,7 +38,6 @@ public class EventTriggerAuthoring : MonoBehaviour {
 					I.Event.Open();
 				}
 				Space();
-
 				if (I.Event != null) {
 					LabelField("Trigger", EditorStyles.boldLabel);
 					I.IsGlobal = Toggle("Is Global", I.IsGlobal);
@@ -56,7 +55,6 @@ public class EventTriggerAuthoring : MonoBehaviour {
 					}
 					Space();
 				}
-
 				End();
 			}
 
@@ -73,7 +71,7 @@ public class EventTriggerAuthoring : MonoBehaviour {
 			if (Event == null) return;
 			Gizmos.color = color.green;
 			foreach (var data in Event.Entry.GetEvents()) data.DrawGizmos();
-			
+
 			if (Event.Clone == null) return;
 			Gizmos.color = color.white;
 			foreach (var data in Event.Clone.GetEvents()) data.DrawGizmos();
@@ -172,20 +170,16 @@ partial struct GlobalEventSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var simulationJob = new ServerEventSimulationJob {
+		state.Dependency = new ServerEventSimulationJob {
 			deltaTime = SystemAPI.Time.DeltaTime,
-		};
-		state.Dependency = simulationJob.ScheduleParallel(state.Dependency);
-
-		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
-		var triggerJob = new TriggerServerEventJob {
+		}.ScheduleParallel(state.Dependency);
+		state.Dependency = new TriggerServerEventJob {
 			gameManager  = SystemAPI.GetSingletonRW<GameManagerBridge>(),
 			trigger      = SystemAPI.GetComponentLookup<EventTrigger>(),
 			server       = SystemAPI.GetComponentLookup<ServerEvent>(),
 			interactable = SystemAPI.GetComponentLookup<Interactable>(true),
 			ghostOwner   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
-		};
-		state.Dependency = triggerJob.Schedule(simulationSingleton, state.Dependency);
+		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(ServerEvent), typeof(Simulate))]
@@ -208,7 +202,6 @@ partial struct GlobalEventSystem : ISystem {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
-
 		public void Execute(Entity entity, Entity target) {
 			if (server.HasComponent(entity) && !interactable.HasComponent(entity)) {
 					if (ghostOwner.HasComponent(target)) {
@@ -240,20 +233,16 @@ partial struct LocalEventSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var simulationJob = new ClientEventSimulationJob {
+		state.Dependency = new ClientEventSimulationJob {
 			deltaTime = SystemAPI.Time.DeltaTime,
-		};
-		state.Dependency = simulationJob.ScheduleParallel(state.Dependency);
-
-		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
-		var triggerJob = new TriggerClientEventJob {
+		}.ScheduleParallel(state.Dependency);
+		state.Dependency = new TriggerClientEventJob {
 			gameManager  = SystemAPI.GetSingletonRW<GameManagerBridge>(),
 			trigger      = SystemAPI.GetComponentLookup<EventTrigger>(),
 			client       = SystemAPI.GetComponentLookup<ClientEvent>(),
 			interactable = SystemAPI.GetComponentLookup<Interactable>(true),
 			ghostOwner   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
-		};
-		state.Dependency = triggerJob.Schedule(simulationSingleton, state.Dependency);
+		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(ClientEvent), typeof(Simulate))]
@@ -276,7 +265,6 @@ partial struct LocalEventSystem : ISystem {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
-
 		public void Execute(Entity entity, Entity target) {
 			if (client.HasComponent(entity) && !interactable.HasComponent(entity)) {
 					if (ghostOwner.HasComponent(target)) {

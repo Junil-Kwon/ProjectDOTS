@@ -22,7 +22,7 @@ public struct PlayerBody : IComponentData {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Player Body System
+// Player Body Simulation System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
@@ -93,6 +93,10 @@ partial struct PlayerBodySimulationSystem : ISystem {
 
 
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Player Body Presentation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [BurstCompile]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 partial struct PlayerBodyPresentationSystem : ISystem {
@@ -104,8 +108,8 @@ partial struct PlayerBodyPresentationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var presentationJob = new PlayerBodyPresentationJob();
-		state.Dependency = presentationJob.ScheduleParallel(state.Dependency);
+		state.Dependency = new PlayerBodyPresentationJob {
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(PlayerBody))]
@@ -114,7 +118,6 @@ partial struct PlayerBodyPresentationSystem : ISystem {
 			in CreatureCore core,
 			DynamicBuffer<SpriteDrawer> sprite,
 			DynamicBuffer<ShadowDrawer> shadow) {
-
 			sprite.ElementAt(0).Motion = core.MotionX;
 			shadow.ElementAt(0).Motion = core.MotionX;
 			sprite.ElementAt(0).Offset = core.MotionXOffset;

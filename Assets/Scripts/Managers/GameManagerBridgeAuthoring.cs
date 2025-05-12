@@ -26,6 +26,7 @@ public class GameManagerBridgeAuthoring : MonoBehaviour {
 			GameManagerBridgeAuthoring I => target as GameManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Game Manager Bridge Authoring");
+
 				End();
 			}
 		}

@@ -15,26 +15,18 @@ using System.Linq;
 
 
 
-// Port Type
+// ━
 
 public enum PortType : byte {
 	Default,
 	Object,
 }
 
-
-
-// Node Menu
-
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class NodeMenuAttribute : Attribute {
 	public string Path { get; }
 	public NodeMenuAttribute(string path) => Path = path;
 }
-
-
-
-// List Extensions
 
 public static class ListExtensions {
 	public static void CopyFrom<T>(this List<T> a, List<T> b) {

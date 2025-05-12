@@ -60,7 +60,6 @@ public class CameraManager : MonoSingleton<CameraManager> {
 					EndDisabledGroup();
 					Space();
 				}
-
 				LabelField("Constraints", EditorStyles.boldLabel);
 				FreezePosition = Toggle3("Freeze Position", FreezePosition);
 				FreezeRotation = Toggle3("Freeze Rotation", FreezeRotation);

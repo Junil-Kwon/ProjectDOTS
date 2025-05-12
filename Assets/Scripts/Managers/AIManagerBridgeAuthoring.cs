@@ -26,6 +26,7 @@ public class AIManagerBridgeAuthoring : MonoBehaviour {
 			AIManagerBridgeAuthoring I => target as AIManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("AI Manager Bridge Authoring");
+
 				End();
 			}
 		}

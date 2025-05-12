@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 
 
-// Game State
+// ━
 
 public enum GameState : byte {
 	Gameplay,

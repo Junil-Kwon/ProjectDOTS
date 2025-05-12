@@ -11,12 +11,13 @@ using Unity.Burst;
 
 
 
-// Sprite Data
+// ━
 
 public enum Sprite : uint {
 	None,
 	Player,
 }
+
 public enum Motion : uint {
 	None,
 	Idle,
@@ -47,14 +48,12 @@ public class SpriteDrawerAuthoring : MonoBehaviour {
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
 				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
 				if (flag) {
-
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position",  I.Position);
 					I.Pivot    = Vector2Field("Pivot",     I.Pivot);
 					I.Yaw      = FloatField  ("Yaw",       I.Yaw);
 					I.YawLocal = Toggle      ("Yaw Local", I.YawLocal);
 					Space();
-
 					LabelField("Sprite", EditorStyles.boldLabel);
 					BeginHorizontal();
 					PrefixLabel("Sprite");
@@ -72,7 +71,6 @@ public class SpriteDrawerAuthoring : MonoBehaviour {
 					I.Emission  = ColorField("Emission",   I.Emission);
 					I.Flip      = Toggle2   ("Flip",       I.Flip);
 					Space();
-
 				}
 				End();
 			}

@@ -113,8 +113,7 @@ public static class ColorExtensions {
 // Creature Effects
 
 public enum Effect : byte {
-	InstantDamage,
-	InstantHeal,
+	Damage,
 	HealthBoost,
 	EnergyBoost,
 	DamageBoost,
@@ -148,12 +147,6 @@ public static class ImmunityExtensions {
 
 public enum PhysicsCategory : byte {
 	Creature,
-}
-public struct PhysicsExtensions {
-	public const float DefaultMass       = 1.0000000f;
-	public const float PinnedMass        = 1000000.0f;
-	public const float GravityMultiplier =  -9.81f;
-	public const float KnockMultiplier   = 256.00f;
 }
 
 
@@ -310,11 +303,11 @@ public class CreatureAuthoring : MonoBehaviour {
 		set => m_BodyString = value;
 	}
 	public Head Head {
-		get => Enum.TryParse(HeadString, out Head head) ? head : 0;
+		get => Enum.TryParse(HeadString, out Head head) ? head : default;
 		set => m_HeadString = value.ToString();
 	}
 	public Body Body {
-		get => Enum.TryParse(BodyString, out Body body) ? body : 0;
+		get => Enum.TryParse(BodyString, out Body body) ? body : default;
 		set => m_BodyString = value.ToString();
 	}
 
@@ -329,8 +322,8 @@ public class CreatureAuthoring : MonoBehaviour {
 				switch ((Flag)i) {
 					case global::Flag.Pinned:
 						if (TryGetComponent(out PhysicsBodyAuthoring body)) {
-							if (b) body.Mass = PhysicsExtensions. PinnedMass;
-							else   body.Mass = PhysicsExtensions.DefaultMass;
+							if (b) body.Mass = CreatureCore.PinnedMass;
+							else   body.Mass = CreatureCore.BaseMass;
 						};
 						break;
 					case global::Flag.Piercing:
@@ -425,6 +418,7 @@ public class CreatureAuthoring : MonoBehaviour {
 			if (!hasSpriteDrawer || !spriteDrawer.enabled) AddBuffer<SpriteDrawer>(entity);
 			if (!hasShadowDrawer || !shadowDrawer.enabled) AddBuffer<ShadowDrawer>(entity);
 			if (!hasUIDrawer     || !uiDrawer    .enabled) AddBuffer<UIDrawer    >(entity);
+
 			bool hasInteractable = authoring.TryGetComponent(out InteractableAuthoring interactable);
 			if (!hasInteractable || !interactable.enabled) AddComponent(entity, new Interactable());
 		}
@@ -523,6 +517,13 @@ public struct CreatureInput : IInputComponentData {
 public struct CreatureCore : IComponentData {
 
 	// Constants
+
+	public const float BaseMass          =    1.00f;
+	public const float PinnedMass        = 1000.00f;
+	public const float GravityMultiplier =   -9.81f;
+	public const float KnockMultiplier   =  256.00f;
+
+
 
 	const uint RadiusMask      = 0x7F000000u;
 	const uint HeightMask      = 0x00FF0000u;
@@ -921,8 +922,7 @@ public struct CreatureEffect : IBufferElementData {
 	// Constants
 
 	const uint ValueMask
-		= (1u << (int)Effect.InstantDamage)
-		& (1u << (int)Effect.InstantHeal)
+		= (1u << (int)Effect.Damage)
 		& (1u << (int)Effect.HealthBoost)
 		& (1u << (int)Effect.EnergyBoost)
 		& (1u << (int)Effect.DamageBoost);
@@ -1010,7 +1010,7 @@ public static class DynamicBufferExtensions {
 
 	public static void AddDamage(this DynamicBuffer<CreatureEffect> buffer, in CreatureCore core,
 		int value) {
-		AddEffect(buffer, in core, Effect.InstantDamage, value, 0.2f, float.MaxValue, float.MaxValue);
+		AddEffect(buffer, in core, Effect.Damage, value, 0.2f, float.MaxValue, float.MaxValue);
 	}
 
 	public static void RemoveEffect(this DynamicBuffer<CreatureEffect> buffer, Effect effect) {
@@ -1039,14 +1039,11 @@ partial struct CreatureInitializationSystem : ISystem {
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		var singleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
-		var buffer    = singleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-		var fieldsComparisonJob = new CreatureFieldsComparisonJob();
-		state.Dependency = fieldsComparisonJob.ScheduleParallel(state.Dependency);
-
-		var componentsModificationJob = new CreatureComponentsModificationJob {
+		state.Dependency = new CreatureFieldsComparisonJob {
+		}.ScheduleParallel(state.Dependency);
+		state.Dependency = new CreatureComponentsModificationJob {
 			entityManager = state.EntityManager,
-			buffer        = buffer.AsParallelWriter(),
+			buffer        = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
 			prefabArray   = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
 			coreArray     = SystemAPI.GetComponentLookup<CreatureCore   >(true),
 			colliderArray = SystemAPI.GetComponentLookup<PhysicsCollider>(true),
@@ -1055,19 +1052,16 @@ partial struct CreatureInitializationSystem : ISystem {
 			spriteArray   = SystemAPI.GetBufferLookup<SpriteDrawer>(true),
 			shadowArray   = SystemAPI.GetBufferLookup<ShadowDrawer>(true),
 			uiArray       = SystemAPI.GetBufferLookup<UIDrawer    >(true),
-		};
-		state.Dependency = componentsModificationJob.ScheduleParallel(state.Dependency);
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(CreatureInitialize))]
 	[WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
 	partial struct CreatureFieldsComparisonJob : IJobEntity {
-
 		public void Execute(
 			in Simulate simulate,
 			in CreatureCore core,
 			EnabledRefRW<CreatureInitialize> initialize) {
-
 			if (core.TempHead != core.Head) initialize.ValueRW = true;
 			if (core.TempBody != core.Body) initialize.ValueRW = true;
 			if (core.TempTeam != core.Team) initialize.ValueRW = true;
@@ -1099,7 +1093,6 @@ partial struct CreatureInitializationSystem : ISystem {
 			DynamicBuffer<ShadowDrawer> shadow,
 			DynamicBuffer<UIDrawer    > ui,
 			EnabledRefRW<CreatureInitialize> initialize) {
-
 			mass.InverseInertia = float3.zero;
 			initialize.ValueRW = false;
 
@@ -1112,7 +1105,6 @@ partial struct CreatureInitializationSystem : ISystem {
 				if (bMatch) buffer.   AddComponent(sortKey, entity, b);
 				core.TempHead = core.Head;
 			}
-
 			if (core.TempBody != core.Body) {
 				var a = core.TempBody.ToComponent();
 				var b = core.    Body.ToComponent();
@@ -1147,7 +1139,6 @@ partial struct CreatureInitializationSystem : ISystem {
 				for (int i = 0; i < shadow.Length; i++) shadow[i] = shadowArray[prefab][i];
 				for (int i = 0; i < ui    .Length; i++) ui    [i] = uiArray    [prefab][i];
 			}
-
 			if (core.TempFlag != core.Flag) {
 				for (int i = 0; i < 8; i++) {
 					var flag = (Flag)i;
@@ -1159,7 +1150,7 @@ partial struct CreatureInitializationSystem : ISystem {
 					var prefab = prefabArray[(int)core.Body].Prefab;
 					switch (flag) {
 						case Flag.Pinned:
-							if (y) mass.InverseMass = 1f / PhysicsExtensions.PinnedMass;
+							if (y) mass.InverseMass = 1f / CreatureCore.PinnedMass;
 							else   mass.InverseMass = massArray[prefab].InverseMass;
 							break;
 						case Flag.Piercing:
@@ -1177,7 +1168,6 @@ partial struct CreatureInitializationSystem : ISystem {
 					}
 				}
 			}
-
 			if (core.TempTeam != core.Team) {
 				for (int i = 0; i < 8; i++) {
 					var team = (Team)i;
@@ -1210,27 +1200,22 @@ partial struct CreatureBeginSimulationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var simulationSingleton = SystemAPI.GetSingleton<SimulationSingleton>();
-		var gravityRemovalJob = new CreatureGravityRemovalJob {
+		state.Dependency = new CreatureGravityRemovalJob {
 			core    = SystemAPI.GetComponentLookup<CreatureCore>(),
 			trigger = SystemAPI.GetComponentLookup<EventTrigger>(true),
-		};
-		state.Dependency = gravityRemovalJob.Schedule(simulationSingleton, state.Dependency);
-
-		var beginSimulationJob = new CreatureBeginSimulationJob();
-		state.Dependency = beginSimulationJob.ScheduleParallel(state.Dependency);
+		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
+		state.Dependency = new CreatureBeginSimulationJob() {
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile]
 	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
 		public ComponentLookup<CreatureCore> core;
 		[ReadOnly] public ComponentLookup<EventTrigger> trigger;
-
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
-
 		public void Execute(Entity entity, Entity target) {
 			if (core.HasComponent(entity) && !trigger.HasComponent(target)) {
 				var temp = core[entity];
@@ -1265,51 +1250,28 @@ partial struct CreatureEndSimulationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var networkTime = SystemAPI.GetSingleton<NetworkTime>();
-		var endSimulationJob = new EndCreatureSimulationJob {
-			isFirstFullTick = networkTime.IsFirstTimeFullyPredictingTick,
-			deltaTime       = SystemAPI.Time.DeltaTime,
-		};
-		state.Dependency = endSimulationJob.ScheduleParallel(state.Dependency);
+		state.Dependency = new EndCreatureSimulationJob {
+			deltaTime = SystemAPI.Time.DeltaTime,
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct EndCreatureSimulationJob : IJobEntity {
-		public bool  isFirstFullTick;
 		public float deltaTime;
-
-		public void Execute(ref CreatureCore core, DynamicBuffer<CreatureEffect> effect,
-			ref PhysicsVelocity velocity) {
-
-			if (isFirstFullTick) {
-				/*if (core.Shield < core.MaxShield && --core.ShieldTick == 0) {
-					core.ShieldCooldown = 0.5f;
-					core.Shield++;
-				}
-				if (core.Energy < core.MaxEnergy && --core.EnergyTick == 0) {
-					core.EnergyCooldown = 0.5f;
-					core.Energy++;
-				}*/
-
-				foreach (var element in effect) switch (element.Effect) {
-					case Effect.InstantDamage:
-						// core.Health--
-						break;
-				}
-				for (int i = effect.Length - 1; -1 < i; i--) {
-					if (--effect.ElementAt(i).Tick == 0) effect.RemoveAt(i);
-				}
-			}
+		public void Execute(
+			ref CreatureCore core,
+			ref PhysicsVelocity velocity,
+			DynamicBuffer<CreatureEffect> effect) {
 
 			if (!core.HasFlag(Flag.Floating)) {
-				float multiplier = PhysicsExtensions.GravityMultiplier;
+				float multiplier = CreatureCore.GravityMultiplier;
 				velocity.Linear += multiplier * deltaTime * core.GravityVector;
-				if (isFirstFullTick) core.GravityFactor++;
+				core.GravityFactor++;
 			}
 			if (core.IsKnocked) {
-				float multiplier = PhysicsExtensions.KnockMultiplier;
+				float multiplier = CreatureCore.KnockMultiplier;
 				velocity.Linear += multiplier * deltaTime * core.KnockVector;
-				if (isFirstFullTick) core.KnockFactor--;
+				core.KnockFactor--;
 			}
 		}
 	}
@@ -1327,13 +1289,13 @@ partial struct CreaturePresentationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var presentationJob = new CreaturePresentationJob();
-		state.Dependency = presentationJob.ScheduleParallel(state.Dependency);
+		state.Dependency = new CreaturePresentationJob {
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile]
 	partial struct CreaturePresentationJob : IJobEntity {
-		public void Execute(ref CreatureCore core, ref DynamicBuffer<UIDrawer> ui) {
+		public void Execute(ref CreatureCore core, DynamicBuffer<UIDrawer> ui) {
 			//if (core.BarTick == 0) {
 			//	if (!drawer.UIs.IsEmpty) drawer.UIs.Clear();
 			//}

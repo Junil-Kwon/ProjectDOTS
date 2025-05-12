@@ -26,6 +26,7 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 			CameraManagerBridgeAuthoring I => target as CameraManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Camera Manager Bridge Authoring");
+
 				End();
 			}
 		}

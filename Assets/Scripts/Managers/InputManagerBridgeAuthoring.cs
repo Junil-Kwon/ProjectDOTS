@@ -26,6 +26,7 @@ public class InputManagerBridgeAuthoring : MonoBehaviour {
 			InputManagerBridgeAuthoring I => target as InputManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Input Manager Bridge Authoring");
+
 				End();
 			}
 		}

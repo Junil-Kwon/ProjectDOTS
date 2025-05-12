@@ -11,7 +11,7 @@ using Unity.Burst;
 
 
 
-// Tile Data
+// ━
 
 public enum Tile : uint {
 	None,
@@ -49,12 +49,10 @@ public class TileDrawerAuthoring : MonoBehaviour {
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
 				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
 				if (flag) {
-
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position      = Vector3Field("Position", I.Position);
 					I.EulerRotation = Vector3Field("Rotation", I.EulerRotation);
 					Space();
-
 					LabelField("Tile", EditorStyles.boldLabel);
 					BeginHorizontal();
 					PrefixLabel("Tile");
@@ -74,7 +72,6 @@ public class TileDrawerAuthoring : MonoBehaviour {
 					EndDisabledGroup();
 					EndHorizontal();
 					Space();
-
 				}
 				End();
 			}

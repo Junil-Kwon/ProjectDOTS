@@ -26,6 +26,7 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 			EnvironmentManagerBridgeAuthoring I => target as EnvironmentManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Environment Manager Bridge Authoring");
+
 				End();
 			}
 		}

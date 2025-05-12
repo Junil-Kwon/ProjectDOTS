@@ -26,6 +26,7 @@ public class UIManagerBridgeAuthoring : MonoBehaviour {
 			UIManagerBridgeAuthoring I => target as UIManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("UI Manager Bridge Authoring");
+
 				End();
 			}
 		}

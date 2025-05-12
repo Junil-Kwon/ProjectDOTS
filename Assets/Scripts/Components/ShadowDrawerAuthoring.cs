@@ -30,13 +30,11 @@ public class ShadowDrawerAuthoring : MonoBehaviour {
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
 				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
 				if (flag) {
-
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position",  I.Position);
 					I.Yaw      = FloatField  ("Yaw",       I.Yaw);
 					I.YawLocal = Toggle      ("Yaw Local", I.YawLocal);
 					Space();
-
 					LabelField("Shadow", EditorStyles.boldLabel);
 					BeginHorizontal();
 					PrefixLabel("Shadow");
@@ -51,7 +49,6 @@ public class ShadowDrawerAuthoring : MonoBehaviour {
 					I.Offset = FloatField("Offset", I.Offset);
 					I.Flip   = Toggle2   ("Flip",   I.Flip);
 					Space();
-
 				}
 				End();
 			}

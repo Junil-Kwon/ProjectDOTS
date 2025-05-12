@@ -12,7 +12,7 @@ using Unity.Mathematics;
 
 
 
-// Atlas Data
+// ━
 
 [Serializable]
 public struct AtlasData {

@@ -88,7 +88,6 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 					EndDisabledGroup();
 					Space();
 				}
-
 				End();
 			}
 		}

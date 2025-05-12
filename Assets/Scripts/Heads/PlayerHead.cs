@@ -38,11 +38,10 @@ partial struct PlayerHeadSystem : ISystem {
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var simulationJob = new PlayerHeadSimulationJob() {
+		state.Dependency = new PlayerHeadSimulationJob() {
 			inputManager  = SystemAPI.GetSingleton<InputManagerBridge >(),
 			cameraManager = SystemAPI.GetSingleton<CameraManagerBridge>(),
-		};
-		state.Dependency = simulationJob.ScheduleParallel(state.Dependency);
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal))]
@@ -53,7 +52,6 @@ partial struct PlayerHeadSystem : ISystem {
 			ref CreatureInput input,
 			in  CreatureCore  core,
 			ref PlayerHead    head) {
-
 			input.Key = inputManager.KeyNext;
 			float3 moveDirection = new(inputManager.MoveDirection.x, 0f, inputManager.MoveDirection.y);
 			float3 eulerRotation = new(0f, cameraManager.Yaw * math.TORADIANS, 0f);

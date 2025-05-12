@@ -26,6 +26,7 @@ public class NavMeshManagerBridgeAuthoring : MonoBehaviour {
 			NavMeshManagerBridgeAuthoring I => target as NavMeshManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("NavMesh Manager Bridge Authoring");
+
 				End();
 			}
 		}

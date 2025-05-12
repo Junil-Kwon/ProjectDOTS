@@ -26,6 +26,7 @@ public class NetworkManagerBridgeAuthoring : MonoBehaviour {
 			NetworkManagerBridgeAuthoring I => target as NetworkManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Network Manager Bridge Authoring");
+
 				End();
 			}
 		}

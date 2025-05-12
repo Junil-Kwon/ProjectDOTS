@@ -28,8 +28,6 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 			public override void OnInspectorGUI() {
 				Begin("Prefab Container Authoring Authoring");
 
-
-
 				End();
 			}
 		}

@@ -21,8 +21,6 @@ public class SoundManager : MonoSingleton<SoundManager> {
 			SoundManager I => target as SoundManager;
 			public override void OnInspectorGUI() {
 				Begin("Sound Manager");
-				
-
 
 				End();
 			}

@@ -26,6 +26,7 @@ public class SoundManagerBridgeAuthoring : MonoBehaviour {
 			SoundManagerBridgeAuthoring I => target as SoundManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Sound Manager Bridge Authoring");
+
 				End();
 			}
 		}

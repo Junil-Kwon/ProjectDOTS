@@ -11,7 +11,7 @@ using Unity.Burst;
 
 
 
-// UI Data
+// ━
 
 public enum UI : uint {
 	None,
@@ -43,13 +43,11 @@ public class UIDrawerAuthoring : MonoBehaviour {
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
 				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
 				if (flag) {
-
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position", I.Position);
 					I.Scale    = Vector2Field("Scale",    I.Scale);
 					I.Pivot    = Vector2Field("Pivot",    I.Pivot);
 					Space();
-
 					LabelField("UI", EditorStyles.boldLabel);
 					BeginHorizontal();
 					PrefixLabel("UI");
@@ -60,7 +58,6 @@ public class UIDrawerAuthoring : MonoBehaviour {
 					I.BaseColor = ColorField("Base Color", I.BaseColor);
 					I.Flip      = Toggle2   ("Flip",       I.Flip);
 					Space();
-
 				}
 				End();
 			}

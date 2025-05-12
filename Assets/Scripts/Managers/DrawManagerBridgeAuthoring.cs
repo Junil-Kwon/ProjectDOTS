@@ -26,6 +26,7 @@ public class DrawManagerBridgeAuthoring : MonoBehaviour {
 			DrawManagerBridgeAuthoring I => target as DrawManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Draw Manager Bridge Authoring");
+
 				End();
 			}
 		}
