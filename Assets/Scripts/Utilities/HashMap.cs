@@ -23,9 +23,9 @@ public class HashMap<K, V> : Dictionary<K, V>, ISerializationCallbackReceiver {
 	public void OnBeforeSerialize() {
 		k.Clear();
 		v.Clear();
-		foreach (var pair in this) {
-			k.Add(pair.Key  );
-			v.Add(pair.Value);
+		foreach (var (k, v) in this) {
+			this.k.Add(k);
+			this.v.Add(v);
 		}
 	}
 

@@ -33,7 +33,6 @@ public class UIManager : MonoSingleton<UIManager> {
 			}
 		}
 	#endif
-
 }
 
 

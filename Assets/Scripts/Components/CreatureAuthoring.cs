@@ -6,11 +6,13 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Burst;
+using Unity.Transforms;
 using Unity.Physics;
 using Unity.Physics.Authoring;
 using Unity.Physics.Extensions;
 using Unity.NetCode;
 using Unity.Properties;
+using Random = Unity.Mathematics.Random;
 
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -382,7 +384,7 @@ public class CreatureAuthoring : MonoBehaviour {
 
 	public class Baker : Baker<CreatureAuthoring> {
 		public override void Bake(CreatureAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.None);
+			Entity entity = GetEntity(TransformUsageFlags.Dynamic);
 			AddComponent(entity, new CreatureInitialize());
 			AddComponent(entity, new CreatureInput());
 			AddComponent(entity, new CreatureCore {
@@ -520,8 +522,8 @@ public struct CreatureCore : IComponentData {
 
 	public const float BaseMass          =    1.00f;
 	public const float PinnedMass        = 1000.00f;
-	public const float GravityMultiplier =   -9.81f;
-	public const float KnockMultiplier   =  256.00f;
+	public const float GravityMultiplier =   -9.81f * NetworkManager.Ticktime;
+	public const float KnockMultiplier   =  256.00f * NetworkManager.Ticktime;
 
 
 
@@ -977,7 +979,7 @@ public struct CreatureEffect : IBufferElementData {
 
 
 
-public static class DynamicBufferExtensions {
+public static class CreatureBufferExtensions {
 	public static bool TryGetIndex(this DynamicBuffer<CreatureEffect> buffer,
 		Effect effect, out int index) {
 		index = -1;
@@ -1042,16 +1044,16 @@ partial struct CreatureInitializationSystem : ISystem {
 		state.Dependency = new CreatureFieldsComparisonJob {
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new CreatureComponentsModificationJob {
-			entityManager = state.EntityManager,
-			buffer        = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
-			prefabArray   = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
-			coreArray     = SystemAPI.GetComponentLookup<CreatureCore   >(true),
-			colliderArray = SystemAPI.GetComponentLookup<PhysicsCollider>(true),
-			massArray     = SystemAPI.GetComponentLookup<PhysicsMass    >(true),
-			tileArray     = SystemAPI.GetBufferLookup<TileDrawer  >(true),
-			spriteArray   = SystemAPI.GetBufferLookup<SpriteDrawer>(true),
-			shadowArray   = SystemAPI.GetBufferLookup<ShadowDrawer>(true),
-			uiArray       = SystemAPI.GetBufferLookup<UIDrawer    >(true),
+			entityManager   = state.EntityManager,
+			buffer          = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+			prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
+			cores           = SystemAPI.GetComponentLookup<CreatureCore   >(true),
+			colliders       = SystemAPI.GetComponentLookup<PhysicsCollider>(true),
+			masses          = SystemAPI.GetComponentLookup<PhysicsMass    >(true),
+			tiles           = SystemAPI.GetBufferLookup<TileDrawer  >(true),
+			sprites         = SystemAPI.GetBufferLookup<SpriteDrawer>(true),
+			shadows         = SystemAPI.GetBufferLookup<ShadowDrawer>(true),
+			uis             = SystemAPI.GetBufferLookup<UIDrawer    >(true),
 		}.ScheduleParallel(state.Dependency);
 	}
 
@@ -1059,7 +1061,6 @@ partial struct CreatureInitializationSystem : ISystem {
 	[WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
 	partial struct CreatureFieldsComparisonJob : IJobEntity {
 		public void Execute(
-			in Simulate simulate,
 			in CreatureCore core,
 			EnabledRefRW<CreatureInitialize> initialize) {
 			if (core.TempHead != core.Head) initialize.ValueRW = true;
@@ -1069,22 +1070,22 @@ partial struct CreatureInitializationSystem : ISystem {
 		}
 	}
 
-	[BurstCompile, WithAll(typeof(Simulate))]
+	[BurstCompile]
 	partial struct CreatureComponentsModificationJob : IJobEntity {
 		[NativeDisableContainerSafetyRestriction] public EntityManager entityManager;
-		[NativeDisableContainerSafetyRestriction] public EntityCommandBuffer.ParallelWriter buffer;
-		[NativeDisableContainerSafetyRestriction] public DynamicBuffer  <PrefabContainer> prefabArray;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureCore   > coreArray;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsCollider> colliderArray;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsMass    > massArray;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<TileDrawer  > tileArray;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<SpriteDrawer> spriteArray;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<ShadowDrawer> shadowArray;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<UIDrawer    > uiArray;
+		public EntityCommandBuffer.ParallelWriter buffer;
+		[ReadOnly] public DynamicBuffer<PrefabContainer> prefabContainer;
+		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureCore   > cores;
+		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsCollider> colliders;
+		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsMass    > masses;
+		[NativeDisableContainerSafetyRestriction] public BufferLookup<TileDrawer  > tiles;
+		[NativeDisableContainerSafetyRestriction] public BufferLookup<SpriteDrawer> sprites;
+		[NativeDisableContainerSafetyRestriction] public BufferLookup<ShadowDrawer> shadows;
+		[NativeDisableContainerSafetyRestriction] public BufferLookup<UIDrawer    > uis;
 
 		public void Execute(
-			Entity entity,
 			[ChunkIndexInQuery] int sortKey,
+			Entity entity,
 			ref CreatureCore    core,
 			ref PhysicsMass     mass,
 			ref PhysicsCollider collider,
@@ -1114,30 +1115,36 @@ partial struct CreatureInitializationSystem : ISystem {
 				if (bMatch) buffer.   AddComponent(sortKey, entity, b);
 				core.TempBody = core.Body;
 
-				var prefab = prefabArray[(int)core.Body].Prefab;
-				core.Radius    = coreArray[prefab].Radius;
-				core.Height    = coreArray[prefab].Height;
-				core.MaxShield = coreArray[prefab].MaxShield;
-				core.MaxHealth = coreArray[prefab].MaxHealth;
-				core.MaxEnergy = coreArray[prefab].MaxEnergy;
-				core.Tag       = coreArray[prefab].Tag;
-				core.Immunity  = coreArray[prefab].Immunity;
+				var prefab = Entity.Null;
+				foreach (var element in prefabContainer.Reinterpret<Entity>()) {
+					if (cores.HasComponent(element) && cores[element].Body == core.Body) {
+						prefab = element;
+						break;
+					}
+				}
+				core.Radius    = cores[prefab].Radius;
+				core.Height    = cores[prefab].Height;
+				core.MaxShield = cores[prefab].MaxShield;
+				core.MaxHealth = cores[prefab].MaxHealth;
+				core.MaxEnergy = cores[prefab].MaxEnergy;
+				core.Tag       = cores[prefab].Tag;
+				core.Immunity  = cores[prefab].Immunity;
 
-				core.MotionX     = coreArray[prefab].MotionX;
-				core.MotionY     = coreArray[prefab].MotionY;
-				core.MotionXTick = coreArray[prefab].MotionXTick;
-				core.MotionYTick = coreArray[prefab].MotionYTick;
-				mass.InverseMass = massArray[prefab].InverseMass;
-				collider.Value   = colliderArray[prefab].Value;
+				core.MotionX     = cores[prefab].MotionX;
+				core.MotionY     = cores[prefab].MotionY;
+				core.MotionXTick = cores[prefab].MotionXTick;
+				core.MotionYTick = cores[prefab].MotionYTick;
+				mass.InverseMass = masses[prefab].InverseMass;
+				collider.Value   = colliders[prefab].Value;
 
-				tile  .Length = tileArray  [prefab].Length;
-				sprite.Length = spriteArray[prefab].Length;
-				shadow.Length = shadowArray[prefab].Length;
-				ui    .Length = uiArray    [prefab].Length;
-				for (int i = 0; i < tile  .Length; i++) tile  [i] = tileArray  [prefab][i];
-				for (int i = 0; i < sprite.Length; i++) sprite[i] = spriteArray[prefab][i];
-				for (int i = 0; i < shadow.Length; i++) shadow[i] = shadowArray[prefab][i];
-				for (int i = 0; i < ui    .Length; i++) ui    [i] = uiArray    [prefab][i];
+				tile  .Length = tiles  [prefab].Length;
+				sprite.Length = sprites[prefab].Length;
+				shadow.Length = shadows[prefab].Length;
+				ui    .Length = uis    [prefab].Length;
+				for (int i = 0; i < tile  .Length; i++) tile  [i] = tiles  [prefab][i];
+				for (int i = 0; i < sprite.Length; i++) sprite[i] = sprites[prefab][i];
+				for (int i = 0; i < shadow.Length; i++) shadow[i] = shadows[prefab][i];
+				for (int i = 0; i < ui    .Length; i++) ui    [i] = uis    [prefab][i];
 			}
 			if (core.TempFlag != core.Flag) {
 				for (int i = 0; i < 8; i++) {
@@ -1147,14 +1154,20 @@ partial struct CreatureInitializationSystem : ISystem {
 					if (x == y) continue;
 					core.SetTempFlag(flag, y);
 
-					var prefab = prefabArray[(int)core.Body].Prefab;
+					var prefab = Entity.Null;
+					foreach (var element in prefabContainer.Reinterpret<Entity>()) {
+						if (cores.HasComponent(element) && cores[element].Body == core.Body) {
+							prefab = element;
+							break;
+						}
+					}
 					switch (flag) {
 						case Flag.Pinned:
 							if (y) mass.InverseMass = 1f / CreatureCore.PinnedMass;
-							else   mass.InverseMass = massArray[prefab].InverseMass;
+							else   mass.InverseMass = masses[prefab].InverseMass;
 							break;
 						case Flag.Piercing:
-							var filter = colliderArray[prefab].Value.Value.GetCollisionFilter();
+							var filter = colliders[prefab].Value.Value.GetCollisionFilter();
 							if (y) filter.CollidesWith &= ~(1u << (int)PhysicsCategory.Creature);
 							else   filter.CollidesWith |=  (1u << (int)PhysicsCategory.Creature);
 							if (!collider.Value.Value.GetCollisionFilter().Equals(filter)) {
@@ -1194,15 +1207,23 @@ partial struct CreatureBeginSimulationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<BeginInitializationEntityCommandBufferSystem.Singleton>();
 		state.RequireForUpdate<PrefabContainer>();
 		state.RequireForUpdate<SimulationSingleton>();
 	}
 
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
+		var system = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
 		state.Dependency = new CreatureGravityRemovalJob {
-			core    = SystemAPI.GetComponentLookup<CreatureCore>(),
-			trigger = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			buffer        = system.CreateCommandBuffer(state.WorldUnmanaged),
+			cameraManager = SystemAPI.GetSingletonRW<CameraManagerBridge>(),
+			prefab        = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
+			transform     = SystemAPI.GetComponentLookup<LocalTransform>(true),
+			core          = SystemAPI.GetComponentLookup<CreatureCore>(),
+			mass          = SystemAPI.GetComponentLookup<PhysicsMass>(true),
+			trigger       = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			random        = new Random((uint)(1f + SystemAPI.Time.ElapsedTime * 31f)),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 		state.Dependency = new CreatureBeginSimulationJob() {
 		}.ScheduleParallel(state.Dependency);
@@ -1210,17 +1231,71 @@ partial struct CreatureBeginSimulationSystem : ISystem {
 
 	[BurstCompile]
 	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
+		public const float DustThreshold = -4.0f;
+		public EntityCommandBuffer buffer;
+		[NativeDisableUnsafePtrRestriction] public RefRW<CameraManagerBridge> cameraManager;
+		[ReadOnly] public DynamicBuffer<PrefabContainer> prefab;
+		[ReadOnly] public ComponentLookup<LocalTransform> transform;
 		public ComponentLookup<CreatureCore> core;
+		[ReadOnly] public ComponentLookup<PhysicsMass> mass;
 		[ReadOnly] public ComponentLookup<EventTrigger> trigger;
+		[ReadOnly] public Random random;
+
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
 		public void Execute(Entity entity, Entity target) {
 			if (core.HasComponent(entity) && !trigger.HasComponent(target)) {
-				var temp = core[entity];
-				temp.GravityFactor = 0;
-				core[entity] = temp;
+				var entityCore = core[entity];
+				var gravity = entityCore.GravityFactor * CreatureCore.GravityMultiplier;
+				var knock   = entityCore.KnockVector.y * CreatureCore.KnockMultiplier;
+				var match = true;
+				match &= gravity + knock < DustThreshold;
+				match &= !entityCore.HasFlag(Flag.Pinned);
+				if (match && !core.HasComponent(target)) {
+
+					var position = transform[entity].Position;
+					var radius = entityCore.Radius;
+					var right   = cameraManager.ValueRO.Right;
+					var up      = cameraManager.ValueRO.Up;
+					var forward = cameraManager.ValueRO.Forward;
+
+					var smoke0 = buffer.Instantiate(prefab[(int)Prefab.SmokeTiny].Prefab);
+					var smoke1 = buffer.Instantiate(prefab[(int)Prefab.SmokeTiny].Prefab);
+					var position0 = position + right * radius - forward * radius;
+					var position1 = position - right * radius - forward * radius;
+					buffer.SetComponent(smoke0, LocalTransform.FromPosition(position0));
+					buffer.SetComponent(smoke1, LocalTransform.FromPosition(position1));
+
+					/*var position = transform[entity].Position;
+					var radius = entityCore.Radius;
+					var count = (int)(2f * math.PI * radius) + (random.NextBool() ? 0 : 1);
+					var power = (DustThreshold - gravity - knock) / mass[entity].InverseMass;
+					var multiplier = 1 + (int)(power * 0.3f);
+					var part = 360f / count;
+					for (int i = 0; i < multiplier; i++) {
+						for (int j = 0; j < count; j++) {
+							var l = random.NextFloat(radius * 0.9f, radius + multiplier * 0.5f);
+							var radian = random.NextFloat(j * part, (j + 1) * part) * math.TORADIANS;
+							var vector = new float3(l * math.cos(radian), 1.0f, l * math.sin(radian));
+							var dust = buffer.Instantiate(prefab[(int)Prefab.Landing].Prefab);
+							buffer.SetComponent(dust, LocalTransform.FromPosition(position + vector));
+						}
+					}*/
+
+					/*var position = transform[entity].Position + new float3(0f, 1f, 0f);
+					for (int i = 0; i < 8; i++) {
+						var radian = 360f / 8f * i * math.TORADIANS;
+						var vector = new float3(math.cos(radian), 0f, math.sin(radian));
+						var landing = buffer.Instantiate(prefab[(int)Prefab.Landing].Prefab);
+						var transform = LocalTransform.FromPosition(position + vector * 0.5f);
+						transform.Rotation = quaternion.LookRotationSafe(-vector, math.up());
+						buffer.SetComponent(landing, transform);
+					}*/
+				}
+				entityCore.GravityFactor = 0;
+				core[entity] = entityCore;
 			}
 		}
 	}
@@ -1251,13 +1326,11 @@ partial struct CreatureEndSimulationSystem : ISystem {
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new EndCreatureSimulationJob {
-			deltaTime = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct EndCreatureSimulationJob : IJobEntity {
-		public float deltaTime;
 		public void Execute(
 			ref CreatureCore core,
 			ref PhysicsVelocity velocity,
@@ -1265,12 +1338,12 @@ partial struct CreatureEndSimulationSystem : ISystem {
 
 			if (!core.HasFlag(Flag.Floating)) {
 				float multiplier = CreatureCore.GravityMultiplier;
-				velocity.Linear += multiplier * deltaTime * core.GravityVector;
+				velocity.Linear += multiplier * core.GravityVector;
 				core.GravityFactor++;
 			}
 			if (core.IsKnocked) {
 				float multiplier = CreatureCore.KnockMultiplier;
-				velocity.Linear += multiplier * deltaTime * core.KnockVector;
+				velocity.Linear += multiplier * core.KnockVector;
 				core.KnockFactor--;
 			}
 		}

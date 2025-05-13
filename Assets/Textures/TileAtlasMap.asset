@@ -27,11 +27,11 @@ MonoBehaviour:
     TargetTexture: {fileID: 2800000, guid: e7530fbd518cabd4488d53dbcc0269e8, type: 3}
     FallbackColor:
       serializedVersion: 2
-      rgba: 4294934399
+      rgba: 16744319
   m_MaximumAtlasSize: 16384
   m_Padding: 2
   m_PixelPerUnit: 16
-  m_MergeDuplicate: 1
+  m_MergeDuplicate: 0
   m_AtlasMap:
     k:
     - GoldMetalBack

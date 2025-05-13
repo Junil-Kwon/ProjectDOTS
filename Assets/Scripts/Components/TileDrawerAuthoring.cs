@@ -150,7 +150,7 @@ public class TileDrawerAuthoring : MonoBehaviour {
 	class Baker : Baker<TileDrawerAuthoring> {
 		public override void Bake(TileDrawerAuthoring authoring) {
 			var components = GetComponents<TileDrawerAuthoring>();
-			if (authoring != components[0]) return;
+			if (components[0] != authoring) return;
 			var entity = GetEntity(TransformUsageFlags.Renderable);
 			var buffer = AddBuffer<TileDrawer>(entity);
 			foreach (var component in components) buffer.Add(new() {

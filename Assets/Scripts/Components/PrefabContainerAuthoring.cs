@@ -12,6 +12,19 @@ using Unity.Burst;
 
 
 
+// ━
+
+public enum Prefab : uint {
+	Player,
+	Temp,
+
+	SmokeMini,
+	SmokeTiny,
+	Landing,
+}
+
+
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Prefab Container Authoring
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -26,7 +39,7 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 		class PrefabContainerAuthoringEditor : EditorExtensions {
 			PrefabContainerAuthoring I => target as PrefabContainerAuthoring;
 			public override void OnInspectorGUI() {
-				Begin("Prefab Container Authoring Authoring");
+				Begin("Prefab Container Authoring");
 
 				End();
 			}
@@ -39,15 +52,20 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 
 	public class Baker : Baker<PrefabContainerAuthoring> {
 		public override void Bake(PrefabContainerAuthoring authoring) {
-			var prefabs = new GameObject[Enum.GetValues(typeof(Body)).Length];
-			foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
-				if (Enum.TryParse(prefab.name, out Body body)) prefabs[(int)body] = prefab; 
-			}
 			var entity = GetEntity(TransformUsageFlags.None);
 			var buffer = AddBuffer<PrefabContainer>(entity);
-			for (int i = 0; i < prefabs.Length; i++) buffer.Add(new PrefabContainer {
-				Prefab = GetEntity(prefabs[i], TransformUsageFlags.None),
-			});
+			var prefabs = new NativeArray<PrefabContainer>(1024, Allocator.Temp);
+			foreach (var gameObject in Resources.LoadAll<GameObject>("Prefabs")) {
+				if (Enum.TryParse(gameObject.name, out Prefab prefab)) {
+					prefabs[(int)prefab] = new PrefabContainer {
+
+						Prefab = GetEntity(gameObject, TransformUsageFlags.None),
+
+					};
+				}
+			}
+			buffer.AddRange(prefabs);
+			prefabs.Dispose();
 		}
 	}
 }

@@ -16,6 +16,10 @@ using Unity.Burst;
 public enum Sprite : uint {
 	None,
 	Player,
+
+	SmokeMini,
+	SmokeTiny,
+	Landing,
 }
 
 public enum Motion : uint {
@@ -159,7 +163,7 @@ public class SpriteDrawerAuthoring : MonoBehaviour {
 	class Baker : Baker<SpriteDrawerAuthoring> {
 		public override void Bake(SpriteDrawerAuthoring authoring) {
 			var components = GetComponents<SpriteDrawerAuthoring>();
-			if (authoring != components[0]) return;
+			if (components[0] != authoring) return;
 			var entity = GetEntity(TransformUsageFlags.Renderable);
 			var buffer = AddBuffer<SpriteDrawer>(entity);
 			foreach (var component in components) buffer.Add(new() {

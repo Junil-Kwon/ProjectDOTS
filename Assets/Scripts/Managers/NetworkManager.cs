@@ -524,7 +524,11 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 [UnityEngine.Scripting.Preserve]
 public class AutoConnectBootstrap : ClientServerBootstrap {
 	public override bool Initialize(string defaultWorldName) {
-		if (NetworkManager.AutoConnect) {
+		var local = false;
+		#if UNITY_EDITOR
+			local = NetworkManager.AutoConnect;
+		#endif
+		if (local) {
 			AutoConnectPort = 7979;
 			return base.Initialize(defaultWorldName);
 		}
@@ -538,7 +542,7 @@ public class AutoConnectBootstrap : ClientServerBootstrap {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Network Manager System
+// Network Manager Server System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 public struct RequestApproval : IApprovalRpcCommand {
@@ -550,12 +554,12 @@ public struct RequestApproval : IApprovalRpcCommand {
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 public partial class NetworkManagerServerSystem : SystemBase {
-	EndSimulationEntityCommandBufferSystem bufferSystem;
+	BeginInitializationEntityCommandBufferSystem system;
 	EntityQuery queryApproved;
 
 	[BurstCompile]
 	protected override void OnCreate() {
-		bufferSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+		system = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
 		queryApproved = GetEntityQuery(ComponentType.ReadOnly<ConnectionApproved>());
 		RequireForUpdate<NetworkStreamDriver>();
 		RequireForUpdate<PrefabContainer>();
@@ -563,15 +567,17 @@ public partial class NetworkManagerServerSystem : SystemBase {
 
 	[BurstDiscard]
 	protected override void OnUpdate() {
-		var buffer = bufferSystem.CreateCommandBuffer();
+		var buffer = system.CreateCommandBuffer();
+		var numApproved = queryApproved.CalculateEntityCount();
 		foreach (var (rpc, approval, entity) in SystemAPI
 			.Query<RefRO<ReceiveRpcCommandRequest>, RefRW<RequestApproval>>()
 			.WithEntityAccess()) {
 
             var connectionEntity = rpc.ValueRO.SourceConnection;
-			bool match = true;
-			match &= queryApproved.CalculateEntityCount() < NetworkManager.MaxPlayers;
+			var match = true;
 			match &= approval.ValueRO.payload.Equals("ABC");
+			match &= numApproved < NetworkManager.MaxPlayers;
+			if (match) numApproved++;
 			if (match) buffer.AddComponent(connectionEntity, new ConnectionApproved());
 			else       buffer.AddComponent(connectionEntity, new NetworkStreamRequestDisconnect());
 			buffer.DestroyEntity(entity); 
@@ -592,7 +598,7 @@ public partial class NetworkManagerServerSystem : SystemBase {
 
 				// Temp Player Spawn Code
 				var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true);
-				var player = buffer.Instantiate(prefabContainer[(int)Body.Player].Prefab);
+				var player = buffer.Instantiate(prefabContainer[(int)Prefab.Player].Prefab);
 				var position = new float3(0, 0, 0);
 				var networkId = SystemAPI.GetComponent<NetworkId>(connectionEntity).Value;
 				position.x = UnityEngine.Random.Range(-2f, 2f);
@@ -611,14 +617,18 @@ public partial class NetworkManagerServerSystem : SystemBase {
 
 
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Network Manager Client System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 public partial class NetworkManagerClientSystem : SystemBase {
-	EndSimulationEntityCommandBufferSystem bufferSystem;
+	EndInitializationEntityCommandBufferSystem bufferSystem;
 
 	[BurstCompile]
 	protected override void OnCreate() {
-		bufferSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+		bufferSystem = World.GetOrCreateSystemManaged<EndInitializationEntityCommandBufferSystem>();
 		RequireForUpdate<NetworkStreamDriver>();
 	}
 

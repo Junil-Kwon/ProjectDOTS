@@ -21,19 +21,6 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 
 
 
-	// Methods
-
-	static T GetOrCreateInstance() {
-		T instance = FindAnyObjectByType<T>();
-		if (!instance) {
-			var gameObject = new GameObject() { name = typeof(T).Name };
-			instance = gameObject.AddComponent<T>();
-		}
-		return instance;
-	}
-
-
-
 	// Lifecycle
 
 	void Awake() {

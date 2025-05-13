@@ -26,5 +26,4 @@ public class SoundManager : MonoSingleton<SoundManager> {
 			}
 		}
 	#endif
-
 }

@@ -42,7 +42,6 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 			AddComponent(entity, new EnvironmentManagerBridge());
 		}
 	}
-
 }
 
 

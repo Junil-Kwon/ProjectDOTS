@@ -97,7 +97,7 @@ public class AtlasMapSO : ScriptableObject {
 	[SerializeField] int       m_MaximumAtlasSize = 16384;
 	[SerializeField] int       m_Padding          = 2;
 	[SerializeField] float     m_PixelPerUnit     = 16f;
-	[SerializeField] bool      m_MergeDuplicate   = true;
+	[SerializeField] bool      m_MergeDuplicate   = false;
 	[SerializeField] HashMap   m_AtlasMap         = new();
 
 	bool m_IsDirty = false;
@@ -206,7 +206,6 @@ public class AtlasMapSO : ScriptableObject {
 			int hash = 17;
 			int step = 1;
 			if (4096 < pixels.Length) step = Mathf.FloorToInt(Mathf.Sqrt(pixels.Length / 4096));
-
 			for (int i = 0; i < pixels.Length; i += step) {
 				Color pixel = pixels[i];
 				int r = (int)(pixel.r * 255);
@@ -245,14 +244,14 @@ public class AtlasMapSO : ScriptableObject {
 
 		public void GenerateAtlasMap() {
 			int N = Data.Length;
+			int M;
 			var sourceNM = new Texture2D[N][];
 			var targetNM = new Texture2D[N][];
 			for (int n = 0; n < N; n++) {
 				sourceNM[n] = LoadAsset<Texture2D>(Data[n].SourceTexture);
 				targetNM[n] = new Texture2D[sourceNM[0].Length];
 			}
-			int M = sourceNM[0].Length;
-
+			M = sourceNM[0].Length;
 			var hash2index = new Dictionary<int,      int >();
 			var index2list = new Dictionary<int, List<int>>();
 			var scaleM     = new Vector2[M];
@@ -273,7 +272,6 @@ public class AtlasMapSO : ScriptableObject {
 				int width  = tempN.Select(t => t.width ).Max();
 				int height = tempN.Select(t => t.height).Max();
 				for (int n = 0; n < N; n++) tempN[n] = ResizeTexture(tempN[n], width, height);
-
 				var merged = CreateTexture(width, height);
 				for (int n = 0; n < N; n++) {
 					var mPixels = merged  .GetPixels(0, 0, width, height);
@@ -309,8 +307,8 @@ public class AtlasMapSO : ScriptableObject {
 					}
 				}
 				if (xmax < xmin || ymax < ymin) {
-					xmin = 0; xmax = 1;
-					ymin = 0; ymax = 1;
+					xmin = 0; xmax = 0;
+					ymin = 0; ymax = 0;
 				}
 				scaleM[m].x = xmax - xmin + 1;
 				scaleM[m].y = ymax - ymin + 1;

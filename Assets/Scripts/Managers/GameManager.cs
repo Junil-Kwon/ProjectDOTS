@@ -45,16 +45,6 @@ public class GameManager : MonoSingleton<GameManager> {
 				End();
 			}
 		}
-
-		float delta = 0f;
-		void OnGUI() {
-			delta += (Time.unscaledDeltaTime - delta) * 0.1f;
-			if (!DisplayFPS) return;
-			string text = string.Format("{0:0.} FPS ({1:0.0} ms)", 1.0f / delta, delta * 1000.0f);
-			GUI.Label(new Rect(20, 20, Screen.width, Screen.height), text, new GUIStyle() {
-				normal = new GUIStyleState() { textColor = Color.white }, fontSize = 16,
-			});
-		}
 	#endif
 
 
@@ -65,6 +55,7 @@ public class GameManager : MonoSingleton<GameManager> {
 	[SerializeField] bool m_DisplayFPS;
 
 	[SerializeField] GameState m_GameState;
+
 	List<BaseEvent> m_ActiveEvents = new();
 	List<float    > m_EventElapsed = new();
 
@@ -90,6 +81,22 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
 	static List<float    > EventElapsed => Instance.m_EventElapsed;
+
+
+
+	// Editor Methods
+
+	#if UNITY_EDITOR
+		float delta = 0f;
+		void OnGUI() {
+			delta += (Time.unscaledDeltaTime - delta) * 0.1f;
+			if (!DisplayFPS) return;
+			string text = string.Format("{0:0.} FPS ({1:0.0} ms)", 1.0f / delta, delta * 1000.0f);
+			GUI.Label(new Rect(20, 20, Screen.width, Screen.height), text, new GUIStyle() {
+				normal = new GUIStyleState() { textColor = Color.white }, fontSize = 16,
+			});
+		}
+	#endif
 
 
 

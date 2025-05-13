@@ -117,7 +117,7 @@ public class ShadowDrawerAuthoring : MonoBehaviour {
 	class Baker : Baker<ShadowDrawerAuthoring> {
 		public override void Bake(ShadowDrawerAuthoring authoring) {
 			var components = GetComponents<ShadowDrawerAuthoring>();
-			if (authoring != components[0]) return;
+			if (components[0] != authoring) return;
 			var entity = GetEntity(TransformUsageFlags.Renderable);
 			var buffer = AddBuffer<ShadowDrawer>(entity);
 			foreach (var component in components) buffer.Add(new() {

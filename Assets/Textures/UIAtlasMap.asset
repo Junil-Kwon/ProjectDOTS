@@ -21,7 +21,7 @@ MonoBehaviour:
   m_MaximumAtlasSize: 16384
   m_Padding: 2
   m_PixelPerUnit: 16
-  m_MergeDuplicate: 1
+  m_MergeDuplicate: 0
   m_AtlasMap:
     k:
     - Bar

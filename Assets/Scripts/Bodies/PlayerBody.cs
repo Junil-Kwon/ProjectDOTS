@@ -70,8 +70,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 
 				case Motion.Move:
 					if (0 < input.MoveFactor) {
-						var up = new float3(0f, 1f, 0f);
-						transform.Rotation = quaternion.LookRotationSafe(input.MoveVector, up);
+						transform.Rotation = quaternion.LookRotationSafe(-input.MoveVector, math.up());
 						velocity.Linear = 5f * input.MoveVector;
 					}
 					core.MotionXTick++;
@@ -82,7 +81,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 				case Motion.Jump:
 					velocity.Linear = 5f * input.MoveVector;
 					if (core.MotionXTick != 10) core.MotionXTick++;
-					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2f, 0f);
+					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.2f, 0f);
 					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
 					if (15 < core.MotionXTick) core.MotionX = Motion.Idle;
 					break;

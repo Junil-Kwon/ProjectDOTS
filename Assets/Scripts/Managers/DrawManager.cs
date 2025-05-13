@@ -20,7 +20,7 @@ using Random = Unity.Mathematics.Random;
 
 
 
-// ━
+// Shader Structures
 
 public struct TileDrawData {
 	public float3     position;
@@ -98,52 +98,50 @@ public class DrawManager : MonoSingleton<DrawManager> {
 				Space();
 
 				LabelField("Atlas Map", EditorStyles.boldLabel);
+				TileAtlasMap   = ObjectField("Tile Atlas Map",   TileAtlasMap);
+				SpriteAtlasMap = ObjectField("Sprite Atlas Map", SpriteAtlasMap);
+				ShadowAtlasMap = ObjectField("Shadow Atlas Map", ShadowAtlasMap);
+				UIAtlasMap     = ObjectField("UI Atlas Map",     UIAtlasMap);
+				Space();
+
+				LabelField("Map Data", EditorStyles.boldLabel);
 				int datamap = Marshal.SizeOf<uint>() + Marshal.SizeOf<AtlasData>();
 				int lutable = Marshal.SizeOf<uint>() + Marshal.SizeOf<uint     >();
-				int tile    = TileDataMap  .Count * datamap + TileLUTable  .Count * lutable;
-				int sprite  = SpriteDataMap.Count * datamap + SpriteLUTable.Count * lutable;
-				int shadow  = ShadowDataMap.Count * datamap + ShadowLUTable.Count * lutable;
-				int ui      = UIDataMap    .Count * datamap + UILUTable    .Count * lutable;
-				var style   = new GUIStyle(GUI.skin.label) { fixedWidth = 120 };
 				BeginHorizontal();
-				PrefixLabel("Tile Atlas Map");
-				if (TileAtlasMap = ObjectField(TileAtlasMap)) {
-					if (GUILayout.Button("↻", GUILayout.Width(20))) LoadTileData(TileAtlasMap);
-					GUILayout.Label($"{TileDataMap.Count} ({tile:N0} Bytes)", style);
-				}
+				PrefixLabel("Tile Map Data");
+				int tile = TileDataMap.Count * datamap + TileLUTable.Count * lutable;
+				if (GUILayout.Button("↻", GUILayout.Width(20))) LoadTileData(TileAtlasMap);
+				if (TileAtlasMap) GUILayout.Label($"{TileDataMap.Count}  ({tile:N0} Bytes)");
 				EndHorizontal();
 				BeginHorizontal();
-				PrefixLabel("Sprite Atlas Map");
-				if (SpriteAtlasMap = ObjectField(SpriteAtlasMap)) {
-					if (GUILayout.Button("↻", GUILayout.Width(20))) LoadSpriteData(SpriteAtlasMap);
-					GUILayout.Label($"{SpriteDataMap.Count} ({sprite:N0} Bytes)", style);
-				}
+				PrefixLabel("Sprite Map Data");
+				int sprite = SpriteDataMap.Count * datamap + SpriteLUTable.Count * lutable;
+				if (GUILayout.Button("↻", GUILayout.Width(20))) LoadSpriteData(SpriteAtlasMap);
+				if (SpriteAtlasMap) GUILayout.Label($"{SpriteDataMap.Count}  ({sprite:N0} Bytes)");
 				EndHorizontal();
 				BeginHorizontal();
-				PrefixLabel("Shadow Atlas Map");
-				if (ShadowAtlasMap = ObjectField(ShadowAtlasMap)) {
-					if (GUILayout.Button("↻", GUILayout.Width(20))) LoadShadowData(ShadowAtlasMap);
-					GUILayout.Label($"{ShadowDataMap.Count} ({shadow:N0} Bytes)", style);
-				}
+				PrefixLabel("Shadow Map Data");
+				int shadow = ShadowDataMap.Count * datamap + ShadowLUTable.Count * lutable;
+				if (GUILayout.Button("↻", GUILayout.Width(20))) LoadShadowData(ShadowAtlasMap);
+				if (ShadowAtlasMap) GUILayout.Label($"{ShadowDataMap.Count}  ({shadow:N0} Bytes)");
 				EndHorizontal();
 				BeginHorizontal();
-				PrefixLabel("UI Atlas Map");
-				if (UIAtlasMap = ObjectField(UIAtlasMap)) {
-					if (GUILayout.Button("↻", GUILayout.Width(20))) LoadUIData(UIAtlasMap);
-					GUILayout.Label($"{UIDataMap.Count} ({ui:N0} Bytes)", style);
-				}
+				PrefixLabel("UI Map Data");
+				int ui = UIDataMap.Count * datamap + UILUTable.Count * lutable;
+				if (GUILayout.Button("↻", GUILayout.Width(20))) LoadUIData(UIAtlasMap);
+				if (UIAtlasMap) GUILayout.Label($"{UIDataMap.Count}  ({ui:N0} Bytes)");
 				EndHorizontal();
 				AutoLoad = Toggle("Auto Load", AutoLoad);
 				Space();
 
 				LabelField("Editor Mesh", EditorStyles.boldLabel);
-				DrawEditorMesh = Toggle   ("Draw Editor Mesh", DrawEditorMesh);
-				CachePath      = TextField("Cache Path",       CachePath);
+				CachePath = TextField("Cache Path", CachePath);
 				BeginHorizontal();
-				PrefixLabel("Draw Manual");
-				if (Button("Clear")) ClearMesh();
-				if (Button("Draw" )) DrawMesh ();
+				PrefixLabel("Draw Editor Mesh");
+				if (Button("Clear")) ClearEditorMeshes();
+				if (Button("Draw" )) DrawEditorMeshes ();
 				EndHorizontal();
+				AutoDraw = Toggle("Auto Draw", AutoDraw);
 				Space();
 
 				End();
@@ -153,44 +151,199 @@ public class DrawManager : MonoSingleton<DrawManager> {
 
 
 
-	// Editor Update
+	// Constants
+
+	public const float SampleRate = 60f;
+
+
+
+	// Fields
+
+	[SerializeField] Mesh m_TileMesh;
+	[SerializeField] Mesh m_SpriteMesh;
+	[SerializeField] Mesh m_ShadowMesh;
+	[SerializeField] Mesh m_UIMesh;
+
+	[SerializeField] Material m_TileMaterial;
+	[SerializeField] Material m_SpriteMaterial;
+	[SerializeField] Material m_ShadowMaterial;
+	[SerializeField] Material m_UIMaterial;
+
+	#if UNITY_EDITOR
+		[SerializeField] AtlasMapSO m_TileAtlasMap;
+		[SerializeField] AtlasMapSO m_SpriteAtlasMap;
+		[SerializeField] AtlasMapSO m_ShadowAtlasMap;
+		[SerializeField] AtlasMapSO m_UIAtlasMap;
+	#endif
+
+	[SerializeField] HashMap<uint, uint> m_TileLUTable;
+	[SerializeField] HashMap<uint, uint> m_SpriteLUTable;
+	[SerializeField] HashMap<uint, uint> m_ShadowLUTable;
+	[SerializeField] HashMap<uint, uint> m_UILUTable;
+
+	[SerializeField] HashMap<uint, AtlasData> m_TileDataMap;
+	[SerializeField] HashMap<uint, AtlasData> m_SpriteDataMap;
+	[SerializeField] HashMap<uint, AtlasData> m_ShadowDataMap;
+	[SerializeField] HashMap<uint, AtlasData> m_UIDataMap;
+
+	#if UNITY_EDITOR
+		[SerializeField] bool m_AutoLoad = true;
+		[SerializeField] bool m_AutoDraw = true;
+		[SerializeField] string m_CachePath = "Assets/";
+	#endif
+
+
+
+	// Properties
+
+	public static Mesh TileMesh {
+		get => Instance.m_TileMesh ? Instance.m_TileMesh : Instance.m_TileMesh = GetTileMesh();
+		set => Instance.m_TileMesh = value;
+	}
+	public static Mesh SpriteMesh {
+		get => Instance.m_SpriteMesh ? Instance.m_SpriteMesh : Instance.m_SpriteMesh = GetSpriteMesh();
+		set => Instance.m_SpriteMesh = value;
+	}
+	public static Mesh ShadowMesh {
+		get => Instance.m_ShadowMesh ? Instance.m_ShadowMesh : Instance.m_ShadowMesh = GetShadowMesh();
+		set => Instance.m_ShadowMesh = value;
+	}
+	public static Mesh UIMesh {
+		get => Instance.m_UIMesh ? Instance.m_UIMesh : Instance.m_UIMesh = GetUIMesh();
+		set => Instance.m_UIMesh = value;
+	}
+
+	public static Material TileMaterial {
+		get => Instance.m_TileMaterial;
+		set => Instance.m_TileMaterial = value;
+	}
+	public static Material SpriteMaterial {
+		get => Instance.m_SpriteMaterial;
+		set => Instance.m_SpriteMaterial = value;
+	}
+	public static Material ShadowMaterial {
+		get => Instance.m_ShadowMaterial;
+		set => Instance.m_ShadowMaterial = value;
+	}
+	public static Material UIMaterial {
+		get => Instance.m_UIMaterial;
+		set => Instance.m_UIMaterial = value;
+	}
+
+	#if UNITY_EDITOR
+		public static AtlasMapSO TileAtlasMap {
+			get => Instance.m_TileAtlasMap;
+			set => Instance.m_TileAtlasMap = value;
+		}
+		public static AtlasMapSO SpriteAtlasMap {
+			get => Instance.m_SpriteAtlasMap;
+			set => Instance.m_SpriteAtlasMap = value;
+		}
+		public static AtlasMapSO ShadowAtlasMap {
+			get => Instance.m_ShadowAtlasMap;
+			set => Instance.m_ShadowAtlasMap = value;
+		}
+		public static AtlasMapSO UIAtlasMap {
+			get => Instance.m_UIAtlasMap;
+			set => Instance.m_UIAtlasMap = value;
+		}
+	#endif
+
+	public static HashMap<uint, uint> TileLUTable {
+		get => Instance.m_TileLUTable;
+		set => Instance.m_TileLUTable = value;
+	}
+	public static HashMap<uint, uint> SpriteLUTable {
+		get => Instance.m_SpriteLUTable;
+		set => Instance.m_SpriteLUTable = value;
+	}
+	public static HashMap<uint, uint> ShadowLUTable {
+		get => Instance.m_ShadowLUTable;
+		set => Instance.m_ShadowLUTable = value;
+	}
+	public static HashMap<uint, uint> UILUTable {
+		get => Instance.m_UILUTable;
+		set => Instance.m_UILUTable = value;
+	}
+
+	public static HashMap<uint, AtlasData> TileDataMap {
+		get => Instance.m_TileDataMap;
+		set => Instance.m_TileDataMap = value;
+	}
+	public static HashMap<uint, AtlasData> SpriteDataMap {
+		get => Instance.m_SpriteDataMap;
+		set => Instance.m_SpriteDataMap = value;
+	}
+	public static HashMap<uint, AtlasData> ShadowDataMap {
+		get => Instance.m_ShadowDataMap;
+		set => Instance.m_ShadowDataMap = value;
+	}
+	public static HashMap<uint, AtlasData> UIDataMap {
+		get => Instance.m_UIDataMap;
+		set => Instance.m_UIDataMap = value;
+	}
+
+	#if UNITY_EDITOR
+		static bool AutoLoad {
+			get => Instance.m_AutoLoad;
+			set => Instance.m_AutoLoad  = value;
+		}
+		static bool AutoDraw {
+			get => Instance.m_AutoDraw;
+			set {
+				var flag = AutoDraw != value;
+				Instance.m_AutoDraw  = value;
+				#if UNITY_EDITOR
+					if (flag && !Application.isPlaying) {
+						if (value) DrawEditorMeshes ();
+						else       ClearEditorMeshes();
+					}
+				#endif
+			}
+		}
+		static string CachePath {
+			get => Instance.m_CachePath;
+			set => Instance.m_CachePath = value;
+		}
+	#endif
+
+
+
+	// Editor Methods
 
 	#if UNITY_EDITOR
 		[InitializeOnLoadMethod]
-		static void InitializeOnLoadMethod() => EditorApplication.update += () => {
-			if (!Instance) return;
-			if (AutoLoad) {
-				var flag = false;
-				if (TileAtlasMap && TileAtlasMap.IsDirty) {
-					TileAtlasMap.IsDirty = false;
-					LoadTileData(TileAtlasMap);
-					flag = true;
+		static void UpdateAtlasMap() => EditorApplication.update += () => {
+			if (Instance && AutoLoad) {
+				uint flag = 0u;
+				if (TileAtlasMap   && TileAtlasMap  .IsDirty) flag |= 1u;
+				if (SpriteAtlasMap && SpriteAtlasMap.IsDirty) flag |= 2u;
+				if (ShadowAtlasMap && ShadowAtlasMap.IsDirty) flag |= 4u;
+				if (UIAtlasMap     && UIAtlasMap    .IsDirty) flag |= 8u;
+				if (flag != 0u) {
+					bool tileFlag   = (flag & 1u) != 0u;
+					bool spriteFlag = (flag & 2u) != 0u;
+					bool shadowFlag = (flag & 4u) != 0u;
+					bool uiFlag     = (flag & 8u) != 0u;
+					if (tileFlag  ) { LoadTileData  (TileAtlasMap  ); TileAtlasMap  .IsDirty = false; }
+					if (spriteFlag) { LoadSpriteData(SpriteAtlasMap); SpriteAtlasMap.IsDirty = false; }
+					if (shadowFlag) { LoadShadowData(ShadowAtlasMap); ShadowAtlasMap.IsDirty = false; }
+					if (uiFlag    ) { LoadUIData    (UIAtlasMap    ); UIAtlasMap    .IsDirty = false; }
+					if (AutoDraw) DrawEditorMeshes();
 				}
-				if (SpriteAtlasMap && SpriteAtlasMap.IsDirty) {
-					SpriteAtlasMap.IsDirty = false;
-					LoadSpriteData(SpriteAtlasMap);
-					flag = true;
-				}
-				if (ShadowAtlasMap && ShadowAtlasMap.IsDirty) {
-					ShadowAtlasMap.IsDirty = false;
-					LoadShadowData(ShadowAtlasMap);
-					flag = true;
-				}
-				if (UIAtlasMap && UIAtlasMap.IsDirty) {
-					UIAtlasMap.IsDirty = false;
-					LoadUIData(UIAtlasMap);
-					flag = true;
-				}
-				if (flag && DrawEditorMesh) DrawMesh();
 			}
-			if (DrawEditorMesh && Selection.activeGameObject) {
+		};
+
+		[InitializeOnLoadMethod]
+		static void UpdateSelectedEditorMesh() => EditorApplication.update += () => {
+			if (Instance && AutoDraw && Selection.activeGameObject) {
 				var status = PrefabUtility.GetPrefabInstanceStatus(Selection.activeGameObject);
 				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
 				if (flag) DrawMesh(Selection.activeGameObject);
 			}
 		};
 
-		static void ClearMesh() {
+		public static void ClearEditorMeshes() {
 			foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
 				var flag0 = prefab.TryGetComponent(out MeshFilter   meshFilter  );
 				var flag1 = prefab.TryGetComponent(out MeshRenderer meshRenderer);
@@ -203,7 +356,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 			AssetDatabase.Refresh();
 		}
 
-		static void DrawMesh() {
+		public static void DrawEditorMeshes() {
 			foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
 				var flag0 = prefab.TryGetComponent(out MeshFilter   meshFilter  );
 				var flag1 = prefab.TryGetComponent(out MeshRenderer meshRenderer);
@@ -273,7 +426,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 				material.SetColor ("_Emission",  data.emission );
 				materials.Add(material);
 			}
-
 			foreach (var sprite in spriteArray) {
 				var position = sprite.Position;
 				var rotation = Quaternion.Euler(30f, 0f, 0f);
@@ -303,7 +455,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 				material.SetColor ("_Emission",  data.emission );
 				materials.Add(material);
 			}
-
 			foreach (var shadow in shadowArray) {
 				var position = shadow.Position;
 				var rotation = Quaternion.Euler(0f, 0f, 0f);
@@ -330,7 +481,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 				material.SetVector("_Offset", new(data.offset.x, data.offset.y));
 				materials.Add(material);
 			}
-
 			foreach (var ui in uiArray) {
 				var position = ui.Position;
 				var rotation = Quaternion.Euler(30f, 0f, 0f);
@@ -358,7 +508,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 				material.SetColor ("_BaseColor", data.basecolor);
 				materials.Add(material);
 			}
-
 			mesh.Clear();
 			mesh.name = gameObject.name;
 			mesh.subMeshCount = triangles.Count;
@@ -375,172 +524,17 @@ public class DrawManager : MonoSingleton<DrawManager> {
 
 
 
-	// Constants
-
-	public const float SampleRate = 60f;
-
-
-
-	// Fields
-
-	[SerializeField] Mesh m_TileMesh;
-	[SerializeField] Mesh m_SpriteMesh;
-	[SerializeField] Mesh m_ShadowMesh;
-	[SerializeField] Mesh m_UIMesh;
-
-	[SerializeField] Material m_TileMaterial;
-	[SerializeField] Material m_SpriteMaterial;
-	[SerializeField] Material m_ShadowMaterial;
-	[SerializeField] Material m_UIMaterial;
-
-	[SerializeField] HashMap<uint, uint> m_TileLUTable;
-	[SerializeField] HashMap<uint, uint> m_SpriteLUTable;
-	[SerializeField] HashMap<uint, uint> m_ShadowLUTable;
-	[SerializeField] HashMap<uint, uint> m_UILUTable;
-
-	[SerializeField] HashMap<uint, AtlasData> m_TileDataMap;
-	[SerializeField] HashMap<uint, AtlasData> m_SpriteDataMap;
-	[SerializeField] HashMap<uint, AtlasData> m_ShadowDataMap;
-	[SerializeField] HashMap<uint, AtlasData> m_UIDataMap;
-
-	#if UNITY_EDITOR
-		[SerializeField] AtlasMapSO m_TileAtlasMap;
-		[SerializeField] AtlasMapSO m_SpriteAtlasMap;
-		[SerializeField] AtlasMapSO m_ShadowAtlasMap;
-		[SerializeField] AtlasMapSO m_UIAtlasMap;
-	#endif
-
-	[SerializeField] bool   m_AutoLoad;
-	[SerializeField] bool   m_DrawEditorMesh;
-	[SerializeField] string m_CachePath = "Assets/";
-
-
-
-	// Properties
-
-	public static Mesh TileMesh {
-		get => Instance.m_TileMesh ? Instance.m_TileMesh : Instance.m_TileMesh = GetTileMesh();
-		set => Instance.m_TileMesh = value;
-	}
-	public static Mesh SpriteMesh {
-		get => Instance.m_SpriteMesh ? Instance.m_SpriteMesh : Instance.m_SpriteMesh = GetSpriteMesh();
-		set => Instance.m_SpriteMesh = value;
-	}
-	public static Mesh ShadowMesh {
-		get => Instance.m_ShadowMesh ? Instance.m_ShadowMesh : Instance.m_ShadowMesh = GetShadowMesh();
-		set => Instance.m_ShadowMesh = value;
-	}
-	public static Mesh UIMesh {
-		get => Instance.m_UIMesh ? Instance.m_UIMesh : Instance.m_UIMesh = GetUIMesh();
-		set => Instance.m_UIMesh = value;
-	}
-
-	public static Material TileMaterial {
-		get => Instance.m_TileMaterial;
-		set => Instance.m_TileMaterial = value;
-	}
-	public static Material SpriteMaterial {
-		get => Instance.m_SpriteMaterial;
-		set => Instance.m_SpriteMaterial = value;
-	}
-	public static Material ShadowMaterial {
-		get => Instance.m_ShadowMaterial;
-		set => Instance.m_ShadowMaterial = value;
-	}
-	public static Material UIMaterial {
-		get => Instance.m_UIMaterial;
-		set => Instance.m_UIMaterial = value;
-	}
-
-	public static HashMap<uint, uint> TileLUTable {
-		get => Instance.m_TileLUTable;
-		set => Instance.m_TileLUTable = value;
-	}
-	public static HashMap<uint, uint> SpriteLUTable {
-		get => Instance.m_SpriteLUTable;
-		set => Instance.m_SpriteLUTable = value;
-	}
-	public static HashMap<uint, uint> ShadowLUTable {
-		get => Instance.m_ShadowLUTable;
-		set => Instance.m_ShadowLUTable = value;
-	}
-	public static HashMap<uint, uint> UILUTable {
-		get => Instance.m_UILUTable;
-		set => Instance.m_UILUTable = value;
-	}
-
-	public static HashMap<uint, AtlasData> TileDataMap {
-		get => Instance.m_TileDataMap;
-		set => Instance.m_TileDataMap = value;
-	}
-	public static HashMap<uint, AtlasData> SpriteDataMap {
-		get => Instance.m_SpriteDataMap;
-		set => Instance.m_SpriteDataMap = value;
-	}
-	public static HashMap<uint, AtlasData> ShadowDataMap {
-		get => Instance.m_ShadowDataMap;
-		set => Instance.m_ShadowDataMap = value;
-	}
-	public static HashMap<uint, AtlasData> UIDataMap {
-		get => Instance.m_UIDataMap;
-		set => Instance.m_UIDataMap = value;
-	}
-
-	#if UNITY_EDITOR
-		public static AtlasMapSO TileAtlasMap {
-			get => Instance.m_TileAtlasMap;
-			set => Instance.m_TileAtlasMap = value;
-		}
-		public static AtlasMapSO SpriteAtlasMap {
-			get => Instance.m_SpriteAtlasMap;
-			set => Instance.m_SpriteAtlasMap = value;
-		}
-		public static AtlasMapSO ShadowAtlasMap {
-			get => Instance.m_ShadowAtlasMap;
-			set => Instance.m_ShadowAtlasMap = value;
-		}
-		public static AtlasMapSO UIAtlasMap {
-			get => Instance.m_UIAtlasMap;
-			set => Instance.m_UIAtlasMap = value;
-		}
-	#endif
-
-	static bool AutoLoad {
-		get => Instance.m_AutoLoad;
-		set => Instance.m_AutoLoad = value;
-	}
-
-	static bool DrawEditorMesh {
-		get => Instance.m_DrawEditorMesh;
-		set {
-			#if UNITY_EDITOR
-				if (Instance.m_DrawEditorMesh != value && !Application.isPlaying) {
-					if (value) DrawMesh ();
-					else       ClearMesh();
-				}
-			#endif
-			Instance.m_DrawEditorMesh = value;
-		}
-	}
-	static string CachePath {
-		get => Instance.m_CachePath;
-		set => Instance.m_CachePath = value;
-	}
-
-
-
 	// Tile Methods
-	/*
-	{TileName}.png
-	{TileName}_{Frame}.png
-	{TileName}_{Frame}_{Milliseconds}.png
 
-	Default Frame:        0
-	Default Milliseconds: 100
+	// {TileName}.png
+	// {TileName}_{Frame}.png
+	// {TileName}_{Frame}_{Milliseconds}.png
 
-	TileName: 10 bits
-	Frame:    12 bits
-	*/
+	// Default Frame:        0
+	// Default Milliseconds: 100
+
+	// TileName: 10 bits
+	// Frame:    12 bits
 
 	public static Mesh GetTileMesh() {
 		var mesh = new Mesh() {
@@ -567,6 +561,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadTileData(AtlasMapSO atlasMap) {
+		if (atlasMap == null) return;
 		TileLUTable ??= new();
 		TileDataMap ??= new();
 		TileLUTable.Clear();
@@ -648,28 +643,27 @@ public class DrawManager : MonoSingleton<DrawManager> {
 
 
 	// Sprite Methods
-	/*
-	{SpriteName}.png
-	{SpriteName}_{Frame}_{Milliseconds}.png
-	{SpriteName}_{MotionName}_{Frame}_{Milliseconds}.png
-	{SpriteName}_{MotionName}_{Direction}_{Frame}_{Milliseconds}.png
+	
+	// {SpriteName}.png
+	// {SpriteName}_{Frame}_{Milliseconds}.png
+	// {SpriteName}_{Direction}_{Frame}_{Milliseconds}.png
+	// {SpriteName}_{MotionName}_{Direction}_{Frame}_{Milliseconds}.png
 
-	Default Motion:       None
-	Default Direction:    0
-	Default Frame:        0
-	Default Milliseconds: 100
+	// Default Motion:       None
+	// Default Direction:    0
+	// Default Frame:        0
+	// Default Milliseconds: 100
 
-	Direction:
-	 1 ~  2:  2 directions (right, left)
-	 3 ~  4:  4 directions (down, right, up, left)
-	 5 ~  8:  8 directions (down, right-down, right, right-up, up, left-up, left, left-down)
-	 9 ~ 16: 16 directions (down, ...)
+	// Direction:
+	// 1 ~  2:  2 directions (right, left)
+	// 3 ~  4:  4 directions (down, right, up, left)
+	// 5 ~  8:  8 directions (down, right-down, right, right-up, up, left-up, left, left-down)
+	// 9 ~ 16: 16 directions (down, ...)
 
-	SpriteName: 10 bits
-	MotionName:  5 bits
-	Direction:   5 bits
-	Frame:      12 bits
-	*/
+	// SpriteName: 10 bits
+	// MotionName:  5 bits
+	// Direction:   5 bits
+	// Frame:      12 bits
 
 	public static Mesh GetSpriteMesh() {
 		var mesh = new Mesh() {
@@ -696,6 +690,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadSpriteData(AtlasMapSO atlasMap) {
+		if (atlasMap == null) return;
 		SpriteLUTable ??= new();
 		SpriteDataMap ??= new();
 		SpriteLUTable.Clear();
@@ -710,8 +705,8 @@ public class DrawManager : MonoSingleton<DrawManager> {
 			var frame        = 0u;
 			var milliseconds = 100u;
 			if (1 <= split.Length) match &= Enum.TryParse(split[ 0], out sprite);
-			if (4 <= split.Length) match &= Enum.TryParse(split[ 1], out motion);
-			if (5 <= split.Length) match &= uint.TryParse(split[ 2], out direction);
+			if (5 <= split.Length) match &= Enum.TryParse(split[ 1], out motion);
+			if (4 <= split.Length) match &= uint.TryParse(split[^3], out direction);
 			if (3 <= split.Length) match &= uint.TryParse(split[^2], out frame);
 			if (3 <= split.Length) match &= uint.TryParse(split[^1], out milliseconds);
 			if (!match) continue;
@@ -745,7 +740,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static SpriteDrawData GetSpriteData(Transform transform, SpriteDrawerAuthoring drawer) {
-		var cameraYaw = 0f;
+		var yawGlobal = 0f;
 		var position  = new float3(transform.position + drawer.Position);
 		var scale     = new float2(1f, 1f);
 		var pivot     = new float2(drawer.Pivot.x, drawer.Pivot.y);
@@ -761,21 +756,21 @@ public class DrawManager : MonoSingleton<DrawManager> {
 		var numDirectionsKey = spriteBit | motionBit;
 		if (SpriteLUTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 			var maxDirections = 1u;
-			var yaw = drawer.Yaw;
+			var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
 			switch (numDirections) {
-				case >=  1u and <=  2u: maxDirections =  2u; yaw +=   0.00f; break;
-				case >=  3u and <=  4u: maxDirections =  4u; yaw += -45.00f; break;
-				case >=  5u and <=  8u: maxDirections =  8u; yaw += -22.50f; break;
-				case >=  9u and <= 16u: maxDirections = 16u; yaw += -11.25f; break;
+				case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
+				case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
+				case >=  5u and <=  8u: maxDirections =  8u; yaw += 22.50f; break;
+				case >=  9u and <= 16u: maxDirections = 16u; yaw += 11.25f; break;
 			}
 			var rotation = ((quaternion)transform.rotation).value;
 			var y = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 			var x = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
-			yaw += math.atan2(y, x) * math.TODEGREES;
-			if (!drawer.YawLocal) yaw -= cameraYaw;
+			yaw -= math.atan2(y, x) * math.TODEGREES;
+			yaw -= math.floor(yaw * 0.00277778f) * 360f;
 
-			var normalize = yaw * 0.00277778f - Mathf.Floor(yaw * 0.00277778f);
-			var direction = Mathf.Clamp((uint)(normalize * maxDirections), 0u, numDirections - 1u);
+			var normalize = (uint)(yaw * maxDirections * 0.00277778f);
+			var direction = math.clamp(normalize, 0u, maxDirections - 1u);
 			xflip = numDirections <= direction;
 			if (xflip) switch (maxDirections) {
 				case  2u: direction =  1u - direction; break;
@@ -794,7 +789,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 		if (SpriteLUTable.TryGetValue(sampleKey, out var dataKey)) {
 			if (SpriteDataMap.TryGetValue(dataKey, out var atlas)) {
 				scale  = atlas.scale;
-				pivot += atlas.pivot;
+				pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 				tiling = atlas.tiling;
 				offset = atlas.offset;
 			}
@@ -818,21 +813,18 @@ public class DrawManager : MonoSingleton<DrawManager> {
 
 
 	// Shadow Methods
-	/*
-	{SpriteName}.png
-	{SpriteName}_{Frame}_{Milliseconds}.png
-	{SpriteName}_{MotionName}_{Frame}_{Milliseconds}.png
 
-	Default Motion:       None
-	Default Frame:        0
-	Default Milliseconds: 100
+	// {SpriteName}.png
+	// {SpriteName}_{Frame}_{Milliseconds}.png
+	// {SpriteName}_{MotionName}_{Frame}_{Milliseconds}.png
 
-	Shadow uses sprite's direction
+	// Default Motion:       None
+	// Default Frame:        0
+	// Default Milliseconds: 100
 
-	SpriteName: 10 bits
-	MotionName:  5 bits
-	Frame:      12 bits
-	*/
+	// SpriteName: 10 bits
+	// MotionName:  5 bits
+	// Frame:      12 bits
 
 	public static Mesh GetShadowMesh() {
 		var mesh = new Mesh() {
@@ -859,6 +851,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadShadowData(AtlasMapSO atlasMap) {
+		if (atlasMap == null) return;
 		ShadowLUTable ??= new();
 		ShadowDataMap ??= new();
 		ShadowLUTable.Clear();
@@ -904,7 +897,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static ShadowDrawData GetShadowData(Transform transform, ShadowDrawerAuthoring drawer) {
-		var cameraYaw = 0f;
+		var yawGlobal = 0f;
 		var position  = new float3(transform.position + drawer.Position);
 		var scale     = new float2(1f, 1f);
 		var pivot     = new float2(0f, 0f);
@@ -919,21 +912,21 @@ public class DrawManager : MonoSingleton<DrawManager> {
 		var numDirectionsKey = shadowBit | motionBit;
 		if (ShadowLUTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 			var maxDirections = 1u;
-			var yaw = drawer.Yaw;
+			var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
 			switch (numDirections) {
-				case >=  1u and <=  2u: maxDirections =  2u; yaw +=   0.00f; break;
-				case >=  3u and <=  4u: maxDirections =  4u; yaw += -45.00f; break;
-				case >=  5u and <=  8u: maxDirections =  8u; yaw += -22.50f; break;
-				case >=  9u and <= 16u: maxDirections = 16u; yaw += -11.25f; break;
+				case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
+				case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
+				case >=  5u and <=  8u: maxDirections =  8u; yaw += 22.50f; break;
+				case >=  9u and <= 16u: maxDirections = 16u; yaw += 11.25f; break;
 			}
 			var rotation = ((quaternion)transform.rotation).value;
 			var y = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 			var x = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
-			yaw += math.atan2(y, x) * math.TODEGREES;
-			if (!drawer.YawLocal) yaw -= cameraYaw;
+			yaw -= math.atan2(y, x) * math.TODEGREES;
+			yaw -= math.floor(yaw * 0.00277778f) * 360f;
 
-			var normalize = yaw * 0.00277778f - Mathf.Floor(yaw * 0.00277778f);
-			var direction = Mathf.Clamp((uint)(normalize * maxDirections), 0u, maxDirections - 1u);
+			var normalize = (uint)(yaw * maxDirections * 0.00277778f);
+			var direction = math.clamp(normalize, 0u, maxDirections - 1u);
 			xflip = numDirections <= direction;
 		}
 		var totalMillisecondsKey = shadowBit | motionBit;
@@ -945,7 +938,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 		if (ShadowLUTable.TryGetValue(sampleKey, out var dataKey)) {
 			if (ShadowDataMap.TryGetValue(dataKey, out var atlas)) {
 				scale  = atlas.scale;
-				pivot += atlas.pivot;
+				pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 				tiling = atlas.tiling;
 				offset = atlas.offset;
 			}
@@ -966,17 +959,16 @@ public class DrawManager : MonoSingleton<DrawManager> {
 
 
 	// UI Methods
-	/*
-	{UIName}.png
-	{UIName}_{Frame}.png
-	{UIName}_{Frame}_{Milliseconds}.png
 
-	Default Frame:        0
-	Default Milliseconds: 100
+	// {UIName}.png
+	// {UIName}_{Frame}.png
+	// {UIName}_{Frame}_{Milliseconds}.png
 
-	UIName: 10 bits
-	Frame:  12 bits
-	*/
+	// Default Frame:        0
+	// Default Milliseconds: 100
+
+	// UIName: 10 bits
+	// Frame:  12 bits
 
 	public static Mesh GetUIMesh() {
 		var mesh = new Mesh() {
@@ -1003,6 +995,7 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadUIData(AtlasMapSO atlasMap) {
+		if (atlasMap == null) return;
 		UILUTable ??= new();
 		UIDataMap ??= new();
 		UILUTable.Clear();
@@ -1046,7 +1039,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 		var pivot    = new float2(drawer.Pivot.x, drawer.Pivot.y);
 		var tiling   = new float2(1f, 1f);
 		var offset   = new float2(0f, 0f);
-		var xflip    = false;
 
 		var uiBit     = ((uint)drawer.UI + 1u) << 22;
 		var sampleBit = ((uint)0u        + 1u) <<  0;
@@ -1074,8 +1066,8 @@ public class DrawManager : MonoSingleton<DrawManager> {
 			offset    = offset,
 			basecolor = drawer.BaseColor,
 		};
-		if (drawer.Flip.x != xflip) data.offset.x -= data.tiling.x *= -1f;
-		if (drawer.Flip.y         ) data.offset.y -= data.tiling.y *= -1f;
+		if (drawer.Flip.x) data.offset.x -= data.tiling.x *= -1f;
+		if (drawer.Flip.y) data.offset.y -= data.tiling.y *= -1f;
 		return data;
 	}
 
@@ -1084,8 +1076,8 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	// Lifecycle
 
 	#if UNITY_EDITOR
-		void OnEnable () { if (this == Instance && DrawEditorMesh) ClearMesh(); }
-		void OnDisable() { if (this == Instance && DrawEditorMesh) DrawMesh (); }
+		void OnEnable () { if (this == Instance && AutoDraw) ClearEditorMeshes(); }
+		void OnDisable() { if (this == Instance && AutoDraw) DrawEditorMeshes (); }
 	#endif
 }
 
@@ -1194,36 +1186,32 @@ public partial class DrawManagerSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var buffer = system.CreateCommandBuffer();
+		var transform = GetComponentLookup<LocalToWorld>(true);
 
-		var localToWorlds = GetComponentLookup<LocalToWorld>(true);
-		var tileDrawers   = GetBufferLookup   <TileDrawer  >(true);
-		var spriteDrawers = GetBufferLookup   <SpriteDrawer>(true);
-		var shadowDrawers = GetBufferLookup   <ShadowDrawer>(true);
-		var uiDrawers     = GetBufferLookup   <UIDrawer    >(true);
-
+		var tileDrawer = GetBufferLookup<TileDrawer>(true);
 		for (int i = 0; i < tileQuery.Length; i++) if (0 < tileQuery[i].CalculateEntityCount()) {
 			var entities = tileQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
 			indices[0] = 0;
 			new GetLengthJob<TileDrawer>() {
-				entities = entities,
-				buffers  = tileDrawers,
 				indices  = indices,
+				entities = entities,
+				drawers  = tileDrawer,
 			}.Schedule(entities.Length, 64, Dependency).Complete();
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-			var count = indices[entities.Length];
+			var count = indices[^1];
 			if (0 < count) {
 				new DrawTileJob() {
-					luTable    = tileLUTable,
-					dataMap    = tileDataMap,
+					array      = tileRenderer.LockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
-					transforms = localToWorlds,
-					drawers    = tileDrawers,
+					transforms = transform,
+					drawers    = tileDrawer,
+					luTable    = tileLUTable,
+					dataMap    = tileDataMap,
 					random     = new Random(73856093u),
-					array      = tileRenderer.LockBuffer(i, count),
 				}.Schedule(entities.Length, 64, Dependency).Complete();
 				tileRenderer.UnlockBuffer(count);
 			}
@@ -1236,29 +1224,30 @@ public partial class DrawManagerSystem : SystemBase {
 		tileRenderer.Draw();
 		tileRenderer.Clear(tileQuery.Length - 1);
 
+		var spriteDrawer = GetBufferLookup<SpriteDrawer>(true);
 		for (int i = 0; i < spriteQuery.Length; i++) if (0 < spriteQuery[i].CalculateEntityCount()) {
 			var entities = spriteQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
 			indices[0] = 0;
 			new GetLengthJob<SpriteDrawer>() {
-				entities = entities,
-				buffers  = spriteDrawers,
 				indices  = indices,
+				entities = entities,
+				drawers  = spriteDrawer,
 			}.Schedule(entities.Length, 64, Dependency).Complete();
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-			var count = indices[entities.Length];
+			var count = indices[^1];
 			if (0 < count) {
 				new DrawSpriteJob() {
-					luTable    = spriteLUTable,
-					dataMap    = spriteDataMap,
+					array      = spriteRenderer.LockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
-					transforms = localToWorlds,
-					drawers    = spriteDrawers,
-					cameraYaw  = CameraManager.EulerRotation.y,
-					array      = spriteRenderer.LockBuffer(i, count),
+					transforms = transform,
+					drawers    = spriteDrawer,
+					luTable    = spriteLUTable,
+					dataMap    = spriteDataMap,
+					yawGlobal  = CameraManager.EulerRotation.y,
 				}.Schedule(entities.Length, 64, Dependency).Complete();
 				spriteRenderer.UnlockBuffer(count);
 			}
@@ -1271,29 +1260,30 @@ public partial class DrawManagerSystem : SystemBase {
 		spriteRenderer.Draw();
 		spriteRenderer.Clear(spriteQuery.Length - 1);
 
+		var shadowDrawer = GetBufferLookup<ShadowDrawer>(true);
 		for (int i = 0; i < shadowQuery.Length; i++) if (0 < shadowQuery[i].CalculateEntityCount()) {
 			var entities = shadowQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
 			indices[0] = 0;
 			new GetLengthJob<ShadowDrawer>() {
-				entities = entities,
-				buffers  = shadowDrawers,
 				indices  = indices,
+				entities = entities,
+				drawers  = shadowDrawer,
 			}.Schedule(entities.Length, 64, Dependency).Complete();
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-			var count = indices[entities.Length];
+			var count = indices[^1];
 			if (0 < count) {
 				new DrawShadowJob() {
-					luTable    = shadowLUTable,
-					dataMap    = shadowDataMap,
+					array      = shadowRenderer.LockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
-					transforms = localToWorlds,
-					drawers    = shadowDrawers,
-					cameraYaw  = CameraManager.EulerRotation.y,
-					array      = shadowRenderer.LockBuffer(i, count),
+					transforms = transform,
+					drawers    = shadowDrawer,
+					luTable    = shadowLUTable,
+					dataMap    = shadowDataMap,
+					yawGlobal  = CameraManager.EulerRotation.y,
 				}.Schedule(entities.Length, 64, Dependency).Complete();
 				shadowRenderer.UnlockBuffer(count);
 			}
@@ -1306,28 +1296,30 @@ public partial class DrawManagerSystem : SystemBase {
 		shadowRenderer.Draw();
 		shadowRenderer.Clear(shadowQuery.Length - 1);
 
+		var uiDrawer = GetBufferLookup<UIDrawer>(true);
 		for (int i = 0; i < uiQuery.Length; i++) if (0 < uiQuery[i].CalculateEntityCount()) {
 			var entities = uiQuery[i].ToEntityArray(Allocator.TempJob);
 			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
 			indices[0] = 0;
 			new GetLengthJob<UIDrawer>() {
-				entities = entities,
-				buffers  = uiDrawers,
 				indices  = indices,
+				entities = entities,
+				drawers  = uiDrawer,
 			}.Schedule(entities.Length, 64, Dependency).Complete();
 			new PrefixSumJob() {
 				indices = indices,
 			}.Schedule(Dependency).Complete();
-			var count = indices[entities.Length];
+			var count = indices[^1];
 			if (0 < count) {
 				new DrawUIJob() {
-					luTable    = uiLUTable,
-					dataMap    = uiDataMap,
+					array      = uiRenderer.LockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
-					transforms = localToWorlds,
-					drawers    = uiDrawers,
-					array      = uiRenderer.LockBuffer(i, count),
+					transforms = transform,
+					drawers    = uiDrawer,
+					luTable    = uiLUTable,
+					dataMap    = uiDataMap,
+					random     = new Random(73856093u),
 				}.Schedule(entities.Length, 64, Dependency).Complete();
 				uiRenderer.UnlockBuffer(count);
 			}
@@ -1344,10 +1336,10 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct GetLengthJob<T> : IJobParallelFor where T : unmanaged, IBufferElementData {
 		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public BufferLookup<T> buffers;
+		[ReadOnly] public BufferLookup<T> drawers;
 		[NativeDisableParallelForRestriction] public NativeArray<int> indices;
-		public void Execute(int i) {
-			indices[1 + i] = buffers[entities[i]].Length;
+		public void Execute(int index) {
+			indices[1 + index] = drawers[entities[index]].Length;
 		}
 	}
 
@@ -1362,14 +1354,14 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawTileJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[ReadOnly] public NativeHashMap<uint, uint     > luTable;
+		[NativeDisableParallelForRestriction] public NativeArray<TileDrawData> array;
+		[ReadOnly] public NativeArray<int> indices;
+		[ReadOnly] public NativeArray<Entity> entities;
+		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
+		[ReadOnly] public BufferLookup<TileDrawer> drawers;
+		[ReadOnly] public NativeHashMap<uint, uint> luTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
 		[ReadOnly] public Random random;
-		[ReadOnly] public NativeArray    <int         > indices;
-		[ReadOnly] public NativeArray    <Entity      > entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup   <TileDrawer  > drawers;
-		[NativeDisableParallelForRestriction] public NativeArray<TileDrawData> array;
 
 		public void Execute(int index) {
 			var transform = transforms[entities[index]];
@@ -1425,14 +1417,14 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawSpriteJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[ReadOnly] public NativeHashMap<uint, uint     > luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public float cameraYaw;
-		[ReadOnly] public NativeArray    <int         > indices;
-		[ReadOnly] public NativeArray    <Entity      > entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup   <SpriteDrawer> drawers;
 		[NativeDisableParallelForRestriction] public NativeArray<SpriteDrawData> array;
+		[ReadOnly] public NativeArray<int> indices;
+		[ReadOnly] public NativeArray<Entity> entities;
+		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
+		[ReadOnly] public BufferLookup<SpriteDrawer> drawers;
+		[ReadOnly] public NativeHashMap<uint, uint> luTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
+		[ReadOnly] public float yawGlobal;
 
 		public void Execute(int index) {
 			var transform = transforms[entities[index]];
@@ -1458,21 +1450,21 @@ public partial class DrawManagerSystem : SystemBase {
 			var numDirectionsKey = spriteBit | motionBit;
 			if (luTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 				var maxDirections = 1u;
-				var yaw = drawer.Yaw;
+				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
 				switch (numDirections) {
-					case >=  1u and <=  2u: maxDirections =  2u; yaw +=   0.00f; break;
-					case >=  3u and <=  4u: maxDirections =  4u; yaw += -45.00f; break;
-					case >=  5u and <=  8u: maxDirections =  8u; yaw += -22.50f; break;
-					case >=  9u and <= 16u: maxDirections = 16u; yaw += -11.25f; break;
+					case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
+					case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
+					case >=  5u and <=  8u: maxDirections =  8u; yaw += 22.50f; break;
+					case >=  9u and <= 16u: maxDirections = 16u; yaw += 11.25f; break;
 				}
 				var rotation = transform.Rotation.value;
 				var y = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 				var x = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
-				yaw += math.atan2(y, x) * math.TODEGREES;
-				if (!drawer.YawLocal) yaw -= cameraYaw;
+				yaw -= math.atan2(y, x) * math.TODEGREES;
+				yaw -= math.floor(yaw * 0.00277778f) * 360f;
 
-				var normalize = yaw * 0.00277778f - math.floor(yaw * 0.00277778f);
-				var direction = math.clamp((uint)(normalize * maxDirections), 0u, maxDirections - 1u);
+				var normalize = (uint)(yaw * maxDirections * 0.00277778f);
+				var direction = math.clamp(normalize, 0u, maxDirections - 1u);
 				xflip = numDirections <= direction;
 				if (xflip) switch (maxDirections) {
 					case  2u: direction =  1u - direction; break;
@@ -1491,7 +1483,7 @@ public partial class DrawManagerSystem : SystemBase {
 			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
 				if (dataMap.TryGetValue(dataKey, out var atlas)) {
 					scale  = atlas.scale;
-					pivot += atlas.pivot;
+					pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 					tiling = atlas.tiling;
 					offset = atlas.offset;
 				}
@@ -1516,14 +1508,14 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawShadowJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[ReadOnly] public NativeHashMap<uint, uint     > luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public float cameraYaw;
-		[ReadOnly] public NativeArray    <int         > indices;
-		[ReadOnly] public NativeArray    <Entity      > entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup   <ShadowDrawer> drawers;
 		[NativeDisableParallelForRestriction] public NativeArray<ShadowDrawData> array;
+		[ReadOnly] public NativeArray<int> indices;
+		[ReadOnly] public NativeArray<Entity> entities;
+		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
+		[ReadOnly] public BufferLookup<ShadowDrawer> drawers;
+		[ReadOnly] public NativeHashMap<uint, uint> luTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
+		[ReadOnly] public float yawGlobal;
 
 		public void Execute(int index) {
 			var transform = transforms[entities[index]];
@@ -1548,21 +1540,21 @@ public partial class DrawManagerSystem : SystemBase {
 			var numDirectionsKey = shadowBit | motionBit;
 			if (luTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 				var maxDirections = 1u;
-				var yaw = drawer.Yaw;
+				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
 				switch (numDirections) {
-					case >=  1u and <=  2u: maxDirections =  2u; yaw +=   0.00f; break;
-					case >=  3u and <=  4u: maxDirections =  4u; yaw += -45.00f; break;
-					case >=  5u and <=  8u: maxDirections =  8u; yaw += -22.50f; break;
-					case >=  9u and <= 16u: maxDirections = 16u; yaw += -11.25f; break;
+					case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
+					case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
+					case >=  5u and <=  8u: maxDirections =  8u; yaw += 22.50f; break;
+					case >=  9u and <= 16u: maxDirections = 16u; yaw += 11.25f; break;
 				}
 				var rotation = transform.Rotation.value;
 				var y = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 				var x = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
-				yaw += math.atan2(y, x) * math.TODEGREES;
-				if (!drawer.YawLocal) yaw -= cameraYaw;
+				yaw -= math.atan2(y, x) * math.TODEGREES;
+				yaw -= math.floor(yaw * 0.00277778f) * 360f;
 
-				var normalize = yaw * 0.00277778f - math.floor(yaw * 0.00277778f);
-				var direction = math.clamp((uint)(normalize * maxDirections), 0u, maxDirections - 1u);
+				var normalize = (uint)(yaw * maxDirections * 0.00277778f);
+				var direction = math.clamp(normalize, 0u, maxDirections - 1u);
 				xflip = numDirections <= direction;
 			}
 			var totalMillisecondsKey = shadowBit | motionBit;
@@ -1574,7 +1566,7 @@ public partial class DrawManagerSystem : SystemBase {
 			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
 				if (dataMap.TryGetValue(dataKey, out var atlas)) {
 					scale  = atlas.scale;
-					pivot += atlas.pivot;
+					pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 					tiling = atlas.tiling;
 					offset = atlas.offset;
 				}
@@ -1596,20 +1588,20 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawUIJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[ReadOnly] public NativeHashMap<uint, uint     > luTable;
+		[NativeDisableParallelForRestriction] public NativeArray<UIDrawData> array;
+		[ReadOnly] public NativeArray<int> indices;
+		[ReadOnly] public NativeArray<Entity> entities;
+		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
+		[ReadOnly] public BufferLookup<UIDrawer> drawers;
+		[ReadOnly] public NativeHashMap<uint, uint> luTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
 		[ReadOnly] public Random random;
-		[ReadOnly] public NativeArray    <int         > indices;
-		[ReadOnly] public NativeArray    <Entity      > entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup   <UIDrawer    > drawers;
-		[NativeDisableParallelForRestriction] public NativeArray<UIDrawData> array;
 
 		public void Execute(int index) {
-			var matrix = transforms[entities[index]];
-			var drawer = drawers [entities[index]];
+			var transform = transforms[entities[index]];
+			var drawer    = drawers   [entities[index]];
 			for (int i = 0; i < drawer.Length; i++) {
-				array[indices[index] + i] = GetUIData(matrix, drawer[i]);
+				array[indices[index] + i] = GetUIData(transform, drawer[i]);
 			}
 		}
 
@@ -1619,7 +1611,6 @@ public partial class DrawManagerSystem : SystemBase {
 			var pivot    = new float2(drawer.Pivot.x, drawer.Pivot.y);
 			var tiling   = new float2(1f, 1f);
 			var offset   = new float2(0f, 0f);
-			var xflip    = false;
 
 			var uiBit     = ((uint)drawer.UI + 1u) << 22;
 			var sampleBit = ((uint)0u        + 1u) <<  0;
@@ -1647,8 +1638,8 @@ public partial class DrawManagerSystem : SystemBase {
 				offset    = offset,
 				basecolor = drawer.BaseColor,
 			};
-			if (drawer.Flip.x != xflip) data.offset.x -= data.tiling.x *= -1f;
-			if (drawer.Flip.y         ) data.offset.y -= data.tiling.y *= -1f;
+			if (drawer.Flip.x) data.offset.x -= data.tiling.x *= -1f;
+			if (drawer.Flip.y) data.offset.y -= data.tiling.y *= -1f;
 			return data;
 		}
 	}

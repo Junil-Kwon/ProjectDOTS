@@ -27,8 +27,9 @@ public class NavMeshManager : MonoSingleton<NavMeshManager> {
 			public override void OnInspectorGUI() {
 				Begin("NavMesh Manager");
 
-				LabelField("Bake NavMesh", EditorStyles.boldLabel);
+				LabelField("NavMesh", EditorStyles.boldLabel);
 				BeginHorizontal();
+				PrefixLabel("Bake NavMesh");
 				if (Button("Clear All")) ClearAll();
 				if (Button("Bake All" )) BakeAll ();
 				EndHorizontal();

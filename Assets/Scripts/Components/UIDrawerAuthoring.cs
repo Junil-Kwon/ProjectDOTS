@@ -122,7 +122,7 @@ public class UIDrawerAuthoring : MonoBehaviour {
 	class Baker : Baker<UIDrawerAuthoring> {
 		public override void Bake(UIDrawerAuthoring authoring) {
 			var components = GetComponents<UIDrawerAuthoring>();
-			if (authoring != components[0]) return;
+			if (components[0] != authoring) return;
 			var entity = GetEntity(TransformUsageFlags.Renderable);
 			var buffer = AddBuffer<UIDrawer>(entity);
 			foreach (var component in components) buffer.Add(new() {

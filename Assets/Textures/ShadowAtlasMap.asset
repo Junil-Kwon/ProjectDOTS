@@ -21,7 +21,7 @@ MonoBehaviour:
   m_MaximumAtlasSize: 16384
   m_Padding: 2
   m_PixelPerUnit: 16
-  m_MergeDuplicate: 1
+  m_MergeDuplicate: 0
   m_AtlasMap:
     k:
     - None
@@ -38,7 +38,7 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.5
-        y: 1
+        y: 0.25
       offset:
         x: 0
         y: 0
@@ -50,7 +50,7 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.375
-        y: 0.75
+        y: 0.1875
       offset:
         x: 0.5625
         y: 0
@@ -62,10 +62,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.375
-        y: 0.75
+        y: 0.1875
       offset:
-        x: 0.5625
-        y: 0
+        x: 0
+        y: 0.28125
     - scale:
         x: 0.75
         y: 0.75
@@ -74,10 +74,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.375
-        y: 0.75
+        y: 0.1875
       offset:
-        x: 0.5625
-        y: 0
+        x: 0.4375
+        y: 0.28125
     - scale:
         x: 0.75
         y: 0.75
@@ -86,7 +86,7 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.375
-        y: 0.75
+        y: 0.1875
       offset:
-        x: 0.5625
-        y: 0
+        x: 0
+        y: 0.5

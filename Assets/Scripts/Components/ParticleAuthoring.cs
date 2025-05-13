@@ -7,6 +7,7 @@ using Unity.Collections;
 using Unity.Burst;
 using Unity.Jobs;
 using Unity.Physics;
+using Random = Unity.Mathematics.Random;
 
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -54,7 +55,8 @@ public class ParticleAuthoring : MonoBehaviour {
 				I.PatternString = TextField(I.PatternString);
 				I.Pattern       = EnumField(I.Pattern);
 				EndHorizontal();
-				I.Lifetime = FloatField("Lifetime", I.Lifetime);
+				I.Lifetime   = FloatField("Lifetime",    I.Lifetime);
+				I.FlipRandom = Toggle2   ("Flip Random", I.FlipRandom);
 				Space();
 
 				End();
@@ -68,6 +70,7 @@ public class ParticleAuthoring : MonoBehaviour {
 
 	[SerializeField] string m_PatternString;
 	[SerializeField] float  m_Lifetime = 1f;
+	[SerializeField] bool2  m_FlipRandom = new(false, false);
 
 
 
@@ -85,6 +88,10 @@ public class ParticleAuthoring : MonoBehaviour {
 		get => m_Lifetime;
 		set => m_Lifetime = value;
 	}
+	public bool2 FlipRandom {
+		get => m_FlipRandom;
+		set => m_FlipRandom = value;
+	}
 
 
 
@@ -92,16 +99,26 @@ public class ParticleAuthoring : MonoBehaviour {
 
 	public class Baker : Baker<ParticleAuthoring> {
 		public override void Bake(ParticleAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.None);
+			Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+			AddComponent(entity, new ParticleInitialize());
 			AddComponent(entity, new Particle {
 
-				Lifetime = authoring.Lifetime,
+				Lifetime   = authoring.Lifetime,
+				FlipRandom = authoring.FlipRandom,
 
 			});
 			AddComponent(entity, authoring.Pattern.ToComponentType());
 		}
 	}
 }
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Particle Initialize
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+public struct ParticleInitialize : IComponentData, IEnableableComponent { }
 
 
 
@@ -114,6 +131,7 @@ public struct Particle : IComponentData {
 	// Fields
 
 	public float Lifetime;
+	public bool2 FlipRandom;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -121,6 +139,49 @@ public struct Particle : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 public struct NonePattern : IComponentData { }
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Particle Initialization System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[BurstCompile]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+partial struct ParticleInitializationSystem : ISystem {
+
+	[BurstCompile]
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<ParticleInitialize>();
+	}
+
+	[BurstCompile]
+	public void OnUpdate(ref SystemState state) {
+		state.Dependency = new ParticleInitializationJob() {
+			random = new Random((uint)(1f + SystemAPI.Time.ElapsedTime * 31f)),
+		}.ScheduleParallel(state.Dependency);
+	}
+
+	[BurstCompile, WithAll(typeof(ParticleInitialize))]
+	partial struct ParticleInitializationJob : IJobEntity {
+		public Random random;
+		public void Execute(
+			in Particle particle,
+			DynamicBuffer<SpriteDrawer> sprite,
+			EnabledRefRW<ParticleInitialize> initialize) {
+			initialize.ValueRW = false;
+			
+			if (particle.FlipRandom.x || particle.FlipRandom.y) {
+				for (int i = 0; i < sprite.Length; i++) {
+					var flip = sprite.ElementAt(i).Flip;
+					if (particle.FlipRandom.x) flip.x = random.NextBool();
+					if (particle.FlipRandom.y) flip.y = random.NextBool();
+					sprite.ElementAt(i).Flip = flip;
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -151,7 +212,7 @@ partial struct ParticleSimulationSystem : ISystem {
 	partial struct ParticleLifetimeSimulationJob : IJobEntity {
 		public EntityCommandBuffer.ParallelWriter buffer;
 		public float deltaTime;
-		public void Execute(Entity entity, [ChunkIndexInQuery] int sortKey, ref Particle particle) {
+		public void Execute([ChunkIndexInQuery] int sortKey, Entity entity, ref Particle particle) {
 			if ((particle.Lifetime -= deltaTime) <= 0f) buffer.DestroyEntity(sortKey, entity);
 		}
 	}

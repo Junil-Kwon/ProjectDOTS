@@ -47,6 +47,12 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 
 	// Methods
 
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	public IEnumerator<(Vector3 point, bool curve)> GetEnumerator() {
+		for (int i = 0; i < point.Count; i++) yield return (point[i], curve[i]);
+	}
+
 	public void Add() {
 		var value = (default(Vector3), false);
 		if (1 < point.Count) value.Item1 = point[^1] * 2f - point[^2];
@@ -89,12 +95,6 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 		curve   .AddRange(track.curve   );
 		distance.AddRange(track.distance);
 		isDirty = false;
-	}
-
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-	public IEnumerator<(Vector3 point, bool curve)> GetEnumerator() {
-		for (int i = 0; i < point.Count; i++) yield return (point[i], curve[i]);
 	}
 
 
