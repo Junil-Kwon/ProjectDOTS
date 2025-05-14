@@ -51,6 +51,7 @@ public class NavMeshManager : MonoSingleton<NavMeshManager> {
 	// Fields
 
 	NavMeshPath m_Path;
+	List<Vector3> m_List = new();
 
 
 
@@ -60,6 +61,7 @@ public class NavMeshManager : MonoSingleton<NavMeshManager> {
 		get => Instance.m_Path ??= new NavMeshPath();
 		set => Instance.m_Path = value;
 	}
+	static List<Vector3> List => Instance.m_List;
 
 
 
@@ -74,12 +76,12 @@ public class NavMeshManager : MonoSingleton<NavMeshManager> {
 	}
 
 	public static List<Vector3> GetPath(Vector3 source, Vector3 target) {
-		var path = new List<Vector3>();
-		if (TryGetPath(source, target, ref path)) return path;
+		List.Clear();
+		if (TryGetPath(source, target, List)) return List;
 		return null;
 	}
 
-	public static bool TryGetPath(Vector3 source, Vector3 target, ref List<Vector3> path) {
+	public static bool TryGetPath(Vector3 source, Vector3 target, List<Vector3> path) {
 		if (!NavMesh.CalculatePath(source, target, NavMesh.AllAreas, Path)) return false;
 		if (Path.status != NavMeshPathStatus.PathComplete) return false;
 		for (int i = 0; i < Path.corners.Length - 1; i++) {
