@@ -20,6 +20,7 @@ using Unity.Services.Relay.Models;
 
 #if UNITY_EDITOR
 	using UnityEditor;
+	using UnityEditor.Compilation;
 #endif
 
 
@@ -136,7 +137,13 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 	public static bool AutoConnect {
 		get => Instance.m_AutoConnect;
-		set => Instance.m_AutoConnect = value;
+		set {
+			var flag = AutoConnect != value;
+			Instance.m_AutoConnect  = value;
+			#if UNITY_EDITOR
+				if (flag) CompilationPipeline.RequestScriptCompilation();
+			#endif
+		}
 	}
 	public static bool EnableGUI {
 		get => Instance.m_EnableGUI;
@@ -521,23 +528,18 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 // Auto Connect Bootstrap
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[UnityEngine.Scripting.Preserve]
-public class AutoConnectBootstrap : ClientServerBootstrap {
-	public override bool Initialize(string defaultWorldName) {
-		var local = false;
-		#if UNITY_EDITOR
-			local = NetworkManager.AutoConnect;
-		#endif
-		if (local) {
-			AutoConnectPort = 7979;
-			return base.Initialize(defaultWorldName);
-		}
-		else {
-			CreateLocalWorld(defaultWorldName);
-			return true;
+#if UNITY_EDITOR
+	[UnityEngine.Scripting.Preserve]
+	public class AutoConnectBootstrap : ClientServerBootstrap {
+		public override bool Initialize(string defaultWorldName) {
+			if (NetworkManager.AutoConnect) {
+				AutoConnectPort = 7979;
+				return base.Initialize(defaultWorldName);
+			}
+			return false;
 		}
 	}
-}
+#endif
 
 
 

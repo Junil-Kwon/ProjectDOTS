@@ -561,7 +561,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadTileData(AtlasMapSO atlasMap) {
-		if (atlasMap == null) return;
 		TileLUTable ??= new();
 		TileDataMap ??= new();
 		TileLUTable.Clear();
@@ -690,7 +689,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadSpriteData(AtlasMapSO atlasMap) {
-		if (atlasMap == null) return;
 		SpriteLUTable ??= new();
 		SpriteDataMap ??= new();
 		SpriteLUTable.Clear();
@@ -851,7 +849,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadShadowData(AtlasMapSO atlasMap) {
-		if (atlasMap == null) return;
 		ShadowLUTable ??= new();
 		ShadowDataMap ??= new();
 		ShadowLUTable.Clear();
@@ -995,7 +992,6 @@ public class DrawManager : MonoSingleton<DrawManager> {
 	}
 
 	public static void LoadUIData(AtlasMapSO atlasMap) {
-		if (atlasMap == null) return;
 		UILUTable ??= new();
 		UIDataMap ??= new();
 		UILUTable.Clear();

@@ -84,22 +84,6 @@ public class GameManager : MonoSingleton<GameManager> {
 
 
 
-	// Editor Methods
-
-	#if UNITY_EDITOR
-		float delta = 0f;
-		void OnGUI() {
-			delta += (Time.unscaledDeltaTime - delta) * 0.1f;
-			if (!DisplayFPS) return;
-			string text = string.Format("{0:0.} FPS ({1:0.0} ms)", 1.0f / delta, delta * 1000.0f);
-			GUI.Label(new Rect(20, 20, Screen.width, Screen.height), text, new GUIStyle() {
-				normal = new GUIStyleState() { textColor = Color.white }, fontSize = 16,
-			});
-		}
-	#endif
-
-
-
 	// Methods
 
 	public static void PlayEvent(EventGraphSO graph) {
@@ -148,5 +132,15 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	void Update() {
 		SimulateEvents();
+	}
+
+	float delta = 0f;
+	void OnGUI() {
+		delta += (Time.unscaledDeltaTime - delta) * 0.1f;
+		if (!DisplayFPS) return;
+		string text = string.Format("{0:0.} FPS ({1:0.0} ms)", 1.0f / delta, delta * 1000.0f);
+		GUI.Label(new Rect(20, 200, Screen.width, Screen.height), text, new GUIStyle() {
+			normal = new GUIStyleState() { textColor = Color.white }, fontSize = 16,
+		});
 	}
 }
