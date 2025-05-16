@@ -51,7 +51,7 @@ public class NavMeshManager : MonoSingleton<NavMeshManager> {
 	// Fields
 
 	NavMeshPath m_Path;
-	List<Vector3> m_List = new();
+	readonly List<Vector3> m_List = new();
 
 
 

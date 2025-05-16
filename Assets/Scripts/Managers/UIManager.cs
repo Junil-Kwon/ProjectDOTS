@@ -33,6 +33,75 @@ public class UIManager : MonoSingleton<UIManager> {
 			}
 		}
 	#endif
+
+
+
+	// Fields
+
+	TitleCanvas    m_TitleCanvas;
+	GameCanvas     m_GameCanvas;
+	DialogueCanvas m_DialogueCanvas;
+	MenuCanvas     m_MenuCanvas;
+	SettingsCanvas m_SettingsCanvas;
+	FadeCanvas     m_FadeCanvas;
+
+
+
+	// Properties
+
+	TitleCanvas TitleCanvas {
+		get {
+			if (!m_TitleCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_TitleCanvas)) break;
+			}
+			return m_TitleCanvas;
+		}
+	}
+	GameCanvas GameCanvas {
+		get {
+			if (!m_GameCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_GameCanvas)) break;
+			}
+			return m_GameCanvas;
+		}
+	}
+	DialogueCanvas DialogueCanvas {
+		get {
+			if (!m_DialogueCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_DialogueCanvas)) break;
+			}
+			return m_DialogueCanvas;
+		}
+	}
+	MenuCanvas MenuCanvas {
+		get {
+			if (!m_MenuCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_MenuCanvas)) break;
+			}
+			return m_MenuCanvas;
+		}
+	}
+	SettingsCanvas SettingsCanvas {
+		get {
+			if (!m_SettingsCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_SettingsCanvas)) break;
+			}
+			return m_SettingsCanvas;
+		}
+	}
+	FadeCanvas FadeCanvas {
+		get {
+			if (!m_FadeCanvas) for (int i = 0; i < transform.childCount; i++) {
+				if (transform.GetChild(i).TryGetComponent(out m_FadeCanvas)) break;
+			}
+			return m_FadeCanvas;
+		}
+	}
+
+
+
+	// Methods
+
 }
 
 

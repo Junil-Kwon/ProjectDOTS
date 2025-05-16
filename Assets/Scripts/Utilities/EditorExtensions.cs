@@ -201,6 +201,17 @@ using Unity.Mathematics;
 			return EditorGUILayout.MaskField(label, layer, layers);
 		}
 
+		public int SceneField(string label, int value) {
+			var scenes = EditorBuildSettings.scenes;
+			var popups = new string[EditorBuildSettings.scenes.Length];
+			for (int i = 0; i < scenes.Length; i++) popups[i] = scenes[i].path.Split('/')[^1][..^6];
+			EditorGUILayout.BeginHorizontal();
+			PrefixLabel(label);
+			value = EditorGUILayout.Popup(value, popups);
+			EditorGUILayout.EndHorizontal();
+			return value;
+		}
+
 		public Vector2 Vector2Field(Vector2 value) {
 			return EditorGUILayout.Vector2Field(string.Empty, value);
 		}

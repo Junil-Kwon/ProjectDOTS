@@ -62,31 +62,17 @@ public class InputManager : MonoSingleton<InputManager> {
 			public override void OnInspectorGUI() {
 				Begin("Input Manager");
 
-				LabelField("Actions", EditorStyles.boldLabel);
-				InputActionAsset = ObjectField("Input Action Asset", InputActionAsset);
-				PlayerInput.notificationBehavior = PlayerNotifications.InvokeUnityEvents;
-				PlayerInput.actions = InputActionAsset;
-				if (InputActionAsset) {
-					DefaultActionMap = EnumField("Default Action Map", DefaultActionMap);
-					PlayerInput.defaultActionMap = DefaultActionMap.ToString();
-				}
-				Space();
-
-				if (Application.isPlaying) {
-					LabelField("Debug", EditorStyles.boldLabel);
-					BeginHorizontal();
-					PrefixLabel("Switch Action Map");
-					for (int i = 0; i < ActionMapLength; i++) {
-						if (Button(((ActionMap)i).ToString())) SwitchActionMap((ActionMap)i);
-					}
-					EndHorizontal();
-					IntField("Key", (int)KeyNext);
-					Vector2Field("Look Direction", LookDirection);
-					Vector2Field("Move Direction", MoveDirection);
-					Vector2Field("Point Position", PointPosition);
-					Vector2Field("Scroll Wheel",   ScrollWheel);
+				if (InputActionAsset == null) {
+					HelpBox("No input action asset found.");
 					Space();
 				}
+				LabelField("Debug", EditorStyles.boldLabel);
+				BeginDisabledGroup();
+				var actionMap = Application.isPlaying ? PlayerInput.currentActionMap.name : "None";
+				TextField("Action Map", actionMap);
+				EndDisabledGroup();
+				Space();
+
 				End();
 			}
 		}
@@ -94,111 +80,85 @@ public class InputManager : MonoSingleton<InputManager> {
 
 
 
-	// Definitions
-
-	static readonly int ActionMapLength = Enum.GetValues(typeof(ActionMap)).Length;
-	static readonly int KeyActionLength = Enum.GetValues(typeof(KeyAction)).Length;
-
-
-
 	// Fields
-
-	[SerializeField] InputActionAsset m_InputActionAsset;
-	[SerializeField] ActionMap        m_DefaultActionMap;
 
 	PlayerInput m_PlayerInput;
 
-	static uint m_KeyNext = 0u;
-	static uint m_KeyPrev = 0u;
-	static Vector2 m_LookDirection = Vector2.zero;
-	static Vector2 m_MoveDirection = Vector2.zero;
-	static Vector2 m_PointPosition = Vector2.zero;
-	static Vector2 m_ScrollWheel   = Vector2.zero;
+	uint m_KeyNext;
+	uint m_KeyPrev;
+	Vector2 m_LookDirection;
+	Vector2 m_MoveDirection;
+	Vector2 m_PointPosition;
+	Vector2 m_ScrollWheel;
 
-	static string m_KeyPressed;
+	string m_KeyPressed;
 
 
 
 	// Properties
 
-	static InputActionAsset InputActionAsset {
-		get => Instance.m_InputActionAsset;
-		set => Instance.m_InputActionAsset = value;
-	}
-	static ActionMap        DefaultActionMap {
-		get => Instance.m_DefaultActionMap;
-		set => Instance.m_DefaultActionMap = value;
-	}
+	static PlayerInput PlayerInput
+		=> Instance.m_PlayerInput || Instance.TryGetComponent(out Instance.m_PlayerInput)
+		?  Instance.m_PlayerInput :  null;
 
-	static PlayerInput PlayerInput =>
-		Instance.m_PlayerInput || Instance.TryGetComponent(out Instance.m_PlayerInput) ?
-		Instance.m_PlayerInput : null;
+	static InputActionAsset InputActionAsset => PlayerInput.actions;
+
+
 
 	public static uint KeyNext {
-		get         => m_KeyNext;
-		private set => m_KeyNext = value;
+		get         => Instance.m_KeyNext;
+		private set => Instance.m_KeyNext = value;
 	}
 	public static uint KeyPrev {
-		get         => m_KeyPrev;
-		private set => m_KeyPrev = value;
+		get         => Instance.m_KeyPrev;
+		private set => Instance.m_KeyPrev = value;
 	}
 	public static Vector2 LookDirection {
-		get         => m_LookDirection;
-		private set => m_LookDirection = value;
+		get         => Instance.m_LookDirection;
+		private set => Instance.m_LookDirection = value;
 	}
 	public static Vector2 MoveDirection {
-		get         => m_MoveDirection;
-		private set => m_MoveDirection = value;
+		get         => Instance.m_MoveDirection;
+		private set => Instance.m_MoveDirection = value;
 	}
 	public static Vector2 PointPosition {
-		get         => m_PointPosition;
-		private set => m_PointPosition = value;
+		get         => Instance.m_PointPosition;
+		private set => Instance.m_PointPosition = value;
 	}
 	public static Vector2 ScrollWheel {
-		get         => m_ScrollWheel;
-		private set => m_ScrollWheel = value;
+		get         => Instance.m_ScrollWheel;
+		private set => Instance.m_ScrollWheel = value;
 	}
 
 	public static string KeyPressed {
-		get         => m_KeyPressed;
-		private set => m_KeyPressed = value;
+		get         => Instance.m_KeyPressed;
+		private set => Instance.m_KeyPressed = value;
 	}
 
 
 
 	// Key State Methods
 
-	static void RegisterActionMap(ActionMap map, bool register = true) {
+	static void RegisterActionMap() {
 		if (InputActionAsset == null) return;
-		KeyNext = 0u;
-		KeyPrev = 0u;
-		LookDirection = Vector2.zero;
-		MoveDirection = Vector2.zero;
-		PointPosition = Vector2.zero;
-		ScrollWheel   = Vector2.zero;
+		foreach (var inputActionMap in InputActionAsset.actionMaps) {
+			if (!Enum.TryParse(inputActionMap.name, out ActionMap actionMap)) continue;
+			foreach (var inputAction in inputActionMap.actions) {
+				if (!Enum.TryParse(inputAction.name, out KeyAction keyAction)) continue;
 
-		var actionMap = InputActionAsset.FindActionMap(map.ToString());
-		if (actionMap == null) return;
-		for (int i = 0; i < KeyActionLength; i++) {
-			var inputAction = actionMap.FindAction(((KeyAction)i).ToString());
-			if (inputAction == null) continue;
-			int index = i;
-			Action<InputAction.CallbackContext> action = (KeyAction)index switch {
-				KeyAction.Look        => callback => LookDirection = callback.ReadValue<Vector2>(),
-				KeyAction.Move        => callback => MoveDirection = callback.ReadValue<Vector2>(),
-				KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
-				KeyAction.ScrollWheel => callback => ScrollWheel   = callback.ReadValue<Vector2>(),
-				_ => callback => {
-					bool flag = callback.action.IsPressed();
-					KeyNext = flag ? KeyNext | (1u << index) : KeyNext & ~(1u << index);
-				},
-			};
-			if (register) inputAction.performed += action;
-			else          inputAction.performed -= action;
-		}
-		if (register) {
-			//Cursor.visible = map != ActionMap.Player;
-			//Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
+				int index = (int)keyAction;
+				Action<InputAction.CallbackContext> action = (KeyAction)index switch {
+					KeyAction.Look        => callback => LookDirection = callback.ReadValue<Vector2>(),
+					KeyAction.Move        => callback => MoveDirection = callback.ReadValue<Vector2>(),
+					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
+					KeyAction.ScrollWheel => callback => ScrollWheel   = callback.ReadValue<Vector2>(),
+					_ => callback => {
+						bool flag = callback.action.IsPressed();
+						KeyNext = flag ? (KeyNext | (1u << index)) : (KeyNext & ~(1u << index));
+					},
+				};
+				inputAction.performed += action;
+			}
 		}
 	}
 
@@ -211,9 +171,13 @@ public class InputManager : MonoSingleton<InputManager> {
 	public static bool GetKeyDown(KeyAction key) =>  GetKeyNext(key) && !GetKeyPrev(key);
 	public static bool GetKeyUp  (KeyAction key) => !GetKeyNext(key) &&  GetKeyPrev(key);
 
-	public static void SwitchActionMap(ActionMap map) {
-		RegisterActionMap(DefaultActionMap, false);
-		RegisterActionMap(DefaultActionMap = map);
+	public static void SwitchActionMap(ActionMap actionMap) {
+		if (InputActionAsset == null) return;
+		if (InputActionAsset.FindActionMap(actionMap.ToString()) == null) return;
+		PlayerInput.SwitchCurrentActionMap(actionMap.ToString());
+		var lockCursor = actionMap == ActionMap.Player;
+		Cursor.visible = !lockCursor;
+		Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
 	}
 
 
@@ -291,7 +255,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	// Lifecycle
 
 	void Start() {
-		RegisterActionMap(DefaultActionMap);
+		RegisterActionMap();
 		RegisterKeyRecord();
 	}
 

@@ -54,23 +54,11 @@ public struct GameManagerBridge : IComponentData {
 
 	// Fields
 
-	GameState m_GameState;
-
 	uint m_Flag;
 
 
 
 	// Properties
-
-	public GameState GameState {
-		get => m_GameState;
-		set {
-			m_GameState = value;
-			Flag |= 0x0001u;
-		}
-	}
-
-
 
 	public uint Flag {
 		get => m_Flag;
@@ -108,10 +96,6 @@ public partial class GameManagerBridgeSystem : SystemBase {
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
 		var flag   = bridge.ValueRO.Flag;
-
-		if ((flag & 0x0001u) != 0u) GameManager.GameState = bridge.ValueRO.GameState;
-
-		bridge.ValueRW.GameState = GameManager.GameState;
 
 		if ((flag & 0x0100u) != 0u) {
 			var graph = bridge.ValueRO.PlayEvent_graph.Value;

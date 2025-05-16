@@ -1,8 +1,13 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+using Unity.NetCode;
 
 #if UNITY_EDITOR
 	using UnityEditor;
+	using UnityEditor.Compilation;
 #endif
 
 
@@ -33,13 +38,16 @@ public class GameManager : MonoSingleton<GameManager> {
 			public override void OnInspectorGUI() {
 				Begin("Game Manager");
 
-				LabelField("Game Settings", EditorStyles.boldLabel);
-				TargetFrameRate = IntSlider("Target Frame Rate", TargetFrameRate, 0, 999);
-				DisplayFPS      = Toggle   ("Display FPS",       DisplayFPS);
+				LabelField("Startup", EditorStyles.boldLabel);
+				GameScene     = SceneField("Game Scene",     GameScene);
+				StartDirectly = Toggle    ("Start Directly", StartDirectly);
 				Space();
 
-				LabelField("Game", EditorStyles.boldLabel);
-				GameState = EnumField("Game State", GameState);
+				LabelField("Debug", EditorStyles.boldLabel);
+				BeginDisabledGroup();
+				var gameState = Regex.Replace($"{GameState}", "(?<=[a-z])(?=[A-Z])", " ");
+				TextField("Game State", $"{gameState}");
+				EndDisabledGroup();
 				Space();
 
 				End();
@@ -51,10 +59,10 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	// Fields
 
-	[SerializeField] int  m_TargetFrameRate;
-	[SerializeField] bool m_DisplayFPS;
+	[SerializeField] int  m_GameScene;
+	[SerializeField] bool m_StartDirectly;
 
-	[SerializeField] GameState m_GameState;
+	GameState m_GameState = GameState.Paused;
 
 	List<BaseEvent> m_ActiveEvents = new();
 	List<float    > m_EventElapsed = new();
@@ -63,20 +71,31 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	// Properties
 
-	static int TargetFrameRate {
-		get => Instance.m_TargetFrameRate;
-		set => Instance.m_TargetFrameRate = value;
+	static int GameScene {
+		get => Instance.m_GameScene;
+		set => Instance.m_GameScene = value;
 	}
-	static bool DisplayFPS {
-		get => Instance.m_DisplayFPS;
-		set => Instance.m_DisplayFPS = value;
+	static bool StartDirectly {
+		get => Instance.m_StartDirectly;
+		set {
+			var flag = StartDirectly != value;
+			Instance.m_StartDirectly  = value;
+			if (flag) CompilationPipeline.RequestScriptCompilation();
+		}
 	}
-
-
 
 	public static GameState GameState {
 		get => Instance.m_GameState;
-		set => Instance.m_GameState = value;
+		private set {
+			var flag = GameState != value;
+			Instance.m_GameState  = value;
+			if (flag) InputManager.SwitchActionMap(value switch {
+				GameState.Gameplay => ActionMap.Player,
+				GameState.Cutscene => ActionMap.UI,
+				GameState.Paused   => ActionMap.UI,
+				_ => ActionMap.UI,
+			});
+		}
 	}
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
@@ -127,20 +146,34 @@ public class GameManager : MonoSingleton<GameManager> {
 	// Lifecycle
 
 	void Start() {
-		if (0 < TargetFrameRate) Application.targetFrameRate = TargetFrameRate;
+		var startDirectly = false;
+		#if UNITY_EDITOR
+			startDirectly = StartDirectly;
+		#endif
+		if (startDirectly == false) {
+			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
+			GameState = GameState.Paused;
+		} else {
+			GameState = GameState.Gameplay;
+		}
 	}
+
+	#if UNITY_EDITOR
+		[UnityEngine.Scripting.Preserve]
+		public class AutoConnectBootstrap : ClientServerBootstrap {
+			public override bool Initialize(string defaultWorldName) {
+				if (StartDirectly) {
+					AutoConnectPort = 7979;
+					return base.Initialize(defaultWorldName);
+				}
+				return false;
+			}
+		}
+	#endif
+
+
 
 	void Update() {
 		SimulateEvents();
-	}
-
-	float delta = 0f;
-	void OnGUI() {
-		delta += (Time.unscaledDeltaTime - delta) * 0.1f;
-		if (!DisplayFPS) return;
-		string text = string.Format("{0:0.} FPS ({1:0.0} ms)", 1.0f / delta, delta * 1000.0f);
-		GUI.Label(new Rect(20, 200, Screen.width, Screen.height), text, new GUIStyle() {
-			normal = new GUIStyleState() { textColor = Color.white }, fontSize = 16,
-		});
 	}
 }

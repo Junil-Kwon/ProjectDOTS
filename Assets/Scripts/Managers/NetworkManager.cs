@@ -22,7 +22,6 @@ using Unity.Services.Relay.Models;
 
 #if UNITY_EDITOR
 	using UnityEditor;
-	using UnityEditor.Compilation;
 #endif
 
 
@@ -39,7 +38,7 @@ public enum ServiceState : byte {
 
 public enum NetworkState : byte {
 	Ready,
-	RelayAllocating,
+	Allocating,
 	SceneLoading,
 	Connecting,
 	ConnectionSucceeded,
@@ -65,32 +64,18 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			public override void OnInspectorGUI() {
 				Begin("Network Manager");
 
-				LabelField("Scenes", EditorStyles.boldLabel);
-				LobbyScene = TextField("Lobby Scene", LobbyScene);
-				StageScene = TextField("Stage Scene", StageScene);
+				LabelField("Debug", EditorStyles.boldLabel);
+				BeginDisabledGroup();
+				var serviceState = Regex.Replace($"{ServiceState}", "(?<=[a-z])(?=[A-Z])", " ");
+				var networkState = Regex.Replace($"{NetworkState}", "(?<=[a-z])(?=[A-Z])", " ");
+				TextField("Service State", serviceState);
+				TextField("Network State", networkState);
 				Space();
-
-				LabelField("Editor", EditorStyles.boldLabel);
-				BeginDisabledGroup(Application.isPlaying);
-				AutoConnect = Toggle("Auto Connect", AutoConnect);
-				EndDisabledGroup();
-				BeginDisabledGroup(AutoConnect);
-				EnableGUI = Toggle("Enable GUI", EnableGUI);
+				TextField("Players", $"{Players.Count} / {MaxPlayer}");
+				foreach (var player in Players) TextField(" ", $"{player}");
 				EndDisabledGroup();
 				Space();
 
-				if (Application.isPlaying) {
-					LabelField("Debug", EditorStyles.boldLabel);
-					var serviceState = Regex.Replace($"{ServiceState}", "(?<=[a-z])(?=[A-Z])", " ");
-					var networkState = Regex.Replace($"{NetworkState}", "(?<=[a-z])(?=[A-Z])", " ");
-					LabelField("Service State", serviceState);
-					LabelField("Network State", networkState);
-					LabelField("Connection Entity", $"{ConnectionEntity.Count}");
-					BeginDisabledGroup(true);
-					foreach (var entity in ConnectionEntity) LabelField(" ", $"{entity}");
-					EndDisabledGroup();
-					Space();
-				}
 				End();
 			}
 		}
@@ -103,9 +88,11 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
 
-	const int   RelayMaxPlayer    = 5;
-	const int   LocalMaxPlayer    = 5;
+	const int RelayMaxPlayer = 5;
+	const int LocalMaxPlayer = 5;
 	const float ConnectionTimeOut = 8f;
+
+
 
 	class RelayDriverConstructor : INetworkStreamDriverConstructor {
 		RelayServerData serverData;
@@ -125,43 +112,15 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 	// Fields
 
-	[SerializeField] string m_LobbyScene  = "";
-	[SerializeField] string m_StageScene  = "";
-	[SerializeField] bool   m_AutoConnect = false;
-	[SerializeField] bool   m_EnableGUI   = false;
-
 	ServiceState m_ServiceState = ServiceState.Uninitialized;
 	NetworkState m_NetworkState = NetworkState.Ready;
+
 	int m_MaxPlayer;
-	List<Entity> m_ConnectionEntity = new();
+	readonly List<Entity> m_Players = new();
 
 
 
 	// Properties
-
-	public static string LobbyScene {
-		get => Instance.m_LobbyScene;
-		set => Instance.m_LobbyScene = value;
-	}
-	public static string StageScene {
-		get => Instance.m_StageScene;
-		set => Instance.m_StageScene = value;
-	}
-
-	public static bool AutoConnect {
-		get => Instance.m_AutoConnect;
-		set {
-			var flag = AutoConnect != value;
-			Instance.m_AutoConnect  = value;
-			#if UNITY_EDITOR
-				if (flag) CompilationPipeline.RequestScriptCompilation();
-			#endif
-		}
-	}
-	static bool EnableGUI {
-		get => Instance.m_EnableGUI;
-		set => Instance.m_EnableGUI = value;
-	}
 
 	public static ServiceState ServiceState {
 		get         => Instance.m_ServiceState;
@@ -171,74 +130,12 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		get         => Instance.m_NetworkState;
 		private set => Instance.m_NetworkState = value;
 	}
+
 	public static int MaxPlayer {
 		get         => Instance.m_MaxPlayer;
 		private set => Instance.m_MaxPlayer = value;
 	}
-
-	public static List<Entity> ConnectionEntity {
-		get => Instance.m_ConnectionEntity;
-		set => Instance.m_ConnectionEntity = value;
-	}
-
-
-
-	// GUI Methods
-
-	bool   guiUseRelay = false;
-	string guiJoinCode = "";
-	string guiAddress  = "127.0.0.1";
-	ushort guiPort     = 7979;
-
-	void OnGUI() {
-		if (AutoConnect || !EnableGUI) return;
-		var rect0 = new Rect(10, 50, 160, 40);
-		var rect1 = new Rect(10, 90,  80, 40);
-		var style = new GUIStyle(GUI.skin.textField) { alignment = TextAnchor.MiddleCenter };
-
-		switch (m_NetworkState) {
-			case NetworkState.Ready:
-				var text = guiUseRelay ? "Relay" : "Local";
-				guiUseRelay = GUI.Toggle(new Rect(10, 10, 200, 40), guiUseRelay, $" {text}");
-				if (guiUseRelay) {
-					if (GUI.Button(rect0, "Create Host")) CreateRelayHost(RelayMaxPlayer);
-					if (GUI.Button(rect1, "Join"       )) JoinRelayServer(guiJoinCode);
-					guiJoinCode = GUI.TextField(new Rect(90, 90, 80, 40), guiJoinCode, 6, style);
-				}
-				else {
-					if (GUI.Button(rect0, "Create Host")) CreateLocalHost(LocalMaxPlayer, guiPort);
-					if (GUI.Button(rect1, "Join"       )) JoinLocalServer(guiAddress, guiPort);
-					string strPort = guiPort.ToString();
-					strPort    = GUI.TextField(new Rect(170, 50,  60, 40), strPort,     4, style);
-					guiAddress = GUI.TextField(new Rect( 90, 90, 140, 40), guiAddress, 15, style);
-					guiPort    = ushort.Parse(strPort);
-				}
-				break;
-
-			case NetworkState.RelayAllocating:
-				GUI.Label(new Rect(10, 90, 160, 40), "Allocating...", style);
-				break;
-
-			case NetworkState.SceneLoading:
-				GUI.Label(new Rect(10, 90, 160, 40), "Scene Loading...", style);
-				break;
-
-			case NetworkState.Connecting:
-				GUI.Label(new Rect(10, 90, 160, 40), "Connecting...", style);
-				break;
-
-			case NetworkState.Connected:
-				if (GUI.Button(rect0, "Leave")) Leave();
-				var info = guiUseRelay ? guiJoinCode : $"{guiAddress}:{guiPort}";
-				GUI.Label(new Rect(10, 90, 160, 40), info, style);
-				break;
-
-			case NetworkState.ConnectionFailed:
-				if (GUI.Button(rect0, "Leave")) Leave();
-				GUI.Label(new Rect(10, 90, 160, 40), "Failed", style);
-				break;
-		}
-	}
+	public static List<Entity> Players => Instance.m_Players;
 
 
 
@@ -288,7 +185,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
 
-			NetworkState = NetworkState.RelayAllocating;
+			NetworkState = NetworkState.Allocating;
 			MaxPlayer = Mathf.Max(maxPlayer, RelayMaxPlayer);
 			RelayServerData relayServerData;
 			RelayServerData relayClientData;
@@ -296,7 +193,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 				var data     = await RelayService.Instance.CreateAllocationAsync(MaxPlayer);
 				var joinCode = await RelayService.Instance.GetJoinCodeAsync(data.AllocationId);
 				var joinData = await RelayService.Instance.JoinAllocationAsync(joinCode);
-				GUIUtility.systemCopyBuffer = Instance.guiJoinCode = joinCode;
+				GUIUtility.systemCopyBuffer = joinCode;
 				relayServerData = GetRelayServerData(data);
 				relayClientData = GetRelayClientData(joinData);
 			}
@@ -311,17 +208,15 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
 			NetworkStreamReceiveSystem.DriverConstructor = prevConstructor;
 			DestroyLocalSimulationWorld();
-			World.DefaultGameObjectInjectionWorld = client;
-			await SceneManager.LoadSceneAsync(StageScene);
-			ConnectionEntity.Clear();
+			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
 			Listen (server, NetworkEndpoint.AnyIpv4 );
 			Connect(client, relayClientData.Endpoint);
-			var timer = ConnectionTimeOut;
+			var startpoint = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if ((timer -= Time.deltaTime) <= 0f) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -338,7 +233,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
 
-			NetworkState = NetworkState.RelayAllocating;
+			NetworkState = NetworkState.Allocating;
 			RelayServerData relayClientData;
 			try {
 				var joinData = await RelayService.Instance.JoinAllocationAsync(joinCode);
@@ -354,16 +249,14 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			NetworkStreamReceiveSystem.DriverConstructor = prevConstructor;
 			DestroyLocalSimulationWorld();
-			World.DefaultGameObjectInjectionWorld = client;
-			await SceneManager.LoadSceneAsync(StageScene);
-			ConnectionEntity.Clear();
+			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, relayClientData.Endpoint);
-			float timer = ConnectionTimeOut;
+			var startpoint = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if ((timer -= Time.deltaTime) <= 0f) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -387,17 +280,15 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
 			DestroyLocalSimulationWorld();
-			World.DefaultGameObjectInjectionWorld = client;
-			await SceneManager.LoadSceneAsync(StageScene);
-			ConnectionEntity.Clear();
+			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
 			Listen (server, NetworkEndpoint.AnyIpv4     .WithPort(port));
 			Connect(client, NetworkEndpoint.LoopbackIpv4.WithPort(port));
-			var timer = ConnectionTimeOut;
+			var startpoint = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if ((timer -= Time.deltaTime) <= 0f) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -415,16 +306,14 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			NetworkState = NetworkState.SceneLoading;
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			DestroyLocalSimulationWorld();
-			World.DefaultGameObjectInjectionWorld = client;
-			await SceneManager.LoadSceneAsync(StageScene);
-			ConnectionEntity.Clear();
+			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, NetworkEndpoint.Parse(address, port));
-			var timer = ConnectionTimeOut;
+			var startpoint = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if ((timer -= Time.deltaTime) <= 0f) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -447,8 +336,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			var world = ClientServerBootstrap.CreateLocalWorld("DefaultWorld");
 			DestroyServerClientSimulationWorld();
 			World.DefaultGameObjectInjectionWorld = world;
-			await SceneManager.LoadSceneAsync(LobbyScene);
-			ConnectionEntity.Clear();
+			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Ready;
 		}
@@ -521,25 +409,6 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Auto Connect Bootstrap
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-#if UNITY_EDITOR
-	[UnityEngine.Scripting.Preserve]
-	public class AutoConnectBootstrap : ClientServerBootstrap {
-		public override bool Initialize(string defaultWorldName) {
-			if (NetworkManager.AutoConnect) {
-				AutoConnectPort = 7979;
-				return base.Initialize(defaultWorldName);
-			}
-			return false;
-		}
-	}
-#endif
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Network Manager Server System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -577,7 +446,6 @@ public partial class NetworkManagerServerSystem : SystemBase {
 
 			case ConnectionState.State.Connected:
 				var connectionEntity = connection.ConnectionEntity;
-				NetworkManager.ConnectionEntity.Add(connectionEntity);
 				buffer.AddComponent(connectionEntity, new NetworkStreamInGame());
 
 				var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true);
@@ -590,7 +458,6 @@ public partial class NetworkManagerServerSystem : SystemBase {
 				break;
 
 			case ConnectionState.State.Disconnected:
-				NetworkManager.ConnectionEntity.Remove(connection.ConnectionEntity);
 				break;
 		}
 
@@ -655,6 +522,11 @@ public partial class NetworkManagerClientSystem : SystemBase {
 			case ConnectionState.State.Disconnected:
 				NetworkManager.ConnectionFailed();
 				break;
+		}
+		
+		NetworkManager.Players.Clear();
+		foreach (var (_, entity) in SystemAPI.Query<NetworkStreamInGame>().WithEntityAccess()) {
+			NetworkManager.Players.Add(entity);
 		}
 	}
 }
