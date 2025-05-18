@@ -1083,7 +1083,8 @@ public class DrawManager : MonoSingleton<DrawManager> {
 // Draw Manager System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[BurstCompile]
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup), OrderLast = true)]
 public partial class DrawManagerSystem : SystemBase {
 	BeginInitializationEntityCommandBufferSystem system;
 
@@ -1107,6 +1108,7 @@ public partial class DrawManagerSystem : SystemBase {
 	NativeArray<EntityQuery> shadowQuery;
 	NativeArray<EntityQuery> uiQuery;
 
+	[BurstDiscard]
 	protected override void OnCreate() {
 		system = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
 
@@ -1159,6 +1161,7 @@ public partial class DrawManagerSystem : SystemBase {
 		uiQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude <Static>());
 	}
 
+	[BurstDiscard]
 	protected override void OnDestroy() {
 		if (tileLUTable  .IsCreated) tileLUTable  .Dispose();
 		if (spriteLUTable.IsCreated) spriteLUTable.Dispose();
@@ -1178,8 +1181,7 @@ public partial class DrawManagerSystem : SystemBase {
 		if (uiQuery    .IsCreated) uiQuery    .Dispose();
 	}
 
-
-
+	[BurstDiscard]
 	protected override void OnUpdate() {
 		var buffer = system.CreateCommandBuffer();
 		var transform = GetComponentLookup<LocalToWorld>(true);
@@ -1200,7 +1202,7 @@ public partial class DrawManagerSystem : SystemBase {
 			var count = indices[^1];
 			if (0 < count) {
 				new DrawTileJob() {
-					array      = tileRenderer.LockBuffer(i, count),
+					array      = tileRenderer.AllocateAndLockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
 					transforms = transform,
@@ -1236,7 +1238,7 @@ public partial class DrawManagerSystem : SystemBase {
 			var count = indices[^1];
 			if (0 < count) {
 				new DrawSpriteJob() {
-					array      = spriteRenderer.LockBuffer(i, count),
+					array      = spriteRenderer.AllocateAndLockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
 					transforms = transform,
@@ -1272,7 +1274,7 @@ public partial class DrawManagerSystem : SystemBase {
 			var count = indices[^1];
 			if (0 < count) {
 				new DrawShadowJob() {
-					array      = shadowRenderer.LockBuffer(i, count),
+					array      = shadowRenderer.AllocateAndLockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
 					transforms = transform,
@@ -1308,7 +1310,7 @@ public partial class DrawManagerSystem : SystemBase {
 			var count = indices[^1];
 			if (0 < count) {
 				new DrawUIJob() {
-					array      = uiRenderer.LockBuffer(i, count),
+					array      = uiRenderer.AllocateAndLockBuffer(i, count),
 					indices    = indices,
 					entities   = entities,
 					transforms = transform,

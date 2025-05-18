@@ -103,11 +103,12 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 	public NativeArray<T> LockBuffer(int key) {
 		if (hashmap.TryGetValue(key, out var item)) {
 			return bufferStructured.LockBufferForWrite<T>(item.Item1, item.Item2);
+		} else {
+			return default;
 		}
-		else return default;
 	}
 
-	public NativeArray<T> LockBuffer(int key, int count) {
+	public NativeArray<T> AllocateAndLockBuffer(int key, int count) {
 		if (!hashmap.TryGetValue(key, out var item)) {
 			int index = 0;
 			foreach (var pair in hashmap) if (pair.Key < key) {

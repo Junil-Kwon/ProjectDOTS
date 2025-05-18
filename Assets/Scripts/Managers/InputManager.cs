@@ -62,7 +62,7 @@ public class InputManager : MonoSingleton<InputManager> {
 			public override void OnInspectorGUI() {
 				Begin("Input Manager");
 
-				if (InputActionAsset == null) {
+				if (!InputActionAsset) {
 					HelpBox("No input action asset found.");
 					Space();
 				}
@@ -171,13 +171,11 @@ public class InputManager : MonoSingleton<InputManager> {
 	public static bool GetKeyDown(KeyAction key) =>  GetKeyNext(key) && !GetKeyPrev(key);
 	public static bool GetKeyUp  (KeyAction key) => !GetKeyNext(key) &&  GetKeyPrev(key);
 
-	public static void SwitchActionMap(ActionMap actionMap) {
+	public static void SwitchActionMap(ActionMap actionMap, bool hideCursor = false) {
 		if (InputActionAsset == null) return;
-		if (InputActionAsset.FindActionMap(actionMap.ToString()) == null) return;
-		PlayerInput.SwitchCurrentActionMap(actionMap.ToString());
-		var lockCursor = actionMap == ActionMap.Player;
-		Cursor.visible = !lockCursor;
-		Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
+		PlayerInput.currentActionMap = InputActionAsset.FindActionMap(actionMap.ToString());
+		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
+		Cursor.visible = !hideCursor;
 	}
 
 
@@ -186,6 +184,7 @@ public class InputManager : MonoSingleton<InputManager> {
 
 	public static List<string> GetKeysBinding(KeyAction keyAction) {
 		var keys = new List<string>();
+		if (InputActionAsset == null) return keys;
 		var inputAction = InputActionAsset.FindAction(keyAction.ToString());
 		if (inputAction != null) {
 			for (int i = 0; i < inputAction.bindings.Count; i++) {
@@ -198,6 +197,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	}
 
 	public static void SetKeysBinding(KeyAction keyAction, List<string> keys) {
+		if (InputActionAsset == null) return;
 		var inputAction = InputActionAsset.FindAction(keyAction.ToString());
 		if (inputAction != null) {
 			for (int i = inputAction.bindings.Count - 1; -1 < i; i--) {
@@ -239,8 +239,6 @@ public class InputManager : MonoSingleton<InputManager> {
 	public static void EndRecordKey  () => KeyPressed = null;
 
 	static void RegisterKeyRecord() {
-		KeyPressed = null;
-
 		InputSystem.onAnyButtonPress.Call(inputControl => {
 			if (KeyPressed != null) {
 				var parts = inputControl.path.Split('/');

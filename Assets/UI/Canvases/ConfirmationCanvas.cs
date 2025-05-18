@@ -1,7 +1,5 @@
 using UnityEngine;
 
-using Unity.Sentis;
-
 #if UNITY_EDITOR
 	using UnityEditor;
 #endif
@@ -9,23 +7,22 @@ using Unity.Sentis;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// AI Manager
+// Confirmation Canvas
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("Manager/AI Manager")]
-public class AIManager : MonoSingleton<AIManager> {
+[AddComponentMenu("UI/Confirmation Canvas")]
+public class ConfirmationCanvas : MonoBehaviour {
 
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(AIManager))]
-		class AIManagerEditor : EditorExtensions {
-			AIManager I => target as AIManager;
+		[CustomEditor(typeof(ConfirmationCanvas))]
+		class ConfirmationCanvasEditor : EditorExtensions {
+			ConfirmationCanvas I => target as ConfirmationCanvas;
 			public override void OnInspectorGUI() {
-				Begin("AI Manager");
+				Begin("Confirmation Canvas");
 				
-				LabelField("Model", EditorStyles.boldLabel);
-				ModelAsset = ObjectField("Model Asset", ModelAsset);
+				LabelField("", EditorStyles.boldLabel);
 				Space();
 
 				End();
@@ -35,30 +32,10 @@ public class AIManager : MonoSingleton<AIManager> {
 
 
 
-	// Fields
-
-	ModelAsset m_ModelAsset;
+    // Fields
 
 
 
-	// Properties
-
-	static ModelAsset ModelAsset {
-		get => Instance.m_ModelAsset;
-		set => Instance.m_ModelAsset = value;
-	}
-
-
-
-	// Lifecycle
-
-	void Start() {
-		if (ModelAsset) {
-			var model = ModelLoader.Load(ModelAsset);
-			var graph = new FunctionalGraph();
-			var inputs = graph.AddInputs(model);
-			var outputs = Functional.Forward(model, inputs);
-		}
-	}
+    // Properties
 
 }

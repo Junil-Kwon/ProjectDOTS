@@ -97,7 +97,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct PlayerBodyPresentationSystem : ISystem {
 
 	[BurstCompile]

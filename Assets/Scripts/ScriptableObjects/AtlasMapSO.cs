@@ -286,8 +286,7 @@ public class AtlasMapSO : ScriptableObject {
 					if (hash2index.TryGetValue(hash, out int index)) {
 						index2list[index].Add(m);
 						continue;
-					}
-					else {
+					} else {
 						hash2index.Add(hash,  m);
 						index2list.Add(m, new());
 					}

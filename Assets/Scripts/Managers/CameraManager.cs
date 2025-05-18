@@ -31,11 +31,10 @@ public class CameraManager : MonoSingleton<CameraManager> {
 			public override void OnInspectorGUI() {
 				Begin("Camera Manager");
 
-				if (MainCamera == null) {
+				if (!MainCamera) {
 					HelpBox("No camera found. Please add a camera to child object.");
 					Space();
-				}
-				else {
+				} else {
 					LabelField("Camera", EditorStyles.boldLabel);
 					RenderTextureSize = Vector2Field("Render Texture Size", RenderTextureSize);
 					FocusDistance     = Slider      ("Focus Distance",      FocusDistance, 0f, 255f);
@@ -106,7 +105,7 @@ public class CameraManager : MonoSingleton<CameraManager> {
 	}
 	public static float Yaw {
 		get => EulerRotation.y;
-		set => EulerRotation = new float3(EulerRotation.x, value, EulerRotation.z);
+		set => EulerRotation = new Vector3(EulerRotation.x, value, EulerRotation.z);
 	}
 	public static Vector3 Right   => Rotation * Vector3.right;
 	public static Vector3 Up      => Rotation * Vector3.up;
@@ -237,6 +236,7 @@ public partial class CameraManagerSystem : SystemBase {
 	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<PhysicsWorldSingleton>();
+		RequireForUpdate<GhostOwnerIsLocal>();
 	}
 
 	[BurstDiscard]

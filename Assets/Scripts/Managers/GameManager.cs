@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using Unity.Entities;
+using Unity.Burst;
 using Unity.NetCode;
 
 #if UNITY_EDITOR
@@ -15,6 +17,7 @@ using Unity.NetCode;
 // ━
 
 public enum GameState : byte {
+	None,
 	Gameplay,
 	Cutscene,
 	Paused,
@@ -38,9 +41,11 @@ public class GameManager : MonoSingleton<GameManager> {
 			public override void OnInspectorGUI() {
 				Begin("Game Manager");
 
-				LabelField("Startup", EditorStyles.boldLabel);
+				LabelField("Setup", EditorStyles.boldLabel);
+				BeginDisabledGroup(Application.isPlaying);
 				GameScene     = SceneField("Game Scene",     GameScene);
 				StartDirectly = Toggle    ("Start Directly", StartDirectly);
+				EndDisabledGroup();
 				Space();
 
 				LabelField("Debug", EditorStyles.boldLabel);
@@ -62,10 +67,12 @@ public class GameManager : MonoSingleton<GameManager> {
 	[SerializeField] int  m_GameScene;
 	[SerializeField] bool m_StartDirectly;
 
-	GameState m_GameState = GameState.Paused;
+	GameState m_GameState;
 
-	List<BaseEvent> m_ActiveEvents = new();
-	List<float    > m_EventElapsed = new();
+	readonly List<CreatureCore> m_Players = new();
+
+	readonly List<BaseEvent> m_ActiveEvents = new();
+	readonly List<float    > m_EventElapsed = new();
 
 
 
@@ -93,10 +100,12 @@ public class GameManager : MonoSingleton<GameManager> {
 				GameState.Gameplay => ActionMap.Player,
 				GameState.Cutscene => ActionMap.UI,
 				GameState.Paused   => ActionMap.UI,
-				_ => ActionMap.UI,
-			});
+				_ => default,
+			}, value != GameState.Paused);
 		}
 	}
+
+	public static List<CreatureCore> Players => Instance.m_Players;
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
 	static List<float    > EventElapsed => Instance.m_EventElapsed;
@@ -131,8 +140,7 @@ public class GameManager : MonoSingleton<GameManager> {
 					EventElapsed[i] += Time.deltaTime;
 					i++;
 					break;
-				}
-				else {
+				} else {
 					ActiveEvents[i].End();
 					ActiveEvents[i] = ActiveEvents[i].GetNext();
 					EventElapsed[i] = -1f;
@@ -175,5 +183,58 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	void Update() {
 		SimulateEvents();
+	}
+}
+
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Game Manager Server System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+public partial class GameManagerServerSystem : SystemBase {
+
+	[BurstCompile]
+	protected override void OnCreate() {
+	}
+
+	[BurstDiscard]
+	protected override void OnUpdate() {
+
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Game Manager Client System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+public partial class GameManagerClientSystem : SystemBase {
+
+	[BurstCompile]
+	protected override void OnCreate() {
+		RequireForUpdate<PlayerHead>();
+	}
+
+	[BurstDiscard]
+	protected override void OnUpdate() {
+		GameManager.Players.Clear();
+		GameManager.Players.Add(default);
+		foreach (var core in SystemAPI.Query<RefRO<CreatureCore>>()
+			.WithAll<PlayerHead>().WithAll<GhostOwnerIsLocal>()) {
+			GameManager.Players[0] = core.ValueRO;
+		}
+		foreach (var core in SystemAPI.Query<RefRO<CreatureCore>>()
+			.WithAll<PlayerHead>().WithNone<GhostOwnerIsLocal>()) {
+			GameManager.Players.Add(core.ValueRO);
+		}
 	}
 }

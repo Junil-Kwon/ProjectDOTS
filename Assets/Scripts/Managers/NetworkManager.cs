@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text;
 using Random = UnityEngine.Random;
 
 using Unity.Entities;
@@ -112,8 +113,8 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 	// Fields
 
-	ServiceState m_ServiceState = ServiceState.Uninitialized;
-	NetworkState m_NetworkState = NetworkState.Ready;
+	ServiceState m_ServiceState;
+	NetworkState m_NetworkState;
 
 	int m_MaxPlayer;
 	readonly List<Entity> m_Players = new();
@@ -344,6 +345,35 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 
 
+	// Broadcast Methods
+
+	public static void BroadcastLocalServer() {
+		
+	}
+
+	public List<(string, ushort)> LookupLocalServer() {
+		var servers = new List<(string, ushort)>();
+		
+		return servers;
+	}
+
+
+
+	// Chat Methods
+
+	public static void SendChatMessage(string message) {
+		var fixedString = Encoding.UTF8.GetByteCount(message) switch {
+			<   32 => new FixedString32Bytes  (message),
+			<   64 => new FixedString64Bytes  (message),
+			<  128 => new FixedString128Bytes (message),
+			<  512 => new FixedString512Bytes (message),
+			< 4096 => new FixedString4096Bytes(message),
+			_      => new FixedString4096Bytes(message),
+		};
+	}
+
+
+
 	// Methods
 
 	static RelayServerData GetRelayServerData(Allocation data, string type = "dtls") {
@@ -358,13 +388,12 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			data.ConnectionData, data.HostConnectionData, data.Key, type.Equals("dtls"));
 	}
 
-
-
 	static void DestroyLocalSimulationWorld() {
+		var worlds = new List<World>();
 		foreach (var world in World.All) if (world.Flags == WorldFlags.Game) {
-			world.Dispose();
-			break;
+			worlds.Add(world);
 		}
+		foreach (var world in worlds) world.Dispose();
 	}
 
 	static void DestroyServerClientSimulationWorld() {
@@ -374,8 +403,6 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		}
 		foreach (var world in worlds) world.Dispose();
 	}
-
-
 
 	static void Listen(World server, NetworkEndpoint endpoint) {
 		using var query = server.EntityManager.CreateEntityQuery(typeof(NetworkStreamDriver));
@@ -394,8 +421,6 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			driver.ValueRW.Connect(client.EntityManager, endpoint);
 		}
 	}
-
-
 
 	public static void ConnectionSucceeded() {
 		if (NetworkState == NetworkState.Connecting) NetworkState = NetworkState.ConnectionSucceeded;
@@ -420,6 +445,7 @@ public struct RequestApproval : IApprovalRpcCommand {
 
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerServerSystem : SystemBase {
 	BeginInitializationEntityCommandBufferSystem system;
 	EntityQuery queryApproved;
@@ -440,10 +466,8 @@ public partial class NetworkManagerServerSystem : SystemBase {
 		foreach (var connection in connections) switch (connection.State) {
 			case ConnectionState.State.Handshake:
 				break;
-
 			case ConnectionState.State.Approval:
 				break;
-
 			case ConnectionState.State.Connected:
 				var connectionEntity = connection.ConnectionEntity;
 				buffer.AddComponent(connectionEntity, new NetworkStreamInGame());
@@ -456,7 +480,6 @@ public partial class NetworkManagerServerSystem : SystemBase {
 				buffer.SetComponent(player, new GhostOwner { NetworkId = networkId });
 				buffer.AppendToBuffer(connectionEntity, new LinkedEntityGroup { Value = player });
 				break;
-
 			case ConnectionState.State.Disconnected:
 				break;
 		}
@@ -470,11 +493,19 @@ public partial class NetworkManagerServerSystem : SystemBase {
 			var match = true;
 			match &= approval.ValueRO.payload.Equals("0000");
 			match &= numApproved < NetworkManager.MaxPlayer;
-			if (match) numApproved++;
-			if (match) buffer.AddComponent(connectionEntity, new ConnectionApproved());
-			else       buffer.AddComponent(connectionEntity, new NetworkStreamRequestDisconnect());
+			if (match) {
+				numApproved++;
+				buffer.AddComponent(connectionEntity, new ConnectionApproved());
+			} else {
+				buffer.AddComponent(connectionEntity, new NetworkStreamRequestDisconnect());
+			}
 			buffer.DestroyEntity(entity); 
-        }
+		}
+
+		NetworkManager.Players.Clear();
+		foreach (var (_, entity) in SystemAPI.Query<NetworkStreamInGame>().WithEntityAccess()) {
+			NetworkManager.Players.Add(entity);
+		}
 	}
 }
 
@@ -486,6 +517,7 @@ public partial class NetworkManagerServerSystem : SystemBase {
 
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerClientSystem : SystemBase {
 	EndInitializationEntityCommandBufferSystem system;
 
@@ -503,30 +535,21 @@ public partial class NetworkManagerClientSystem : SystemBase {
         foreach (var connection in connections) switch (connection.State) {
 			case ConnectionState.State.Connecting:
 				break;
-
 			case ConnectionState.State.Handshake:
 				break;
-
 			case ConnectionState.State.Approval:
 				var approvalEntity = buffer.CreateEntity();
 				buffer.AddComponent(approvalEntity, new SendRpcCommandRequest());
 				buffer.AddComponent(approvalEntity, new RequestApproval { payload = "0000" });
 				break;
-
 			case ConnectionState.State.Connected:
 				var connectionEntity = connection.ConnectionEntity;
 				buffer.AddComponent(connectionEntity, new NetworkStreamInGame());
 				NetworkManager.ConnectionSucceeded();
 				break;
-
 			case ConnectionState.State.Disconnected:
 				NetworkManager.ConnectionFailed();
 				break;
-		}
-		
-		NetworkManager.Players.Clear();
-		foreach (var (_, entity) in SystemAPI.Query<NetworkStreamInGame>().WithEntityAccess()) {
-			NetworkManager.Players.Add(entity);
 		}
 	}
 }

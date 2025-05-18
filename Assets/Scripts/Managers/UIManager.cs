@@ -103,23 +103,3 @@ public class UIManager : MonoSingleton<UIManager> {
 	// Methods
 
 }
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// UI Manager System
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-[BurstCompile]
-[UpdateInGroup(typeof(PresentationSystemGroup))]
-public partial class UIManagerSystem : SystemBase {
-
-	[BurstCompile]
-	protected override void OnCreate() {
-	}
-
-	[BurstDiscard]
-	protected override void OnUpdate() {
-
-	}
-}

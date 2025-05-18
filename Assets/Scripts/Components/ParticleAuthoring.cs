@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityRandom = UnityEngine.Random;
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -147,7 +148,7 @@ public struct NonePattern : IComponentData { }
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(DOTSInitializationSystemGroup))]
 partial struct ParticleInitializationSystem : ISystem {
 
 	[BurstCompile]
@@ -158,7 +159,7 @@ partial struct ParticleInitializationSystem : ISystem {
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ParticleInitializationJob() {
-			random = new Random((uint)(1f + SystemAPI.Time.ElapsedTime * 31f)),
+			random = new Random((uint)UnityRandom.Range(1, 1000000)),
 		}.ScheduleParallel(state.Dependency);
 	}
 
@@ -190,7 +191,7 @@ partial struct ParticleInitializationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct ParticleSimulationSystem : ISystem {
 
 	[BurstCompile]
@@ -225,7 +226,7 @@ partial struct ParticleSimulationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct ParticlePresentationSystem : ISystem {
 
 	[BurstCompile]

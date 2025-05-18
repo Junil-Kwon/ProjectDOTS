@@ -12,20 +12,20 @@ using Unity.Burst;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// NavMesh Manager Bridge Authoring
+// Navigation Manager Bridge Authoring
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("Manager/NavMesh Manager Bridge")]
-public class NavMeshManagerBridgeAuthoring : MonoBehaviour {
+[AddComponentMenu("Manager/Navigation Manager Bridge")]
+public class NavigationManagerBridgeAuthoring : MonoBehaviour {
 
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(NavMeshManagerBridgeAuthoring))]
-		class AIManagerBridgeAuthoringEditor : EditorExtensions {
-			NavMeshManagerBridgeAuthoring I => target as NavMeshManagerBridgeAuthoring;
+		[CustomEditor(typeof(NavigationManagerBridgeAuthoring))]
+		class NavigationManagerBridgeAuthoringEditor : EditorExtensions {
+			NavigationManagerBridgeAuthoring I => target as NavigationManagerBridgeAuthoring;
 			public override void OnInspectorGUI() {
-				Begin("NavMesh Manager Bridge Authoring");
+				Begin("Navigation Manager Bridge Authoring");
 
 				End();
 			}
@@ -36,10 +36,10 @@ public class NavMeshManagerBridgeAuthoring : MonoBehaviour {
 
 	// Baker
 
-	public class Baker : Baker<NavMeshManagerBridgeAuthoring> {
-		public override void Bake(NavMeshManagerBridgeAuthoring authoring) {
+	public class Baker : Baker<NavigationManagerBridgeAuthoring> {
+		public override void Bake(NavigationManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new NavMeshManagerBridge());
+			AddComponent(entity, new NavigationManagerBridge());
 		}
 	}
 }
@@ -47,10 +47,10 @@ public class NavMeshManagerBridgeAuthoring : MonoBehaviour {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// NavMesh Manager Bridge
+// Navigation Manager Bridge
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public struct NavMeshManagerBridge : IComponentData {
+public struct NavigationManagerBridge : IComponentData {
 
 	// Fields
 
@@ -170,21 +170,21 @@ public struct NavMeshManagerBridge : IComponentData {
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// NavMesh Manager Bridge System
+// Navigation Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
-public partial class NavMeshManagerBridgeSystem : SystemBase {
+public partial class NavigationManagerBridgeSystem : SystemBase {
 
 	[BurstCompile]
 	protected override void OnCreate() {
-		RequireForUpdate<NavMeshManagerBridge>();
+		RequireForUpdate<NavigationManagerBridge>();
 	}
 
 	[BurstDiscard]
 	protected override void OnUpdate() {
-		var bridge = SystemAPI.GetSingletonRW<NavMeshManagerBridge>();
+		var bridge = SystemAPI.GetSingletonRW<NavigationManagerBridge>();
 		var flag   = bridge.ValueRO.Flag;
 
 		if ((flag & 0x0100u) != 0u) {
@@ -194,11 +194,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List0[0];
 					var target = bridge.ValueRO.GetPath_List0[1];
 					bridge.ValueRW.GetPath_List0.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List0.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List0.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11111110;
 					bridge.ValueRW.GetPath_Temp &= 0b11111110;
 				}
@@ -209,11 +208,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List1[0];
 					var target = bridge.ValueRO.GetPath_List1[1];
 					bridge.ValueRW.GetPath_List1.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List1.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List1.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11111101;
 					bridge.ValueRW.GetPath_Temp &= 0b11111101;
 				}
@@ -224,11 +222,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List2[0];
 					var target = bridge.ValueRO.GetPath_List2[1];
 					bridge.ValueRW.GetPath_List2.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List2.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List2.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11111011;
 					bridge.ValueRW.GetPath_Temp &= 0b11111011;
 				}
@@ -239,11 +236,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List3[0];
 					var target = bridge.ValueRO.GetPath_List3[1];
 					bridge.ValueRW.GetPath_List3.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List3.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List3.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11110111;
 					bridge.ValueRW.GetPath_Temp &= 0b11110111;
 				}
@@ -254,11 +250,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List4[0];
 					var target = bridge.ValueRO.GetPath_List4[1];
 					bridge.ValueRW.GetPath_List4.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List4.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List4.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11101111;
 					bridge.ValueRW.GetPath_Temp &= 0b11101111;
 				}
@@ -269,11 +264,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List5[0];
 					var target = bridge.ValueRO.GetPath_List5[1];
 					bridge.ValueRW.GetPath_List5.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List5.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List5.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b11011111;
 					bridge.ValueRW.GetPath_Temp &= 0b11011111;
 				}
@@ -284,11 +278,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List6[0];
 					var target = bridge.ValueRO.GetPath_List6[1];
 					bridge.ValueRW.GetPath_List6.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List6.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List6.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b10111111;
 					bridge.ValueRW.GetPath_Temp &= 0b10111111;
 				}
@@ -299,11 +292,10 @@ public partial class NavMeshManagerBridgeSystem : SystemBase {
 					var source = bridge.ValueRO.GetPath_List7[0];
 					var target = bridge.ValueRO.GetPath_List7[1];
 					bridge.ValueRW.GetPath_List7.Clear();
-					var path = NavMeshManager.GetPath(source, target);
+					var path = NavigationManager.GetPath(source, target);
 					var size = math.min(path.Count, bridge.ValueRO.GetPath_List7.Capacity);
 					for (int i = 0; i < size; i++) bridge.ValueRW.GetPath_List7.Add(path[i]);
-				}
-				else {
+				} else {
 					bridge.ValueRW.GetPath_Flag &= 0b01111111;
 					bridge.ValueRW.GetPath_Temp &= 0b01111111;
 				}

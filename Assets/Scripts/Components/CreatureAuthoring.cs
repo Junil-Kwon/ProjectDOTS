@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityRandom = UnityEngine.Random;
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -516,6 +517,7 @@ public struct CreatureInput : IInputComponentData {
 // Creature Core
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[GhostComponent]
 public struct CreatureCore : IComponentData {
 
 	// Constants
@@ -802,8 +804,7 @@ public struct CreatureCore : IComponentData {
 		if (value < 0) {
 			if (0 < Shield) Shield -= value;
 			else            Health -= value;
-		}
-		else {
+		} else {
 			int delta = MaxHealth - Health;
 			if (Health < MaxHealth) Health += value;
 			if (Shield < MaxShield) Shield += math.max(0, value - delta);
@@ -918,12 +919,12 @@ public struct CreatureCore : IComponentData {
 // Creature Effect
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[InternalBufferCapacity(5)]
+[GhostComponent, InternalBufferCapacity(5)]
 public struct CreatureEffect : IBufferElementData {
 
 	// Constants
 
-	const uint ValueMask
+	public const uint ValueMask
 		= (1u << (int)Effect.Damage)
 		& (1u << (int)Effect.HealthBoost)
 		& (1u << (int)Effect.EnergyBoost)
@@ -949,7 +950,7 @@ public struct CreatureEffect : IBufferElementData {
 
 	public bool IsValueType => (ValueMask & (1u << (int)Effect)) != 0;
 
-	[CreateProperty, GhostField] public Effect Effect {
+	[GhostField, CreateProperty] public Effect Effect {
 		get => (Effect)((data & EffectMask) >> EffectShift);
 		set => data = (data & ~EffectMask) | ((uint)value << EffectShift);
 	}
@@ -967,11 +968,11 @@ public struct CreatureEffect : IBufferElementData {
 			data = (data & ~DurationMask) | (tick << DurationShift);
 		}
 	}
-	[CreateProperty, GhostField] public float Strength {
+	[GhostField, CreateProperty] public float Strength {
 		get => Temp * (IsValueType ? 1f : 0.001f);
 		set => Temp = (int)math.round(value * (IsValueType ? 1f : 1000f));
 	}
-	[CreateProperty, GhostField] public float Duration {
+	[GhostField, CreateProperty] public float Duration {
 		get => Tick * NetworkManager.Ticktime;
 		set => Tick = (int)math.round(value * NetworkManager.Tickrate);
 	}
@@ -990,32 +991,34 @@ public static class CreatureBufferExtensions {
 		return false;
 	}
 
-	public static void AddEffect(this DynamicBuffer<CreatureEffect> buffer, in CreatureCore core,
-		Effect effect, float strength, float duration, float maxStrength = 0f, float maxDuration = 0f) {
+	public static void AddEffect(this DynamicBuffer<CreatureEffect> buffer,
+		in CreatureCore core, Effect effect, float strength, float duration,
+		float maxStrength = 0f, float maxDuration = 0f) {
 		var multiplier = math.max(0f, 1f - core.GetImmunity(effect).ToValue());
 		if (multiplier == 0f) return;
 
-		var element = new CreatureEffect();
-		element.Effect   = effect;
-		element.Strength = strength * multiplier;
-		element.Duration = duration * (element.IsValueType ? 1f : multiplier);
-
+		var isValueType = (CreatureEffect.ValueMask & (1u << (int)effect)) != 0u;
+		var element = new CreatureEffect() {
+			Effect   = effect,
+			Strength = strength * multiplier,
+			Duration = duration * (!isValueType ? multiplier : 1f),
+		};
 		if (TryGetIndex(buffer, effect, out int index)) {
 			if (maxStrength == 0f) maxStrength = math.max(element.Strength, buffer[index].Strength);
 			if (maxDuration == 0f) maxDuration = math.max(element.Duration, buffer[index].Duration);
 			element.Strength = math.min(buffer[index].Strength + element.Strength, maxStrength);
 			element.Duration = math.min(buffer[index].Duration + element.Duration, maxDuration);
 			buffer.ElementAt(index) = element;
-		}
-		else buffer.Add(element);
+		} else buffer.Add(element);
 	}
 
-	public static void AddDamage(this DynamicBuffer<CreatureEffect> buffer, in CreatureCore core,
-		int value) {
+	public static void AddDamage(this DynamicBuffer<CreatureEffect> buffer,
+		in CreatureCore core, int value) {
 		AddEffect(buffer, in core, Effect.Damage, value, 0.2f, float.MaxValue, float.MaxValue);
 	}
 
-	public static void RemoveEffect(this DynamicBuffer<CreatureEffect> buffer, Effect effect) {
+	public static void RemoveEffect(this DynamicBuffer<CreatureEffect> buffer,
+		Effect effect) {
 		if (TryGetIndex(buffer, effect, out int index)) buffer.RemoveAt(index);
 	}
 }
@@ -1027,15 +1030,14 @@ public static class CreatureBufferExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
-[UpdateBefore(typeof(EndInitializationEntityCommandBufferSystem))]
+[UpdateInGroup(typeof(DOTSInitializationSystemGroup))]
 partial struct CreatureInitializationSystem : ISystem {
 
 	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<EndInitializationEntityCommandBufferSystem.Singleton>();
-		state.RequireForUpdate<PrefabContainer>();
 		state.RequireForUpdate<SimulationSingleton>();
+		state.RequireForUpdate<PrefabContainer>();
 	}
 
 	[BurstCompile]
@@ -1201,8 +1203,7 @@ partial struct CreatureInitializationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderFirst = true)]
-[UpdateAfter(typeof(PredictedFixedStepSimulationSystemGroup))]
+[UpdateInGroup(typeof(CreatureBodySystemGroup), OrderFirst = true)]
 partial struct CreatureBeginSimulationSystem : ISystem {
 
 	[BurstCompile]
@@ -1223,7 +1224,7 @@ partial struct CreatureBeginSimulationSystem : ISystem {
 			core          = SystemAPI.GetComponentLookup<CreatureCore>(),
 			mass          = SystemAPI.GetComponentLookup<PhysicsMass>(true),
 			trigger       = SystemAPI.GetComponentLookup<EventTrigger>(true),
-			random        = new Random((uint)(1f + SystemAPI.Time.ElapsedTime * 31f)),
+			random        = new Random((uint)UnityRandom.Range(1, 1000000)),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 		state.Dependency = new CreatureBeginSimulationJob() {
 		}.ScheduleParallel(state.Dependency);
@@ -1315,7 +1316,7 @@ partial struct CreatureBeginSimulationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(CreatureBodySystemGroup), OrderLast = true)]
 partial struct CreatureEndSimulationSystem : ISystem {
 
 	[BurstCompile]
@@ -1357,7 +1358,7 @@ partial struct CreatureEndSimulationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct CreaturePresentationSystem : ISystem {
 
 	[BurstCompile]
@@ -1371,8 +1372,7 @@ partial struct CreaturePresentationSystem : ISystem {
 		public void Execute(ref CreatureCore core, DynamicBuffer<UIDrawer> ui) {
 			//if (core.BarTick == 0) {
 			//	if (!drawer.UIs.IsEmpty) drawer.UIs.Clear();
-			//}
-			//else {
+			//} else {
 				if (ui.Length < 7) {
 					while (ui.Length < 7) ui.Add(new UIDrawer {
 						Position  = new float3(0f, core.Height + 1f, 0f),

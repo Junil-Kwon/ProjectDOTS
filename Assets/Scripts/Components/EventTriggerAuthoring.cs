@@ -156,6 +156,7 @@ public struct ClientEvent : IComponentData { }
 
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct GlobalEventSystem : ISystem {
 
 	[BurstCompile]
@@ -223,6 +224,7 @@ partial struct GlobalEventSystem : ISystem {
 
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct LocalEventSystem : ISystem {
 
 	[BurstCompile]

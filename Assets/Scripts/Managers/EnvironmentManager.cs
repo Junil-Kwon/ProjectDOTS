@@ -97,8 +97,9 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 			Instance.Pooled.RemoveAt(0);
 			light.gameObject.SetActive(true);
 			light.transform.SetPositionAndRotation(position, Quaternion.identity);
+		} else {
+			light = Instantiate(LightPrefab, position, Quaternion.identity);
 		}
-		else light = Instantiate(LightPrefab, position, Quaternion.identity);
 		light.type = type;
 		light.intensity = intensity;
 		Instance.Lights.Add(light);

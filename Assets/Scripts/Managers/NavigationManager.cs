@@ -11,23 +11,23 @@ using Unity.AI.Navigation;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// NavMesh Manager
+// Navigation Manager
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("Manager/NavMesh Manager")]
+[AddComponentMenu("Manager/Navigation Manager")]
 [RequireComponent(typeof(NavMeshSurface))]
-public class NavMeshManager : MonoSingleton<NavMeshManager> {
+public class NavigationManager : MonoSingleton<NavigationManager> {
 
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(NavMeshManager))]
-		class NavMeshManagerEditor : EditorExtensions {
-			NavMeshManager I => target as NavMeshManager;
+		[CustomEditor(typeof(NavigationManager))]
+		class NavigationManagerEditor : EditorExtensions {
+			NavigationManager I => target as NavigationManager;
 			public override void OnInspectorGUI() {
-				Begin("NavMesh Manager");
+				Begin("Navigation Manager");
 
-				LabelField("NavMesh", EditorStyles.boldLabel);
+				LabelField("Navigation", EditorStyles.boldLabel);
 				BeginHorizontal();
 				PrefixLabel("Bake NavMesh");
 				if (Button("Clear All")) ClearAll();
