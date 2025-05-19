@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 
 using Unity.Mathematics;
-using Unity.Properties;
 
 
 
@@ -57,7 +56,7 @@ public struct constraints {
 		set => data = (byte)((data & ~RotationZMask) | (value ? RotationZMask : 0));
 	}
 
-	[CreateProperty] public bool3 position {
+	public bool3 position {
 		get {
 			bool x = (data & PositionXMask) != 0;
 			bool y = (data & PositionYMask) != 0;
@@ -72,7 +71,7 @@ public struct constraints {
 			data = (byte)i;
 		}
 	}
-	[CreateProperty] public bool3 rotation {
+	public bool3 rotation {
 		get {
 			bool x = (data & RotationXMask) != 0;
 			bool y = (data & RotationYMask) != 0;

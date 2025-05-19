@@ -39,7 +39,9 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<EnvironmentManagerBridgeAuthoring> {
 		public override void Bake(EnvironmentManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new EnvironmentManagerBridge());
+			AddComponent(entity, new EnvironmentManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,30 +54,12 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 
 public struct EnvironmentManagerBridge : IComponentData {
 
-	// Fields
-
-	float m_TimeOfDay;
-
-	uint m_Flag;
+}
 
 
 
-	// Properties
+public static class EnvironmentManagerBridgeExtensions {
 
-	public float TimeOfDay {
-		get => m_TimeOfDay;
-		set {
-			m_TimeOfDay = value;
-			m_Flag |= 0x0001u;
-		}
-	}
-
-
-
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
 }
 
 
@@ -84,9 +68,13 @@ public struct EnvironmentManagerBridge : IComponentData {
 // Environment Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class EnvironmentManagerBridgeSystem : SystemBase {
+
+	bool initialized = false;
+	EnvironmentManagerBridge prev;
 
 	[BurstCompile]
 	protected override void OnCreate() {
@@ -96,12 +84,15 @@ public partial class EnvironmentManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<EnvironmentManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if ((flag & 0x0001u) != 0u) EnvironmentManager.TimeOfDay = bridge.ValueRO.TimeOfDay;
 
-		bridge.ValueRW.TimeOfDay = EnvironmentManager.TimeOfDay;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+		prev = bridge.ValueRO;
 	}
 }
+*/

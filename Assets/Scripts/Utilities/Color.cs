@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 
 using Unity.Mathematics;
-using Unity.Properties;
 
 
 
@@ -45,19 +44,19 @@ public struct color {
 
 	// Properties
 
-	[CreateProperty] public float r {
+	public float r {
 		get => ((data & RMask) >> RShift) * 0.00392157f;
 		set => data = (data & ~RMask) | ((uint)(math.saturate(value) * 255f) << RShift);
 	}
-	[CreateProperty] public float g {
+	public float g {
 		get => ((data & GMask) >> GShift) * 0.00392157f;
 		set => data = (data & ~GMask) | ((uint)(math.saturate(value) * 255f) << GShift);
 	}
-	[CreateProperty] public float b {
+	public float b {
 		get => ((data & BMask) >> BShift) * 0.00392157f;
 		set => data = (data & ~BMask) | ((uint)(math.saturate(value) * 255f) << BShift);
 	}
-	[CreateProperty] public float a {
+	public float a {
 		get => ((data & AMask) >> AShift) * 0.00392157f;
 		set => data = (data & ~AMask) | ((uint)(math.saturate(value) * 255f) << AShift);
 	}

@@ -39,7 +39,9 @@ public class GameManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<GameManagerBridgeAuthoring> {
 		public override void Bake(GameManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new GameManagerBridge());
+			AddComponent(entity, new GameManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,28 +54,16 @@ public class GameManagerBridgeAuthoring : MonoBehaviour {
 
 public struct GameManagerBridge : IComponentData {
 
-	// Fields
-
-	uint m_Flag;
-
-
-
-	// Properties
-
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
-
-
-
-	// Methods
-
 	public UnityObjectRef<EventGraphSO> PlayEvent_graph;
+}
 
-	public void PlayEvent(UnityObjectRef<EventGraphSO> graph) {
-		PlayEvent_graph = graph;
-		Flag |= 0x0100u;
+
+
+public static class GameManagerBridgeExtensions {
+
+	public static void PlayEvent
+		(this ref GameManagerBridge bridge, UnityObjectRef<EventGraphSO> graph) {
+		bridge.PlayEvent_graph = graph;
 	}
 }
 
@@ -87,6 +77,9 @@ public struct GameManagerBridge : IComponentData {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class GameManagerBridgeSystem : SystemBase {
 
+	bool initialized = false;
+	GameManagerBridge prev;
+
 	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<GameManagerBridge>();
@@ -95,13 +88,17 @@ public partial class GameManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
-
-		if ((flag & 0x0100u) != 0u) {
-			var graph = bridge.ValueRO.PlayEvent_graph.Value;
-			GameManager.PlayEvent(graph);
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
 		}
+		var next = bridge.ValueRO;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+		var playEvent = false;
+		playEvent |= prev.PlayEvent_graph != next.PlayEvent_graph;
+		if (playEvent) GameManager.PlayEvent(next.PlayEvent_graph.Value);
+		bridge.ValueRW.PlayEvent_graph = default;
+
+		prev = bridge.ValueRO;
 	}
 }

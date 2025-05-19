@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7635456359743551910}
   - component: {fileID: 1945310675715758638}
   - component: {fileID: 7368737854791323310}
-  - component: {fileID: 7076810049364687549}
-  - component: {fileID: -7244490722073194301}
+  - component: {fileID: 2362731908043145125}
+  - component: {fileID: -8470950377031100643}
   m_Layer: 0
   m_Name: SmokeTiny
   m_TagString: Untagged
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c471044ab791c043b73ba320f7c5c99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PatternString: None
+  m_Pattern: 0
   m_Lifetime: 1
   m_FlipRandom:
     x: 1
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Flip:
     x: 0
     y: 0
---- !u!33 &7076810049364687549
+--- !u!33 &2362731908043145125
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -91,7 +91,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3818851854645628423}
   m_Mesh: {fileID: 4300000, guid: 7fc10667a8a7a774ea7f803eb601e9c6, type: 2}
---- !u!23 &-7244490722073194301
+--- !u!23 &-8470950377031100643
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

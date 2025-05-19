@@ -16,7 +16,7 @@ using Random = Unity.Mathematics.Random;
 
 
 
-// ━
+// Particle Patterns
 
 public enum Pattern : byte {
 	None,
@@ -51,11 +51,9 @@ public class ParticleAuthoring : MonoBehaviour {
 				Begin("Particle Authoring");
 
 				LabelField("Particle", EditorStyles.boldLabel);
-				BeginHorizontal();
-				PrefixLabel("Pattern Component");
-				I.PatternString = TextField(I.PatternString);
-				I.Pattern       = EnumField(I.Pattern);
-				EndHorizontal();
+				I.Pattern = FlagField<Pattern>("Pattern", I.Pattern);
+				Space();
+
 				I.Lifetime   = FloatField("Lifetime",    I.Lifetime);
 				I.FlipRandom = Toggle2   ("Flip Random", I.FlipRandom);
 				Space();
@@ -69,22 +67,27 @@ public class ParticleAuthoring : MonoBehaviour {
 
 	// Fields
 
-	[SerializeField] string m_PatternString;
-	[SerializeField] float  m_Lifetime = 1f;
-	[SerializeField] bool2  m_FlipRandom = new(false, false);
+	[SerializeField] uint m_Pattern;
+
+	[SerializeField] float m_Lifetime = 1f;
+	[SerializeField] bool2 m_FlipRandom = new(false, false);
 
 
 
 	// Properties
 
-	public string PatternString {
-		get => m_PatternString;
-		set => m_PatternString = value;
+	public uint Pattern {
+		get => m_Pattern;
+		set => m_Pattern = value;
 	}
-	public Pattern Pattern {
-		get => Enum.TryParse(PatternString, out Pattern pattern) ? pattern : default;
-		set => m_PatternString = value.ToString();
+	public bool GetPattern(Pattern pattern) => (Pattern & (1u << (int)pattern)) != 0;
+	public void SetPattern(Pattern pattern, bool value) {
+		Pattern = value ? (Pattern | (1u << (int)pattern)) : (Pattern & ~(1u << (int)pattern));
 	}
+	public bool HasPattern   (Pattern pattern) => GetPattern(pattern);
+	public void AddPattern   (Pattern pattern) => SetPattern(pattern, true);
+	public void RemovePattern(Pattern pattern) => SetPattern(pattern, false);
+
 	public float Lifetime {
 		get => m_Lifetime;
 		set => m_Lifetime = value;
@@ -108,7 +111,15 @@ public class ParticleAuthoring : MonoBehaviour {
 				FlipRandom = authoring.FlipRandom,
 
 			});
-			AddComponent(entity, authoring.Pattern.ToComponentType());
+			foreach (Pattern pattern in Enum.GetValues(typeof(Pattern))) {
+				if (authoring.HasPattern(pattern)) switch (pattern) {
+					case global::Pattern.None:
+						break;
+					default:
+						AddComponent(entity, pattern.ToComponentType());
+						break;
+				}
+			}
 		}
 	}
 }
@@ -159,7 +170,7 @@ partial struct ParticleInitializationSystem : ISystem {
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ParticleInitializationJob() {
-			random = new Random((uint)UnityRandom.Range(1, 1000000)),
+			random = new Random((uint)UnityRandom.Range(1, 1000)),
 		}.ScheduleParallel(state.Dependency);
 	}
 
@@ -171,7 +182,6 @@ partial struct ParticleInitializationSystem : ISystem {
 			DynamicBuffer<SpriteDrawer> sprite,
 			EnabledRefRW<ParticleInitialize> initialize) {
 			initialize.ValueRW = false;
-			
 			if (particle.FlipRandom.x || particle.FlipRandom.y) {
 				for (int i = 0; i < sprite.Length; i++) {
 					var flip = sprite.ElementAt(i).Flip;

@@ -52,9 +52,9 @@ partial struct PlayerHeadSystem : ISystem {
 			ref CreatureInput input,
 			in  CreatureCore  core,
 			ref PlayerHead    head) {
-			input.Key = inputManager.KeyNext;
+			input.Key = (ushort)inputManager.KeyNext;
 			float3 moveDirection = new(inputManager.MoveDirection.x, 0f, inputManager.MoveDirection.y);
-			float3 eulerRotation = new(0f, cameraManager.Yaw * math.TORADIANS, 0f);
+			float3 eulerRotation = new(0f, cameraManager.GetYaw() * math.TORADIANS, 0f);
 			input.MoveVector = math.mul(quaternion.Euler(eulerRotation), moveDirection);
 		}
 	}

@@ -39,7 +39,9 @@ public class UIManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<UIManagerBridgeAuthoring> {
 		public override void Bake(UIManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new UIManagerBridge());
+			AddComponent(entity, new UIManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,18 +54,12 @@ public class UIManagerBridgeAuthoring : MonoBehaviour {
 
 public struct UIManagerBridge : IComponentData {
 
-	// Fields
-
-	uint m_Flag;
+}
 
 
 
-	// Properties
+public static class UIManagerBridgeExtensions {
 
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
 }
 
 
@@ -72,9 +68,13 @@ public struct UIManagerBridge : IComponentData {
 // UI Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class UIManagerBridgeSystem : SystemBase {
+
+	bool initialized = false;
+	UIManagerBridge prev;
 
 	[BurstCompile]
 	protected override void OnCreate() {
@@ -84,8 +84,15 @@ public partial class UIManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<UIManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+
+
+		prev = bridge.ValueRO;
 	}
 }
+*/

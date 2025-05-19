@@ -39,7 +39,9 @@ public class SoundManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<SoundManagerBridgeAuthoring> {
 		public override void Bake(SoundManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new SoundManagerBridge());
+			AddComponent(entity, new SoundManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,29 +54,25 @@ public class SoundManagerBridgeAuthoring : MonoBehaviour {
 
 public struct SoundManagerBridge : IComponentData {
 
-	// Fields
-
-	uint m_Flag;
-
-
-
-	// Properties
-
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
 }
 
 
+
+public static class SoundManagerBridgeExtensions {
+
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Sound Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class SoundManagerBridgeSystem : SystemBase {
+
+	bool initialized = false;
+	SoundManagerBridge prev = default;
 
 	[BurstCompile]
 	protected override void OnCreate() {
@@ -84,8 +82,15 @@ public partial class SoundManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<SoundManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+
+
+		prev = bridge.ValueRO;
 	}
 }
+*/

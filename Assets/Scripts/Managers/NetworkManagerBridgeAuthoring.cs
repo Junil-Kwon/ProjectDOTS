@@ -39,7 +39,9 @@ public class NetworkManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<NetworkManagerBridgeAuthoring> {
 		public override void Bake(NetworkManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new NetworkManagerBridge());
+			AddComponent(entity, new NetworkManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,18 +54,12 @@ public class NetworkManagerBridgeAuthoring : MonoBehaviour {
 
 public struct NetworkManagerBridge : IComponentData {
 
-	// Fields
-
-	uint m_Flag;
+}
 
 
 
-	// Properties
+public static class NetworkManagerBridgeExtensions {
 
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
 }
 
 
@@ -72,9 +68,13 @@ public struct NetworkManagerBridge : IComponentData {
 // Network Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class NetworkManagerBridgeSystem : SystemBase {
+
+	bool initialized = false;
+	NetworkManagerBridge prev;
 
 	[BurstCompile]
 	protected override void OnCreate() {
@@ -84,8 +84,15 @@ public partial class NetworkManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<NetworkManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+
+
+		prev = bridge.ValueRO;
 	}
 }
+*/

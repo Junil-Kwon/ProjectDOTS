@@ -39,7 +39,17 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<CameraManagerBridgeAuthoring> {
 		public override void Bake(CameraManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new CameraManagerBridge());
+			AddComponent(entity, new CameraManagerBridge {
+
+				Position         = CameraManager.Position,
+				Rotation         = CameraManager.Rotation,
+				Constraints      = CameraManager.Constraints,
+				FocusDistance    = CameraManager.FocusDistance,
+				FieldOfView      = CameraManager.FieldOfView,
+				OrthographicSize = CameraManager.OrthographicSize,
+				Projection       = CameraManager.Projection,
+
+			});
 		}
 	}
 }
@@ -52,94 +62,43 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 
 public struct CameraManagerBridge : IComponentData {
 
-	// Fields
-
-	float3      m_Position;
-	quaternion  m_Rotation;
-	constraints m_Constraints;
-	float       m_FocusDistance;
-	float       m_FieldOfView;
-	float       m_OrthographicSize;
-	float       m_Projection;
-
-	uint m_Flag;
+	public float3      Position;
+	public quaternion  Rotation;
+	public constraints Constraints;
+	public float       FocusDistance;
+	public float       FieldOfView;
+	public float       OrthographicSize;
+	public float       Projection;
+}
 
 
 
-	// Properties
+public static class CameraManagerBridgeExtensions {
 
-	public float3 Position {
-		get => m_Position;
-		set {
-			m_Position = value;
-			Flag |= 0x0001u;
-		}
+	public static float3 GetEulerRotation(this in CameraManagerBridge bridge) {
+		return math.Euler(bridge.Rotation) * math.TODEGREES;
 	}
-	public quaternion Rotation {
-		get => m_Rotation;
-		set {
-			m_Rotation = value;
-			Flag |= 0x0002u;
-		}
-	}
-	public float3 EulerRotation {
-		get => math.Euler(Rotation) * math.TODEGREES;
-		set => Rotation = quaternion.Euler(value * math.TORADIANS);
-	}
-	public float Yaw {
-		get => EulerRotation.y;
-		set => EulerRotation = new float3(EulerRotation.x, value, EulerRotation.z);
-	}
-	public float3 Right   => math.mul(Rotation, new float3(1f, 0f, 0f));
-	public float3 Up      => math.mul(Rotation, new float3(0f, 1f, 0f));
-	public float3 Forward => math.mul(Rotation, new float3(0f, 0f, 1f));
-
-	public constraints Constraints {
-		get => m_Constraints;
-		set {
-			m_Constraints = value;
-			Flag |= 0x0004u;
-		}
-	}
-	public bool3 FreezePosition => Constraints.position;
-	public bool3 FreezeRotation => Constraints.rotation;
-
-
-
-	public float FocusDistance {
-		get => m_FocusDistance;
-		set  {
-			m_FocusDistance = value;
-			Flag |= 0x0008u;
-		}
-	}
-	public float FieldOfView {
-		get => m_FieldOfView;
-		set {
-			m_FieldOfView = value;
-			Flag |= 0x0010u;
-		}
-	}
-	public float OrthographicSize {
-		get => m_OrthographicSize;
-		set {
-			m_OrthographicSize = value;
-			Flag |= 0x0020u;
-		}
-	}
-	public float Projection {
-		get => m_Projection;
-		set {
-			m_Projection = value;
-			Flag |= 0x0040u;
-		}
+	public static void SetEulerRotation(this ref CameraManagerBridge bridge, float3 value) {
+		bridge.Rotation = quaternion.Euler(value * math.TORADIANS);
 	}
 
+	public static float GetYaw(this in CameraManagerBridge bridge) {
+		return bridge.GetEulerRotation().y;
+	}
+	public static void SetYaw(this ref CameraManagerBridge bridge, float value) {
+		var eulerRotation = bridge.GetEulerRotation();
+		eulerRotation.y = value;
+		bridge.SetEulerRotation(eulerRotation);
+	}
 
-
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
+	public static float3 Right(this in CameraManagerBridge bridge) {
+		return math.mul(bridge.Rotation, new float3(1f, 0f, 0f));
+	}
+	public static float3 Up(this in CameraManagerBridge bridge) {
+		return math.mul(bridge.Rotation, new float3(0f, 1f, 0f));
+	}
+	public static float3 Forward(this in CameraManagerBridge bridge) {
+		return math.mul(bridge.Rotation, new float3(0f, 0f, 1f));
 	}
 }
 
@@ -153,6 +112,10 @@ public struct CameraManagerBridge : IComponentData {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class CameraBridgeSystem : SystemBase {
 
+	const float Epsilon = math.EPSILON;
+	bool initialized = false;
+	CameraManagerBridge prev;
+
 	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<CameraManagerBridge>();
@@ -161,24 +124,57 @@ public partial class CameraBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if ((flag & 0x0001u) != 0u) CameraManager.Position         = bridge.ValueRO.Position;
-		if ((flag & 0x0002u) != 0u) CameraManager.Rotation         = bridge.ValueRO.Rotation;
-		if ((flag & 0x0004u) != 0u) CameraManager.Constraints      = bridge.ValueRO.Constraints;
-		if ((flag & 0x0008u) != 0u) CameraManager.FocusDistance    = bridge.ValueRO.FocusDistance;
-		if ((flag & 0x0010u) != 0u) CameraManager.FieldOfView      = bridge.ValueRO.FieldOfView;
-		if ((flag & 0x0020u) != 0u) CameraManager.OrthographicSize = bridge.ValueRO.OrthographicSize;
-		if ((flag & 0x0040u) != 0u) CameraManager.Projection       = bridge.ValueRO.Projection;
+		var position = false;
+		position |= Epsilon < math.abs(prev.Position.x - next.Position.x);
+		position |= Epsilon < math.abs(prev.Position.y - next.Position.y);
+		position |= Epsilon < math.abs(prev.Position.z - next.Position.z);
+		if (position) CameraManager.Position = next.Position;
+		bridge.ValueRW.Position = CameraManager.Position;
 
-		bridge.ValueRW.Position			= CameraManager.Position;
-		bridge.ValueRW.Rotation			= CameraManager.Rotation;
-		bridge.ValueRW.Constraints		= CameraManager.Constraints;
-		bridge.ValueRW.FocusDistance	= CameraManager.FocusDistance;
-		bridge.ValueRW.FieldOfView		= CameraManager.FieldOfView;
-		bridge.ValueRW.OrthographicSize	= CameraManager.OrthographicSize;
-		bridge.ValueRW.Projection		= CameraManager.Projection;
+		var rotation = false;
+		rotation |= Epsilon < math.abs(prev.Rotation.value.x - next.Rotation.value.x);
+		rotation |= Epsilon < math.abs(prev.Rotation.value.y - next.Rotation.value.y);
+		rotation |= Epsilon < math.abs(prev.Rotation.value.z - next.Rotation.value.z);
+		rotation |= Epsilon < math.abs(prev.Rotation.value.w - next.Rotation.value.w);
+		if (rotation) CameraManager.Rotation = next.Rotation;
+		bridge.ValueRW.Rotation = CameraManager.Rotation;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+		var constraints = false;
+		constraints |= prev.Constraints.positionX != next.Constraints.positionX;
+		constraints |= prev.Constraints.positionY != next.Constraints.positionY;
+		constraints |= prev.Constraints.positionZ != next.Constraints.positionZ;
+		constraints |= prev.Constraints.rotationX != next.Constraints.rotationX;
+		constraints |= prev.Constraints.rotationY != next.Constraints.rotationY;
+		constraints |= prev.Constraints.rotationZ != next.Constraints.rotationZ;
+		if (constraints) CameraManager.Constraints = next.Constraints;
+		bridge.ValueRW.Constraints = CameraManager.Constraints;
+
+		var focusDistance = false;
+		focusDistance |= Epsilon < math.abs(prev.FocusDistance - next.FocusDistance);
+		if (focusDistance) CameraManager.FocusDistance = next.FocusDistance;
+		bridge.ValueRW.FocusDistance = CameraManager.FocusDistance;
+
+		var fieldOfView = false;
+		fieldOfView |= Epsilon < math.abs(prev.FieldOfView - next.FieldOfView);
+		if (fieldOfView) CameraManager.FieldOfView = next.FieldOfView;
+		bridge.ValueRW.FieldOfView = CameraManager.FieldOfView;
+
+		var orthographicSize = false;
+		orthographicSize |= Epsilon < math.abs(prev.OrthographicSize - next.OrthographicSize);
+		if (orthographicSize) CameraManager.OrthographicSize = next.OrthographicSize;
+		bridge.ValueRW.OrthographicSize = CameraManager.OrthographicSize;
+
+		var projection = false;
+		projection |= Epsilon < math.abs(prev.Projection - next.Projection);
+		if (projection) CameraManager.Projection = next.Projection;
+		bridge.ValueRW.Projection = CameraManager.Projection;
+
+		prev = bridge.ValueRO;
 	}
 }

@@ -242,8 +242,8 @@ public partial class CameraManagerSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
-		foreach (var (transform, core) in SystemAPI
-			.Query<RefRO<LocalTransform>, RefRO<CreatureCore>>()
+		foreach (var (transform, @base) in SystemAPI
+			.Query<RefRO<LocalTransform>, RefRO<CreatureData>>()
 			.WithAll<GhostOwnerIsLocal>()) {
 
 			var point = transform.ValueRO.Position;
@@ -256,7 +256,7 @@ public partial class CameraManagerSystem : SystemBase {
 				}
 			};
 			if (physicsWorld.CastRay(ray, out var hit)) point = hit.Position;
-			point += new float3(0f, core.ValueRO.Height + 1f, 0f);
+			point += new float3(0f, @base.ValueRO.Value.Value.Height + 1f, 0f);
 
 			var delta = (Vector3)point - CameraManager.Position;
 			CameraManager.Position += 5f * SystemAPI.Time.DeltaTime * delta;

@@ -26,7 +26,7 @@ public struct PlayerBody : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(CreatureBodySystemGroup))]
+[UpdateInGroup(typeof(DOTSPredictedSimulationSystemGroup))]
 partial struct PlayerBodySimulationSystem : ISystem {
 
 	[BurstCompile]
@@ -62,7 +62,8 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					break;
 
 				case Motion.Idle:
-					velocity.Linear = float3.zero;
+					velocity.Linear.x = 0f;
+					velocity.Linear.z = 0f;
 					core.MotionXTick++;
 					if (0f < input.MoveFactor) core.MotionX = Motion.Move;
 					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
@@ -71,7 +72,9 @@ partial struct PlayerBodySimulationSystem : ISystem {
 				case Motion.Move:
 					if (0 < input.MoveFactor) {
 						transform.Rotation = quaternion.LookRotationSafe(-input.MoveVector, math.up());
-						velocity.Linear = 5f * input.MoveVector;
+						velocity.Linear.x = 5f * input.MoveVector.x;
+						velocity.Linear.z = 5f * input.MoveVector.z;
+
 					}
 					core.MotionXTick++;
 					if (input.MoveFactor == 0f) core.MotionX = Motion.Idle;
@@ -79,9 +82,10 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					break;
 
 				case Motion.Jump:
-					velocity.Linear = 5f * input.MoveVector;
+					velocity.Linear.x = 5f * input.MoveVector.x;
+					velocity.Linear.z = 5f * input.MoveVector.z;
 					if (core.MotionXTick != 10) core.MotionXTick++;
-					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.2f, 0f);
+					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.4f, 0f);
 					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
 					if (15 < core.MotionXTick) core.MotionX = Motion.Idle;
 					break;

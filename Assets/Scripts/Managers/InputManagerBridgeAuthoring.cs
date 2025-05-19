@@ -39,7 +39,9 @@ public class InputManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<InputManagerBridgeAuthoring> {
 		public override void Bake(InputManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new InputManagerBridge());
+			AddComponent(entity, new InputManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,62 +54,34 @@ public class InputManagerBridgeAuthoring : MonoBehaviour {
 
 public struct InputManagerBridge : IComponentData {
 
-	// Fields
-
-	uint   m_KeyPrev;
-	uint   m_KeyNext;
-	float2 m_MousePosition;
-	float2 m_ScrollWheel;
-	float2 m_LookDirection;
-	float2 m_MoveDirection;
-
-	uint m_Flag;
+	public uint KeyPrev;
+	public uint KeyNext;
+	public float2 MousePosition;
+	public float2 ScrollWheel;
+	public float2 LookDirection;
+	public float2 MoveDirection;
+}
 
 
-	// Properties
 
-	public uint KeyPrev {
-		get => m_KeyPrev;
-		set => m_KeyPrev = value;
+public static class InputManagerBridgeExtensions {
+
+	public static bool GetKeyNext(this in InputManagerBridge bridge, KeyAction key) {
+		return (bridge.KeyNext & (1u << (int)key)) != 0u;
 	}
-	public uint KeyNext {
-		get => m_KeyNext;
-		set => m_KeyNext = value;
-	}
-	public float2 MousePosition {
-		get => m_MousePosition;
-		set => m_MousePosition = value;
-	}
-	public float2 ScrollWheel {
-		get => m_ScrollWheel;
-		set => m_ScrollWheel = value;
-	}
-	public float2 LookDirection {
-		get => m_LookDirection;
-		set => m_LookDirection = value;
-	}
-	public float2 MoveDirection {
-		get => m_MoveDirection;
-		set => m_MoveDirection = value;
+	public static bool GetKeyPrev(this in InputManagerBridge bridge, KeyAction key) {
+		return (bridge.KeyPrev & (1u << (int)key)) != 0u;
 	}
 
-
-
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
+	public static bool GetKey(this in InputManagerBridge bridge, KeyAction key) {
+		return bridge.GetKeyNext(key);
 	}
-
-
-
-	// Methods
-
-	bool GetKeyNext(KeyAction key) => (KeyNext & (1u << (int)key)) != 0u;
-	bool GetKeyPrev(KeyAction key) => (KeyPrev & (1u << (int)key)) != 0u;
-
-	public bool GetKey    (KeyAction key) =>  GetKeyNext(key);
-	public bool GetKeyDown(KeyAction key) =>  GetKeyNext(key) && !GetKeyPrev(key);
-	public bool GetKeyUp  (KeyAction key) => !GetKeyNext(key) &&  GetKeyPrev(key);
+	public static bool GetKeyDown(this in InputManagerBridge bridge, KeyAction key) {
+		return bridge.GetKeyNext(key) && !bridge.GetKeyPrev(key);
+	}
+	public static bool GetKeyUp(this in InputManagerBridge bridge, KeyAction key) {
+		return !bridge.GetKeyNext(key) && bridge.GetKeyPrev(key);
+	}
 }
 
 
@@ -120,6 +94,9 @@ public struct InputManagerBridge : IComponentData {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class InputManagerBridgeSystem : SystemBase {
 
+	bool initialized = false;
+	InputManagerBridge prev;
+
 	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<InputManagerBridge>();
@@ -128,7 +105,11 @@ public partial class InputManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<InputManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
 		bridge.ValueRW.KeyPrev       = InputManager.KeyPrev;
 		bridge.ValueRW.KeyNext       = InputManager.KeyNext;
@@ -137,6 +118,6 @@ public partial class InputManagerBridgeSystem : SystemBase {
 		bridge.ValueRW.LookDirection = InputManager.LookDirection;
 		bridge.ValueRW.MoveDirection = InputManager.MoveDirection;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+		prev = bridge.ValueRO;
 	}
 }

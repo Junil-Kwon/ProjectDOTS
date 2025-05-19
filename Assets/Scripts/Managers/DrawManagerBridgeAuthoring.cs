@@ -39,7 +39,9 @@ public class DrawManagerBridgeAuthoring : MonoBehaviour {
 	public class Baker : Baker<DrawManagerBridgeAuthoring> {
 		public override void Bake(DrawManagerBridgeAuthoring authoring) {
 			Entity entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new DrawManagerBridge());
+			AddComponent(entity, new DrawManagerBridge {
+
+			});
 		}
 	}
 }
@@ -52,18 +54,13 @@ public class DrawManagerBridgeAuthoring : MonoBehaviour {
 
 public struct DrawManagerBridge : IComponentData {
 
-	// Fields
-
-	uint m_Flag;
-
+	public byte temp;
+}
 
 
-	// Properties
 
-	public uint Flag {
-		get => m_Flag;
-		set => m_Flag = value;
-	}
+public static class DrawManagerBridgeExtensions {
+
 }
 
 
@@ -72,9 +69,13 @@ public struct DrawManagerBridge : IComponentData {
 // Draw Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class DrawManagerBridgeSystem : SystemBase {
+
+	bool initialized = false;
+	DrawManagerBridge prev;
 
 	[BurstCompile]
 	protected override void OnCreate() {
@@ -84,8 +85,15 @@ public partial class DrawManagerBridgeSystem : SystemBase {
 	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<DrawManagerBridge>();
-		var flag   = bridge.ValueRO.Flag;
+		if (initialized == false) {
+			initialized = true;
+			prev = bridge.ValueRO;
+		}
+		var next = bridge.ValueRO;
 
-		if (flag != 0u) bridge.ValueRW.Flag = 0u;
+
+
+		prev = bridge.ValueRO;
 	}
 }
+*/
