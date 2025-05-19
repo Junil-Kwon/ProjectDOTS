@@ -112,7 +112,6 @@ public static class CameraManagerBridgeExtensions {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class CameraBridgeSystem : SystemBase {
 
-	const float Epsilon = math.EPSILON;
 	bool initialized = false;
 	CameraManagerBridge prev;
 
@@ -131,19 +130,19 @@ public partial class CameraBridgeSystem : SystemBase {
 		var next = bridge.ValueRO;
 
 		var position = false;
-		position |= Epsilon < math.abs(prev.Position.x - next.Position.x);
-		position |= Epsilon < math.abs(prev.Position.y - next.Position.y);
-		position |= Epsilon < math.abs(prev.Position.z - next.Position.z);
+		position |= math.EPSILON < math.abs(prev.Position.x - next.Position.x);
+		position |= math.EPSILON < math.abs(prev.Position.y - next.Position.y);
+		position |= math.EPSILON < math.abs(prev.Position.z - next.Position.z);
 		if (position) CameraManager.Position = next.Position;
-		bridge.ValueRW.Position = CameraManager.Position;
+		else          next.Position = CameraManager.Position;
 
 		var rotation = false;
-		rotation |= Epsilon < math.abs(prev.Rotation.value.x - next.Rotation.value.x);
-		rotation |= Epsilon < math.abs(prev.Rotation.value.y - next.Rotation.value.y);
-		rotation |= Epsilon < math.abs(prev.Rotation.value.z - next.Rotation.value.z);
-		rotation |= Epsilon < math.abs(prev.Rotation.value.w - next.Rotation.value.w);
+		rotation |= math.EPSILON < math.abs(prev.Rotation.value.x - next.Rotation.value.x);
+		rotation |= math.EPSILON < math.abs(prev.Rotation.value.y - next.Rotation.value.y);
+		rotation |= math.EPSILON < math.abs(prev.Rotation.value.z - next.Rotation.value.z);
+		rotation |= math.EPSILON < math.abs(prev.Rotation.value.w - next.Rotation.value.w);
 		if (rotation) CameraManager.Rotation = next.Rotation;
-		bridge.ValueRW.Rotation = CameraManager.Rotation;
+		else          next.Rotation = CameraManager.Rotation;
 
 		var constraints = false;
 		constraints |= prev.Constraints.positionX != next.Constraints.positionX;
@@ -153,28 +152,28 @@ public partial class CameraBridgeSystem : SystemBase {
 		constraints |= prev.Constraints.rotationY != next.Constraints.rotationY;
 		constraints |= prev.Constraints.rotationZ != next.Constraints.rotationZ;
 		if (constraints) CameraManager.Constraints = next.Constraints;
-		bridge.ValueRW.Constraints = CameraManager.Constraints;
+		else             next.Constraints = CameraManager.Constraints;
 
 		var focusDistance = false;
-		focusDistance |= Epsilon < math.abs(prev.FocusDistance - next.FocusDistance);
+		focusDistance |= math.EPSILON < math.abs(prev.FocusDistance - next.FocusDistance);
 		if (focusDistance) CameraManager.FocusDistance = next.FocusDistance;
-		bridge.ValueRW.FocusDistance = CameraManager.FocusDistance;
+		else               next.FocusDistance = CameraManager.FocusDistance;
 
 		var fieldOfView = false;
-		fieldOfView |= Epsilon < math.abs(prev.FieldOfView - next.FieldOfView);
+		fieldOfView |= math.EPSILON < math.abs(prev.FieldOfView - next.FieldOfView);
 		if (fieldOfView) CameraManager.FieldOfView = next.FieldOfView;
-		bridge.ValueRW.FieldOfView = CameraManager.FieldOfView;
+		else             next.FieldOfView = CameraManager.FieldOfView;
 
 		var orthographicSize = false;
-		orthographicSize |= Epsilon < math.abs(prev.OrthographicSize - next.OrthographicSize);
+		orthographicSize |= math.EPSILON < math.abs(prev.OrthographicSize - next.OrthographicSize);
 		if (orthographicSize) CameraManager.OrthographicSize = next.OrthographicSize;
-		bridge.ValueRW.OrthographicSize = CameraManager.OrthographicSize;
+		else                  next.OrthographicSize = CameraManager.OrthographicSize;
 
 		var projection = false;
-		projection |= Epsilon < math.abs(prev.Projection - next.Projection);
+		projection |= math.EPSILON < math.abs(prev.Projection - next.Projection);
 		if (projection) CameraManager.Projection = next.Projection;
-		bridge.ValueRW.Projection = CameraManager.Projection;
+		else            next.Projection = CameraManager.Projection;
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }

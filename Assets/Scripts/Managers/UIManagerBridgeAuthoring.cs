@@ -92,7 +92,7 @@ public partial class UIManagerBridgeSystem : SystemBase {
 
 
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }
 */

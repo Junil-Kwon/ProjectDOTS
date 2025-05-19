@@ -66,7 +66,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					velocity.Linear.z = 0f;
 					core.MotionXTick++;
 					if (0f < input.MoveFactor) core.MotionX = Motion.Move;
-					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
+					if (input.GetKey(KeyAction.Jump) && core.IsGrounded()) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Move:
@@ -78,7 +78,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					}
 					core.MotionXTick++;
 					if (input.MoveFactor == 0f) core.MotionX = Motion.Idle;
-					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
+					if (input.GetKey(KeyAction.Jump) && core.IsGrounded()) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Jump:
@@ -86,7 +86,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					velocity.Linear.z = 5f * input.MoveVector.z;
 					if (core.MotionXTick != 10) core.MotionXTick++;
 					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.4f, 0f);
-					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
+					if (core.MotionXTick == 10 && core.IsGrounded()) core.MotionXTick++;
 					if (15 < core.MotionXTick) core.MotionX = Motion.Idle;
 					break;
 			}

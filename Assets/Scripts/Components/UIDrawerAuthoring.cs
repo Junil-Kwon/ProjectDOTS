@@ -13,7 +13,7 @@ using Unity.Burst;
 
 // ━
 
-public enum UI : uint {
+public enum UI : ushort {
 	None,
 	BarM,
 	BarL,
@@ -150,34 +150,12 @@ public class UIDrawerAuthoring : MonoBehaviour {
 [InternalBufferCapacity(7)]
 public struct UIDrawer : IBufferElementData {
 
-	// Constants
-
-	const uint UIMask = 0xFFC00000u;
-	const uint AMask  = 0x00200000u;
-	const uint BMask  = 0x00100000u;
-
-	const int UIShift = 22;
-	const int AShift  = 21;
-	const int BShift  = 20;
-
-
-
-	// Fields
-
-	uint data;
-
 	public float3 Position;
 	public float2 Scale;
 	public float2 Pivot;
 
-	public UI UI {
-		get => (UI)((data & UIMask) >> UIShift);
-		set => data = (data & ~UIMask) | ((uint)value << UIShift);
-	}
+	public UI    UI;
 	public float Offset;
 	public color BaseColor;
-	public bool2 Flip {
-		get => new((data & AMask) != 0u, (data & BMask) != 0u);
-		set => data = (data & ~(AMask | BMask)) | (value.x ? AMask : 0u) | (value.y ? BMask : 0u);
-	}
+	public bool2 Flip;
 }

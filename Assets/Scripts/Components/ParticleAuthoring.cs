@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using UnityRandom = UnityEngine.Random;
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -140,8 +139,6 @@ public struct ParticleInitialize : IComponentData, IEnableableComponent { }
 
 public struct Particle : IComponentData {
 
-	// Fields
-
 	public float Lifetime;
 	public bool2 FlipRandom;
 }
@@ -170,7 +167,7 @@ partial struct ParticleInitializationSystem : ISystem {
 	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ParticleInitializationJob() {
-			random = new Random((uint)UnityRandom.Range(1, 1000)),
+			random = new Random((uint)(1 + 4801 * SystemAPI.Time.ElapsedTime) % 1000000),
 		}.ScheduleParallel(state.Dependency);
 	}
 

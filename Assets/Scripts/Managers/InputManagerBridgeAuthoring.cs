@@ -111,13 +111,13 @@ public partial class InputManagerBridgeSystem : SystemBase {
 		}
 		var next = bridge.ValueRO;
 
-		bridge.ValueRW.KeyPrev       = InputManager.KeyPrev;
-		bridge.ValueRW.KeyNext       = InputManager.KeyNext;
-		bridge.ValueRW.MousePosition = InputManager.PointPosition;
-		bridge.ValueRW.ScrollWheel   = InputManager.ScrollWheel;
-		bridge.ValueRW.LookDirection = InputManager.LookDirection;
-		bridge.ValueRW.MoveDirection = InputManager.MoveDirection;
+		next.KeyPrev       = InputManager.KeyPrev;
+		next.KeyNext       = InputManager.KeyNext;
+		next.MousePosition = InputManager.PointPosition;
+		next.ScrollWheel   = InputManager.ScrollWheel;
+		next.LookDirection = InputManager.LookDirection;
+		next.MoveDirection = InputManager.MoveDirection;
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }

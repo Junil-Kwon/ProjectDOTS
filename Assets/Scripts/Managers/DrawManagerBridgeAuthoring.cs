@@ -93,7 +93,7 @@ public partial class DrawManagerBridgeSystem : SystemBase {
 
 
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }
 */

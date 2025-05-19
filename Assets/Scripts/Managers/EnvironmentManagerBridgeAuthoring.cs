@@ -92,7 +92,7 @@ public partial class EnvironmentManagerBridgeSystem : SystemBase {
 
 
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }
 */

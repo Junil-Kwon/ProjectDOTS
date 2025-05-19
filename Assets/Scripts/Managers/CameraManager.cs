@@ -243,7 +243,7 @@ public partial class CameraManagerSystem : SystemBase {
 	protected override void OnUpdate() {
 		var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
 		foreach (var (transform, @base) in SystemAPI
-			.Query<RefRO<LocalTransform>, RefRO<CreatureData>>()
+			.Query<RefRO<LocalTransform>, RefRO<CreatureBlob>>()
 			.WithAll<GhostOwnerIsLocal>()) {
 
 			var point = transform.ValueRO.Position;

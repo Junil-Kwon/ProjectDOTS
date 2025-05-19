@@ -13,7 +13,7 @@ using Unity.Burst;
 
 // ━
 
-public enum Tile : uint {
+public enum Tile : ushort {
 	None,
 
 	TempGround0,
@@ -180,41 +180,14 @@ public class TileDrawerAuthoring : MonoBehaviour {
 [InternalBufferCapacity(1)]
 public struct TileDrawer : IBufferElementData {
 
-	// Constants
-
-	const uint TileMask = 0xFFC00000u;
-	const uint AMask    = 0x00200000u;
-	const uint BMask    = 0x00100000u;
-	const uint CMask    = 0x00080000u;
-
-	const int TileShift = 22;
-	const int AShift    = 21;
-	const int BShift    = 20;
-	const int CShift    = 19;
-
-
-
-	// Fields
-
-	uint data;
-
 	public float3     Position;
 	public quaternion Rotation;
 
-	public Tile Tile {
-		get => (Tile)((data & TileMask) >> TileShift);
-		set => data = (data & ~TileMask) | ((uint)value << TileShift);
-	}
+	public Tile  Tile;
 	public float Offset;
 	public color BaseColor;
 	public color MaskColor;
 	public color Emission;
-	public bool2 Flip {
-		get => new((data & AMask) != 0u, (data & BMask) != 0u);
-		set => data = (data & ~(AMask | BMask)) | (value.x ? AMask : 0u) | (value.y ? BMask : 0u);
-	}
-	public bool FlipRandomly {
-		get => (data & CMask) != 0u;
-		set => data = (data & ~CMask) | (value ? CMask : 0u);
-	}
+	public bool2 Flip;
+	public bool  FlipRandomly;
 }

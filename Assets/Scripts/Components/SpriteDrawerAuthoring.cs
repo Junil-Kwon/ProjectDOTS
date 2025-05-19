@@ -13,7 +13,7 @@ using Unity.Burst;
 
 // ━
 
-public enum Sprite : uint {
+public enum Sprite : ushort {
 	None,
 	Player,
 
@@ -22,7 +22,7 @@ public enum Sprite : uint {
 	Landing,
 }
 
-public enum Motion : uint {
+public enum Motion : ushort {
 	None,
 	Idle,
 	Move,
@@ -195,48 +195,16 @@ public class SpriteDrawerAuthoring : MonoBehaviour {
 [InternalBufferCapacity(1)]
 public struct SpriteDrawer : IBufferElementData {
 
-	// Constants
-
-	const uint SpriteMask = 0xFFC00000u;
-	const uint MotionMask = 0x003E0000u;
-	const uint AMask      = 0x00010000u;
-	const uint BMask      = 0x00008000u;
-	const uint CMask      = 0x00004000u;
-
-	const int SpriteShift = 22;
-	const int MotionShift = 17;
-	const int AShift      = 16;
-	const int BShift      = 15;
-	const int CShift      = 14;
-
-
-
-	// Fields
-
-	uint data;
-
 	public float3 Position;
 	public float2 Pivot;
 	public float  Yaw;
-	public bool   YawLocal {
-		get => (data & AMask) != 0;
-		set => data = (data & ~AMask) | (value ? AMask : 0);
-	}
+	public bool   YawLocal;
 
-	public Sprite Sprite {
-		get => (Sprite)((data & SpriteMask) >> SpriteShift);
-		set => data = (data & ~SpriteMask) | ((uint)value << SpriteShift);
-	}
-	public Motion Motion {
-		get => (Motion)((data & MotionMask) >> MotionShift);
-		set => data = (data & ~MotionMask) | ((uint)value << MotionShift);
-	}
-	public float Offset;
-	public color BaseColor;
-	public color MaskColor;
-	public color Emission;
-	public bool2 Flip {
-		get => new((data & BMask) != 0u, (data & CMask) != 0u);
-		set => data = (data & ~(BMask | CMask)) | (value.x ? BMask : 0u) | (value.y ? CMask : 0u);
-	}
+	public Sprite Sprite;
+	public Motion Motion;
+	public float  Offset;
+	public color  BaseColor;
+	public color  MaskColor;
+	public color  Emission;
+	public bool2  Flip;
 }

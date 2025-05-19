@@ -14,9 +14,7 @@ using Unity.NetCode;
 
 public struct PlayerHead : IComponentData {
 
-	// Fields
-
-	byte data;
+	public byte temp;
 }
 
 

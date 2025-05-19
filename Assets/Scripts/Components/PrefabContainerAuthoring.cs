@@ -14,7 +14,7 @@ using Unity.Burst;
 
 // ━
 
-public enum Prefab : uint {
+public enum Prefab : ushort {
 	Player,
 	Temp,
 
@@ -78,8 +78,6 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 
 [InternalBufferCapacity(1024)]
 public struct PrefabContainer : IBufferElementData {
-
-	// Fields
 
 	public Entity Prefab;
 }

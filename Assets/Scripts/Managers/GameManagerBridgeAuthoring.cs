@@ -97,8 +97,8 @@ public partial class GameManagerBridgeSystem : SystemBase {
 		var playEvent = false;
 		playEvent |= prev.PlayEvent_graph != next.PlayEvent_graph;
 		if (playEvent) GameManager.PlayEvent(next.PlayEvent_graph.Value);
-		bridge.ValueRW.PlayEvent_graph = default;
+		next.PlayEvent_graph = default;
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }

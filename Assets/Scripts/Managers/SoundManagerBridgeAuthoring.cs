@@ -90,7 +90,7 @@ public partial class SoundManagerBridgeSystem : SystemBase {
 
 
 
-		prev = bridge.ValueRO;
+		bridge.ValueRW = prev = next;
 	}
 }
 */

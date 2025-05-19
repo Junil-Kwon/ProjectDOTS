@@ -136,12 +136,9 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 public struct EventTrigger : IComponentData {
 
-	// Fields
-
 	public UnityObjectRef<EventGraphSO> Event;
 	public int   Count;
 	public float Timer;
-
 	public float Cooldown;
 }
 
