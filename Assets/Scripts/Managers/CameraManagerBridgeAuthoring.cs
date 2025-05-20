@@ -108,19 +108,16 @@ public static class CameraManagerBridgeExtensions {
 // Camera Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class CameraBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	CameraManagerBridge prev;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<CameraManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
 		if (initialized == false) {

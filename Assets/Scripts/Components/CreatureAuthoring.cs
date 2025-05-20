@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using System.Runtime.CompilerServices;
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -114,7 +113,7 @@ public enum Effect : byte {
 }
 public static class EffectExtensions {
 	public static bool IsValueType(this Effect effect) => effect switch {
-		Effect.Damage => true,
+		Effect.Damage      => true,
 		Effect.HealthBoost => true,
 		Effect.EnergyBoost => true,
 		Effect.DamageBoost => true,
@@ -146,8 +145,8 @@ public enum PhysicsCategory : byte {
 	Creature,
 }
 public static class CreaturePhysics {
-	public const float DefaultMass =       1.00f;
-	public const float PinnedMass  = 1000000.00f;
+	public const float InitialMass = 1f;
+	public const float PinnedMass  = 1f * 1000000f;
 	public const float GravityMultiplier =  -9.81f * NetworkManager.Ticktime;
 	public const float KnockMultiplier   = 256.00f * NetworkManager.Ticktime;
 	public const float DustThreshold = -0.4f;
@@ -226,19 +225,19 @@ public class CreatureAuthoring : MonoBehaviour {
 
 	// Fields
 
-	[SerializeField] float m_Radius;
-	[SerializeField] float m_Height;
+	[SerializeField] float  m_Radius;
+	[SerializeField] float  m_Height;
 	[SerializeField] ushort m_MaxEnergy;
 	[SerializeField] ushort m_MaxShield;
 	[SerializeField] ushort m_MaxHealth;
-	[SerializeField] byte m_Tag;
-	[SerializeField] uint m_Immunity;
+	[SerializeField] byte   m_Tag;
+	[SerializeField] uint   m_Immunity;
 
-	[SerializeField] color m_MaskColor;
+	[SerializeField] color  m_MaskColor;
 	[SerializeField] string m_HeadString;
 	[SerializeField] string m_BodyString;
-	[SerializeField] uint m_Flag;
-	[SerializeField] uint m_Team;
+	[SerializeField] uint   m_Flag;
+	[SerializeField] uint   m_Team;
 
 
 
@@ -332,7 +331,7 @@ public class CreatureAuthoring : MonoBehaviour {
 					case global::Flag.Pinned:
 						if (TryGetComponent(out PhysicsBodyAuthoring body)) {
 							if (b) body.Mass = CreaturePhysics.PinnedMass;
-							else   body.Mass = CreaturePhysics.DefaultMass;
+							else   body.Mass = CreaturePhysics.InitialMass;
 						};
 						break;
 					case global::Flag.Piercing:
@@ -391,8 +390,8 @@ public class CreatureAuthoring : MonoBehaviour {
 				MaxEnergy   = authoring.MaxEnergy,
 				Tag         = authoring.Tag,
 				Immunity    = authoring.Immunity,
-				DefaultHead = authoring.Head,
-				DefaultBody = authoring.Body,
+				InitialHead = authoring.Head,
+				InitialBody = authoring.Body,
 
 			};
 			var creatureCore = new CreatureCore {
@@ -469,24 +468,24 @@ public struct CreatureInput : IInputComponentData {
 
 
 	public uint Key {
-		get => CreatureInputExtensions.GetKey(in this);
-		set => CreatureInputExtensions.SetKey(ref this, value);
+		get => this.GetKey();
+		set => this.SetKey(value);
 	}
 	public float MoveFactor {
-		get => CreatureInputExtensions.GetMoveFactor(in this);
-		set => CreatureInputExtensions.SetMoveFactor(ref this, value);
+		get => this.GetMoveFactor();
+		set => this.SetMoveFactor(value);
 	}
 	public float3 MoveVector {
-		get => CreatureInputExtensions.GetMoveVector(in this);
-		set => CreatureInputExtensions.SetMoveVector(ref this, value);
+		get => this.GetMoveVector();
+		set => this.SetMoveVector(value);
 	}
 	public uint Ping {
-		get => CreatureInputExtensions.GetPing(in this);
-		set => CreatureInputExtensions.SetPing(ref this, value);
+		get => this.GetPing();
+		set => this.SetPing(value);
 	}
 	public uint Emotion {
-		get => CreatureInputExtensions.GetEmotion(this);
-		set => CreatureInputExtensions.SetEmotion(ref this, value);
+		get => this.GetEmotion();
+		set => this.SetEmotion(value);
 	}
 }
 
@@ -508,15 +507,12 @@ public static class CreatureInputExtensions {
 
 
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetKey(this in CreatureInput input) {
 		return (input.Data & KeyMask) >> KeyShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetKey(this ref CreatureInput input, uint value) {
 		input.Data = (input.Data & ~KeyMask) | (value << KeyShift);
 	}
-
 	public static bool GetKey(this in CreatureInput input, KeyAction key) {
 		return (input.GetKey() & (1 << (int)key)) != 0;
 	}
@@ -525,16 +521,13 @@ public static class CreatureInputExtensions {
 		else       input.SetKey(input.GetKey() & ~(1u << (int)key));
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static float GetMoveFactor(this in CreatureInput input) {
 		return ((input.Data & MoveFMask) >> MoveFShift) * 0.333333f;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetMoveFactor(this ref CreatureInput input, float value) {
 		uint moveFactor = (uint)math.round(math.saturate(value) * 3f);
 		input.Data = (input.Data & ~MoveFMask) | (moveFactor << MoveFShift);
 	}
-
 	public static float3 GetMoveVector(this in CreatureInput input) {
 		if (input.GetMoveFactor() == 0f) return float3.zero;
 		else {
@@ -550,20 +543,16 @@ public static class CreatureInputExtensions {
 		}
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetPing(this in CreatureInput input) {
 		return (input.Data & PingMask) >> PingShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetPing(this ref CreatureInput input, uint value) {
 		input.Data = (input.Data & ~PingMask) | (value << PingShift);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetEmotion(this in CreatureInput input) {
 		return (input.Data & EmotionMask) >> EmotionShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetEmotion(this ref CreatureInput input, uint value) {
 		input.Data = (input.Data & ~EmotionMask) | (value << EmotionShift);
 	}
@@ -585,27 +574,25 @@ public struct CreatureBlob : IComponentData {
 public struct CreatureBlobData {
 
 	public FixedString512Bytes Name;
-	public float Radius;
-	public float Height;
+	public float  Radius;
+	public float  Height;
 	public ushort MaxShield;
 	public ushort MaxHealth;
 	public ushort MaxEnergy;
-	public byte Tag;
-	public uint Immunity;
-	public Head DefaultHead;
-	public Body DefaultBody;
+	public byte   Tag;
+	public uint   Immunity;
+	public Head   InitialHead;
+	public Body   InitialBody;
 }
 
 
 
 public static class CreatureBlobAssetExtensions {
 
-	public static bool GetTag
-		(this in CreatureBlobData data, Tag tag) {
+	public static bool GetTag(this in CreatureBlobData data, Tag tag) {
 		return (data.Tag & (1 << (int)tag)) != 0;
 	}
-	public static void SetTag
-		(this ref CreatureBlobData data, Tag tag, bool value) {
+	public static void SetTag(this ref CreatureBlobData data, Tag tag, bool value) {
 		if (value) data.Tag |= (byte) (1 << (int)tag);
 		else       data.Tag &= (byte)~(1 << (int)tag);
 	}
@@ -613,12 +600,10 @@ public static class CreatureBlobAssetExtensions {
 	public static void AddTag   (this ref CreatureBlobData data, Tag tag) => data.SetTag(tag, true);
 	public static void RemoveTag(this ref CreatureBlobData data, Tag tag) => data.SetTag(tag, false);
 
-	public static Immunity GetImmunity
-		(this in CreatureBlobData data, Effect effect) {
+	public static Immunity GetImmunity(this in CreatureBlobData data, Effect effect) {
 		return (Immunity)((data.Immunity >> ((int)effect * 2)) & 0b11u);
 	}
-	public static void SetImmunity
-		(this ref CreatureBlobData data, Effect effect, Immunity immunity) {
+	public static void SetImmunity(this ref CreatureBlobData data, Effect effect, Immunity immunity) {
 		data.Immunity &= ~(0b11u << ((int)effect * 2));
 		data.Immunity |= (uint)immunity << ((int)effect * 2);
 	}
@@ -634,9 +619,9 @@ public static class CreatureBlobAssetExtensions {
 public struct CreatureCore : IComponentData {
 
 	[GhostField] public color MaskColor;
-	[GhostField] public uint Data0;
-	[GhostField] public uint Data1;
-	[GhostField] public uint Data2;
+	[GhostField] public uint  Data0;
+	[GhostField] public uint  Data1;
+	[GhostField] public uint  Data2;
 
 
 
@@ -709,26 +694,26 @@ public static class CreatureCoreExtensions {
 	const uint FlagMask = 0x0000FF00u;
 	const uint TeamMask = 0x000000FFu;
 
+	const int HeadShift = 26;
+	const int BodyShift = 16;
+	const int FlagShift =  8;
+	const int TeamShift =  0;
+
 	const uint MotionXMask     = 0xF8000000u;
 	const uint MotionYMask     = 0x07C00000u;
 	const uint MotionXTickMask = 0x003FF800u;
 	const uint MotionYTickMask = 0x000007FFu;
+
+	const int MotionXShift     = 27;
+	const int MotionYShift     = 22;
+	const int MotionTickXShift = 11;
+	const int MotionTickYShift =  0;
 
 	const uint GravityFMask = 0xFF000000u;
 	const uint KnockFMask   = 0x00FC0000u;
 	const uint KnockXMask   = 0x0003F000u;
 	const uint KnockYMask   = 0x00000FC0u;
 	const uint KnockZMask   = 0x0000003Fu;
-
-	const int HeadShift = 26;
-	const int BodyShift = 16;
-	const int FlagShift =  8;
-	const int TeamShift =  0;
-
-	const int MotionXShift     = 27;
-	const int MotionYShift     = 22;
-	const int MotionTickXShift = 11;
-	const int MotionTickYShift =  0;
 
 	const int GravityFShift = 24;
 	const int KnockFShift   = 18;
@@ -738,39 +723,30 @@ public static class CreatureCoreExtensions {
 
 
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Head GetHead(this in CreatureCore core) {
 		return (Head)((core.Data0 & HeadMask) >> HeadShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetHead(this ref CreatureCore core, Head value) {
 		core.Data0 = (core.Data0 & ~HeadMask) | ((uint)value << HeadShift);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Body GetBody(this in CreatureCore core) {
 		return (Body)((core.Data0 & BodyMask) >> BodyShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetBody(this ref CreatureCore core, Body value) {
 		core.Data0 = (core.Data0 & ~BodyMask) | ((uint)value << BodyShift);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetFlag(this in CreatureCore core) {
 		return (core.Data0 & FlagMask) >> FlagShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetFlag(this ref CreatureCore core, uint value) {
 		core.Data0 = (core.Data0 & ~FlagMask) | (value << FlagShift);
 	}
-
-	public static bool GetFlag
-		(this in CreatureCore core, Flag flag) {
+	public static bool GetFlag(this in CreatureCore core, Flag flag) {
 		return (core.GetFlag() & (1u << (int)flag)) != 0u;
 	}
-	public static void SetFlag
-		(this ref CreatureCore core, Flag flag, bool value) {
+	public static void SetFlag(this ref CreatureCore core, Flag flag, bool value) {
 		if (value) core.SetFlag(core.GetFlag() |  (1u << (int)flag));
 		else       core.SetFlag(core.GetFlag() & ~(1u << (int)flag));
 	}
@@ -778,21 +754,16 @@ public static class CreatureCoreExtensions {
 	public static void AddFlag   (this ref CreatureCore core, Flag flag) => core.SetFlag(flag, true);
 	public static void RemoveFlag(this ref CreatureCore core, Flag flag) => core.SetFlag(flag, false);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetTeam(this in CreatureCore core) {
 		return (core.Data0 & TeamMask) >> TeamShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetTeam(this ref CreatureCore core, uint value) {
 		core.Data0 = (core.Data0 & ~TeamMask) | (value << TeamShift);
 	}
-
-	public static bool GetTeam
-		(this in CreatureCore core, Team team) {
+	public static bool GetTeam(this in CreatureCore core, Team team) {
 		return (core.GetTeam() & (1u << (int)team)) != 0u;
 	}
-	public static void SetTeam
-		(this ref CreatureCore core, Team team, bool value) {
+	public static void SetTeam(this ref CreatureCore core, Team team, bool value) {
 		if (value) core.SetTeam(core.GetTeam() |  (1u << (int)team));
 		else       core.SetTeam(core.GetTeam() & ~(1u << (int)team));
 	}
@@ -802,85 +773,71 @@ public static class CreatureCoreExtensions {
 
 
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Motion GetMotionX(this in CreatureCore core) {
 		return (Motion)((core.Data1 & MotionXMask) >> MotionXShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetMotionX(this ref CreatureCore core, Motion value) {
 		core.Data1 = (core.Data1 & ~MotionXMask) | ((uint)value << MotionXShift);
 		core.SetMotionXTick(0);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Motion GetMotionY(this in CreatureCore core) {
 		return (Motion)((core.Data1 & MotionYMask) >> MotionYShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetMotionY(this ref CreatureCore core, Motion value) {
 		core.Data1 = (core.Data1 & ~MotionYMask) | ((uint)value << MotionYShift);
 		core.SetMotionYTick(0);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int GetMotionXTick(this in CreatureCore core) {
 		return (int)((core.Data1 & MotionXTickMask) >> MotionTickXShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetMotionXTick(this ref CreatureCore core, int value) {
 		core.Data1 = (core.Data1 & ~MotionXTickMask) | ((uint)(value % 2048) << MotionTickXShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int GetMotionYTick(this in CreatureCore core) {
 		return (int)((core.Data1 & MotionYTickMask) >> MotionTickYShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetMotionYTick(this ref CreatureCore core, int value) {
 		core.Data1 = (core.Data1 & ~MotionYTickMask) | ((uint)(value % 2048) << MotionTickYShift);
 	}
 
 	public static float GetMotionXOffset(this in CreatureCore core) {
-		return core.GetMotionXTick() * NetworkManager.Ticktime;
+		return (float)(core.GetMotionXTick() * NetworkManager.Ticktime);
 	}
 	public static void SetMotionXOffset(this ref CreatureCore core, float value) {
-		core.SetMotionXTick((int)(value * NetworkManager.Tickrate));
+		core.SetMotionXTick((int)math.round(value * NetworkManager.Tickrate));
 	}
 	public static float GetMotionYOffset(this in CreatureCore core) {
-		return core.GetMotionYTick() * NetworkManager.Ticktime;
+		return (float)(core.GetMotionYTick() * NetworkManager.Ticktime);
 	}
 	public static void SetMotionYOffset(this ref CreatureCore core, float value) {
-		core.SetMotionYTick((int)(value * NetworkManager.Tickrate));
+		core.SetMotionYTick((int)math.round(value * NetworkManager.Tickrate));
 	}
 
 
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int GetGravityFactor(this in CreatureCore core) {
 		return (int)((core.Data2 & GravityFMask) >> GravityFShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetGravityFactor(this ref CreatureCore core, int value) {
 		core.Data2 = (core.Data2 & ~GravityFMask) | ((uint)math.clamp(value, 0, 255) << GravityFShift);
 	}
-
 	public static float3 GetGravityVector(this in CreatureCore core) {
 		return new(0f, (core.GetGravityFactor() == 0) ? 0f : 10f + core.GetGravityFactor(), 0f);
 	}
 	public static void SetGravityVector(this ref CreatureCore core, float3 value) {
+		core.SetGravityFactor(0);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsGrounded(this in CreatureCore core) {
 		return (core.Data2 & GravityFMask) == 0u;
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int GetKnockFactor(this in CreatureCore core) {
 		return (int)((core.Data2 & KnockFMask) >> KnockFShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetKnockFactor(this ref CreatureCore core, int value) {
 		core.Data2 = (core.Data2 & ~KnockFMask) | ((uint)math.clamp(value, 0, 63) << KnockFShift);
 	}
-
 	public static float3 GetKnockVector(this in CreatureCore core) {
 		float x = (((core.Data2 & KnockXMask) >> KnockXShift) - 31f) * 0.0322581f;
 		float y = (((core.Data2 & KnockYMask) >> KnockYShift) - 31f) * 0.0322581f;
@@ -895,7 +852,6 @@ public static class CreatureCoreExtensions {
 		uint z = (uint)(math.round(normalized.z * 31f) + 31f) << KnockZShift;
 		core.Data2 = (core.Data2 & ~(KnockXMask | KnockYMask | KnockZMask)) | x | y | z;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsKnocked(this in CreatureCore core) {
 		return (core.Data2 & KnockFMask) != 0u;
 	}
@@ -948,39 +904,30 @@ public static class CreatureTempExtensions {
 
 
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Head GetHead(this in CreatureTemp temp) {
 		return (Head)((temp.Data0 & HeadMask) >> HeadShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetHead(this ref CreatureTemp temp, Head value) {
 		temp.Data0 = (temp.Data0 & ~HeadMask) | ((uint)value << HeadShift);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Body GetBody(this in CreatureTemp temp) {
 		return (Body)((temp.Data0 & BodyMask) >> BodyShift);
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetBody(this ref CreatureTemp temp, Body value) {
 		temp.Data0 = (temp.Data0 & ~BodyMask) | ((uint)value << BodyShift);
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetFlag(this in CreatureTemp temp) {
 		return (temp.Data0 & FlagMask) >> FlagShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetFlag(this ref CreatureTemp temp, uint value) {
 		temp.Data0 = (temp.Data0 & ~FlagMask) | (value << FlagShift);
 	}
-
-	public static bool GetFlag
-		(this in CreatureTemp temp, Flag flag) {
+	public static bool GetFlag(this in CreatureTemp temp, Flag flag) {
 		return (temp.GetFlag() & (1u << (int)flag)) != 0u;
 	}
-	public static void SetFlag
-		(this ref CreatureTemp temp, Flag flag, bool value) {
+	public static void SetFlag(this ref CreatureTemp temp, Flag flag, bool value) {
 		if (value) temp.SetFlag(temp.GetFlag() |  (1u << (int)flag));
 		else       temp.SetFlag(temp.GetFlag() & ~(1u << (int)flag));
 	}
@@ -988,21 +935,16 @@ public static class CreatureTempExtensions {
 	public static void AddFlag   (this ref CreatureTemp temp, Flag flag) => temp.SetFlag(flag, true);
 	public static void RemoveFlag(this ref CreatureTemp temp, Flag flag) => temp.SetFlag(flag, false);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static uint GetTeam(this in CreatureTemp temp) {
 		return (temp.Data0 & TeamMask) >> TeamShift;
 	}
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void SetTeam(this ref CreatureTemp temp, uint value) {
 		temp.Data0 = (temp.Data0 & ~TeamMask) | (value << TeamShift);
 	}
-
-	public static bool GetTeam
-		(this in CreatureTemp temp, Team team) {
+	public static bool GetTeam(this in CreatureTemp temp, Team team) {
 		return (temp.GetTeam() & (1u << (int)team)) != 0u;
 	}
-	public static void SetTeam
-		(this ref CreatureTemp temp, Team team, bool value) {
+	public static void SetTeam(this ref CreatureTemp temp, Team team, bool value) {
 		if (value) temp.SetTeam(temp.GetTeam() |  (1u << (int)team));
 		else       temp.SetTeam(temp.GetTeam() & ~(1u << (int)team));
 	}
@@ -1034,18 +976,84 @@ public struct CreatureStatus : IComponentData {
 [GhostComponent, InternalBufferCapacity(5)]
 public struct CreatureEffect : IBufferElementData {
 
-	[GhostField] public Effect Effect;
-	[GhostField] public ushort Strength;
-	[GhostField] public ushort Duration;
+	[GhostField] public uint Data;
+
+
+
+	[GhostField] public Effect Effect {
+		get => this.GetEffect();
+		set => this.SetEffect(value);
+	}
+	[GhostField] public ushort Value {
+		get => this.GetValue();
+		set => this.SetValue(value);
+	}
+	[GhostField] public int Tick {
+		get => this.GetTick();
+		set => this.SetTick(value);
+	}
+	[GhostField] public float Strength {
+		get => this.GetStrength();
+		set => this.SetStrength(value);
+	}
+	[GhostField] public float Duration {
+		get => this.GetDuration();
+		set => this.SetDuration(value);
+	}
 }
 
 
 
 public static class CreatureEffectBufferExtensions {
 
-	public static bool TryGetIndex
-		(this DynamicBuffer<CreatureEffect> buffer, Effect effect, out int index) {
-		for (int i = 0; i < buffer.Length; i++) if (buffer[i].Effect == effect) {
+	const uint EffectMask   = 0xF0000000u;
+	const uint StrengthMask = 0x0FFFF000u;
+	const uint DurationMask = 0x00000FFFu;
+
+	const int EffectShift   = 28;
+	const int StrengthShift = 12;
+	const int DurationShift =  0;
+
+
+
+	public static Effect GetEffect(this in CreatureEffect effect) {
+		return (Effect)((effect.Data & EffectMask) >> EffectShift);
+	}
+	public static void SetEffect(this ref CreatureEffect effect, Effect value) {
+		effect.Data = (effect.Data & ~EffectMask) | ((uint)value << EffectShift);
+	}
+
+	public static ushort GetValue(this in CreatureEffect effect) {
+		return (ushort)((effect.Data & StrengthMask) >> StrengthShift);
+	}
+	public static void SetValue(this ref CreatureEffect effect, ushort value) {
+		effect.Data = (effect.Data & ~StrengthMask) | ((uint)value << StrengthShift);
+	}
+	public static float GetStrength(this in CreatureEffect effect) {
+		return (float)(effect.GetValue() * (effect.GetEffect().IsValueType() ? 1f : 0.0001f));
+	}
+	public static void SetStrength(this ref CreatureEffect effect, float value) {
+		effect.SetValue((ushort)math.round(value * (effect.GetEffect().IsValueType() ? 1f : 1000f)));
+	}
+
+	public static int GetTick(this in CreatureEffect effect) {
+		return (int)((effect.Data & DurationMask) >> DurationShift);
+	}
+	public static void SetTick(this ref CreatureEffect effect, int value) {
+		effect.Data = (effect.Data & ~DurationMask) | ((uint)value << DurationShift);
+	}
+	public static float GetDuration(this in CreatureEffect effect) {
+		return (float)(effect.GetTick() * NetworkManager.Ticktime);
+	}
+	public static void SetDuration(this ref CreatureEffect effect, float value) {
+		effect.SetTick((int)math.round(value * NetworkManager.Tickrate));
+	}
+
+
+
+	public static bool TryGetIndex(
+		this DynamicBuffer<CreatureEffect> buffer, Effect effect, out int index) {
+		for (int i = 0; i < buffer.Length; i++) if (buffer[i].GetEffect() == effect) {
 			index = i;
 			return true;
 		}
@@ -1053,35 +1061,37 @@ public static class CreatureEffectBufferExtensions {
 		return false;
 	}
 
-	public static void AddEffect
-		(this DynamicBuffer<CreatureEffect> buffer, in CreatureBlob data, Effect effect,
+	public static void AddEffect(
+		this DynamicBuffer<CreatureEffect> buffer, in CreatureBlob blob, Effect effect,
 		float strength, float duration, float maxStrength = 0f, float maxDuration = 0f) {
-		var multiplier = math.max(0f, 1f - data.Value.Value.GetImmunity(effect).ToValue());
+		var multiplier = math.max(0f, 1f - blob.Value.Value.GetImmunity(effect).ToValue());
 		if (multiplier == 0f) return;
+		strength *= multiplier;
+		duration *= effect.IsValueType() ? 1f : multiplier;
 
-		var isValue = effect.IsValueType();
-		var element = new CreatureEffect() {
-			Effect = effect,
-			Strength = (ushort)(strength * (isValue ? 1f : 1000f) * multiplier),
-			Duration = (ushort)(duration * (isValue ? 1f : multiplier)),
-		};
+		var element = new CreatureEffect();
+		element.SetEffect(effect);
 		if (buffer.TryGetIndex(effect, out int index)) {
-			var previous = buffer[index];
-			if (maxStrength == 0f) maxStrength = math.max((int)previous.Strength, element.Strength);
-			if (maxDuration == 0f) maxDuration = math.max((int)previous.Duration, element.Duration);
-			element.Strength = (ushort)math.min(previous.Strength + element.Strength, (int)maxStrength);
-			element.Duration = (ushort)math.min(previous.Duration + element.Duration, (int)maxDuration);
+			var data = buffer[index];
+			if (maxStrength == 0f) maxStrength = math.max(data.GetStrength(), strength);
+			if (maxDuration == 0f) maxDuration = math.max(data.GetDuration(), duration);
+			element.SetStrength(math.min(data.GetStrength() + strength, maxStrength));
+			element.SetDuration(math.min(data.GetDuration() + duration, maxDuration));
 			buffer.ElementAt(index) = element;
-		} else buffer.Add(element);
+		} else {
+			element.SetStrength(strength);
+			element.SetDuration(duration);
+			buffer.Add(element);
+		}
 	}
 
-	public static void AddDamage
-		(this DynamicBuffer<CreatureEffect> buffer, in CreatureBlob data, int value) {
-		AddEffect(buffer, in data, Effect.Damage, value, 0.2f, float.MaxValue, float.MaxValue);
+	public static void AddDamage(
+		this DynamicBuffer<CreatureEffect> buffer, in CreatureBlob blob, int value) {
+		AddEffect(buffer, in blob, Effect.Damage, value, 0.2f, float.MaxValue, float.MaxValue);
 	}
 
-	public static void RemoveEffect
-		(this DynamicBuffer<CreatureEffect> buffer, Effect effect) {
+	public static void RemoveEffect(
+		this DynamicBuffer<CreatureEffect> buffer, Effect effect) {
 		if (TryGetIndex(buffer, effect, out int index)) buffer.RemoveAt(index);
 	}
 }
@@ -1096,32 +1106,31 @@ public static class CreatureEffectBufferExtensions {
 [UpdateInGroup(typeof(DOTSInitializationSystemGroup))]
 partial struct CreatureInitializationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<EndInitializationEntityCommandBufferSystem.Singleton>();
 		state.RequireForUpdate<SimulationSingleton>();
 		state.RequireForUpdate<PrefabContainer>();
+		state.RequireForUpdate<CreatureCore>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		var singleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
 		state.Dependency = new CreatureFieldsComparisonJob {
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new CreatureComponentsModificationJob {
-			buffer    = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
-			prefabs   = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
-			blobs     = SystemAPI.GetComponentLookup<CreatureBlob   >(true),
-			cores     = SystemAPI.GetComponentLookup<CreatureCore   >(true),
-			temps     = SystemAPI.GetComponentLookup<CreatureTemp   >(true),
-			statuses  = SystemAPI.GetComponentLookup<CreatureStatus >(true),
-			effects   = SystemAPI.GetBufferLookup   <CreatureEffect >(true),
-			colliders = SystemAPI.GetComponentLookup<PhysicsCollider>(true),
-			masses    = SystemAPI.GetComponentLookup<PhysicsMass    >(true),
-			tiles     = SystemAPI.GetBufferLookup<TileDrawer  >(true),
-			sprites   = SystemAPI.GetBufferLookup<SpriteDrawer>(true),
-			shadows   = SystemAPI.GetBufferLookup<ShadowDrawer>(true),
-			uis       = SystemAPI.GetBufferLookup<UIDrawer    >(true),
+			Buffer          = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+			PrefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(),
+			BlobGroup       = SystemAPI.GetComponentLookup<CreatureBlob   >(),
+			CoreGroup       = SystemAPI.GetComponentLookup<CreatureCore   >(),
+			TempGroup       = SystemAPI.GetComponentLookup<CreatureTemp   >(),
+			StatusGroup     = SystemAPI.GetComponentLookup<CreatureStatus >(),
+			EffectGroup     = SystemAPI.GetBufferLookup   <CreatureEffect >(),
+			ColliderGroup   = SystemAPI.GetComponentLookup<PhysicsCollider>(),
+			MassGroup       = SystemAPI.GetComponentLookup<PhysicsMass    >(),
+			TileGroup       = SystemAPI.GetBufferLookup<TileDrawer  >(),
+			SpriteGroup     = SystemAPI.GetBufferLookup<SpriteDrawer>(),
+			ShadowGroup     = SystemAPI.GetBufferLookup<ShadowDrawer>(),
+			UIGroup         = SystemAPI.GetBufferLookup<UIDrawer    >(),
 		}.ScheduleParallel(state.Dependency);
 	}
 
@@ -1131,76 +1140,86 @@ partial struct CreatureInitializationSystem : ISystem {
 			in CreatureCore core,
 			in CreatureTemp temp,
 			EnabledRefRW<CreatureInitialize> initialize) {
-			if (temp.Head != core.Head) initialize.ValueRW = true;
-			if (temp.Body != core.Body) initialize.ValueRW = true;
-			if (temp.Team != core.Team) initialize.ValueRW = true;
-			if (temp.Flag != core.Flag) initialize.ValueRW = true;
+
+			var match = false;
+			if      (temp.Head != core.Head) match = true;
+			else if (temp.Body != core.Body) match = true;
+			else if (temp.Team != core.Team) match = true;
+			else if (temp.Flag != core.Flag) match = true;
+			if (match) initialize.ValueRW = true;
 		}
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(CreatureInitialize))]
 	partial struct CreatureComponentsModificationJob : IJobEntity {
-		public EntityCommandBuffer.ParallelWriter buffer;
-		[ReadOnly] public DynamicBuffer<PrefabContainer> prefabs;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureBlob> blobs;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureCore> cores;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureTemp> temps;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<CreatureStatus> statuses;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup   <CreatureEffect> effects;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsCollider> colliders;
-		[NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsMass    > masses;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<TileDrawer  > tiles;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<SpriteDrawer> sprites;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<ShadowDrawer> shadows;
-		[NativeDisableContainerSafetyRestriction] public BufferLookup<UIDrawer    > uis;
+		public EntityCommandBuffer.ParallelWriter Buffer;
+		[ReadOnly] public DynamicBuffer<PrefabContainer> PrefabContainer;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureBlob> BlobGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureCore> CoreGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureTemp> TempGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureStatus > StatusGroup;
+		[NativeDisableParallelForRestriction] public BufferLookup   <CreatureEffect > EffectGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsCollider> ColliderGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsMass    > MassGroup;
+		[NativeDisableParallelForRestriction] public BufferLookup<TileDrawer  > TileGroup;
+		[NativeDisableParallelForRestriction] public BufferLookup<SpriteDrawer> SpriteGroup;
+		[NativeDisableParallelForRestriction] public BufferLookup<ShadowDrawer> ShadowGroup;
+		[NativeDisableParallelForRestriction] public BufferLookup<UIDrawer    > UIGroup;
 
 		public void Execute(
 			[ChunkIndexInQuery] int sortKey,
 			Entity entity,
-			ref CreatureBlob blob,
-			ref CreatureCore core,
-			ref CreatureTemp temp,
-			ref CreatureStatus status,
-			DynamicBuffer<CreatureEffect> effect,
-			ref PhysicsCollider collider,
-			ref PhysicsMass     mass,
-			DynamicBuffer<TileDrawer  > tile,
-			DynamicBuffer<SpriteDrawer> sprite,
-			DynamicBuffer<ShadowDrawer> shadow,
-			DynamicBuffer<UIDrawer    > ui,
 			EnabledRefRW<CreatureInitialize> initialize) {
+
+			var blob = BlobGroup[entity];
+			var core = CoreGroup[entity];
+			var temp = TempGroup[entity];
+			var collider = ColliderGroup[entity];
+			var mass     = MassGroup    [entity];
+
 			initialize.ValueRW = false;
 			mass.InverseInertia = float3.zero;
-			var target = GetPrefab(core.Body);
-
+			var target = Entity.Null;
+			var body = core.Body;
+			foreach (var prefab in PrefabContainer.Reinterpret<Entity>()) {
+				if (BlobGroup.HasComponent(prefab)) {
+					if (BlobGroup[prefab].Value.Value.InitialBody == body) {
+						target = prefab;
+						break;
+					}
+				}
+			}
 			if (temp.Head != core.Head) {
 				var a = temp.Head.ToComponent();
 				var b = core.Head.ToComponent();
-				if (a != default) buffer.RemoveComponent(sortKey, entity, a);
-				if (b != default) buffer.   AddComponent(sortKey, entity, b);
+				if (a != default) Buffer.RemoveComponent(sortKey, entity, a);
+				if (b != default) Buffer.   AddComponent(sortKey, entity, b);
 				temp.Head = core.Head;
 			}
 			if (temp.Body != core.Body) {
 				var a = temp.Body.ToComponent();
 				var b = core.Body.ToComponent();
-				if (a != default) buffer.RemoveComponent(sortKey, entity, a);
-				if (b != default) buffer.   AddComponent(sortKey, entity, b);
+				if (a != default) Buffer.RemoveComponent(sortKey, entity, a);
+				if (b != default) Buffer.   AddComponent(sortKey, entity, b);
 				temp.Body = core.Body;
 
-				blob.Value       = blobs[target].Value;
-				core.MotionX     = cores[target].MotionX;
-				core.MotionY     = cores[target].MotionY;
-				collider.Value   = colliders[target].Value;
-				mass.InverseMass = masses[target].InverseMass;
-				effect.Clear();
-				tile  .Length = tiles  [target].Length;
-				sprite.Length = sprites[target].Length;
-				shadow.Length = shadows[target].Length;
-				ui    .Length = uis    [target].Length;
-				for (int i = 0; i < tile  .Length; i++) tile  [i] = tiles  [target][i];
-				for (int i = 0; i < sprite.Length; i++) sprite[i] = sprites[target][i];
-				for (int i = 0; i < shadow.Length; i++) shadow[i] = shadows[target][i];
-				for (int i = 0; i < ui    .Length; i++) ui    [i] = uis    [target][i];
+				blob.Value       = BlobGroup[target].Value;
+				core.MotionX     = CoreGroup[target].MotionX;
+				core.MotionY     = CoreGroup[target].MotionY;
+				core.MotionXTick = CoreGroup[target].MotionXTick;
+				core.MotionYTick = CoreGroup[target].MotionYTick;
+				collider.Value   = ColliderGroup[target].Value;
+				mass.InverseMass = MassGroup[target].InverseMass;
+				EffectGroup[entity].Clear();
+
+				TileGroup  [entity].Clear();
+				SpriteGroup[entity].Clear();
+				ShadowGroup[entity].Clear();
+				UIGroup    [entity].Clear();
+				foreach (var element in TileGroup  [target]) TileGroup  [entity].Add(element);
+				foreach (var element in SpriteGroup[target]) SpriteGroup[entity].Add(element);
+				foreach (var element in ShadowGroup[target]) ShadowGroup[entity].Add(element);
+				foreach (var element in UIGroup    [target]) UIGroup    [entity].Add(element);
 			}
 			if (temp.Flag != core.Flag) {
 				for (int i = 0; i < 8; i++) {
@@ -1213,19 +1232,19 @@ partial struct CreatureInitializationSystem : ISystem {
 					switch (flag) {
 						case Flag.Pinned:
 							if (b) mass.InverseMass = 1f / CreaturePhysics.PinnedMass;
-							else   mass.InverseMass = masses[target].InverseMass;
+							else   mass.InverseMass = MassGroup[target].InverseMass;
 							break;
 						case Flag.Piercing:
-							var filter = colliders[target].Value.Value.GetCollisionFilter();
+							var filter = ColliderGroup[target].Value.Value.GetCollisionFilter();
 							if (b) filter.CollidesWith &= ~(1u << (int)PhysicsCategory.Creature);
 							else   filter.CollidesWith |=  (1u << (int)PhysicsCategory.Creature);
 							if (!collider.Value.Value.GetCollisionFilter().Equals(filter)) {
-								if (!collider.IsUnique) collider.MakeUnique(entity, buffer, sortKey);
+								if (!collider.IsUnique) collider.MakeUnique(entity, Buffer, sortKey);
 								collider.Value.Value.SetCollisionFilter(filter);
 							}
 							break;
 						case Flag.Interactable:
-							buffer.SetComponentEnabled<Interactable>(sortKey, entity, b);
+							Buffer.SetComponentEnabled<Interactable>(sortKey, entity, b);
 							break;
 					}
 				}
@@ -1239,13 +1258,11 @@ partial struct CreatureInitializationSystem : ISystem {
 					temp.SetTeam(team, b);
 				}
 			}
-		}
-
-		public Entity GetPrefab(Body body) {
-			foreach (var prefab in prefabs.Reinterpret<Entity>()) if (blobs.HasComponent(prefab)) {
-				if (blobs[prefab].Value.Value.DefaultBody == body) return prefab;
-			}
-			return Entity.Null;
+			TempGroup[entity] = temp;
+			CoreGroup[entity] = core;
+			BlobGroup[entity] = blob;
+			ColliderGroup[entity] = collider;
+			MassGroup    [entity] = mass;
 		}
 	}
 }
@@ -1260,49 +1277,47 @@ partial struct CreatureInitializationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSPredictedSimulationSystemGroup), OrderFirst = true)]
 partial struct CreatureBeginPredictedSimulationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<SimulationSingleton>();
+		state.RequireForUpdate<CreatureCore>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		state.Dependency = new CreatureBeginSimulationJob() {
+		state.Dependency = new CreatureBeginSimulationJob {
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new CreatureGravityRemovalJob {
-			cores    = SystemAPI.GetComponentLookup<CreatureCore>(),
-			triggers = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			CoreGroup    = SystemAPI.GetComponentLookup<CreatureCore>(),
+			TriggerGroup = SystemAPI.GetComponentLookup<EventTrigger>(true),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct CreatureBeginSimulationJob : IJobEntity {
-		public void Execute(ref CreatureCore core, ref PhysicsVelocity velocity) {
+		public void Execute(
+			ref CreatureCore    core,
+			ref PhysicsVelocity velocity) {
 
-			if (!core.HasFlag(Flag.Floating)) {
-				core.GravityFactor++;
-			}
-			if (core.IsKnocked()) {
-				core.KnockFactor--;
-			}
+			if (!core.HasFlag(Flag.Floating)) core.GravityFactor++;
+			if (core.IsKnocked())             core.KnockFactor--;
 			velocity.Linear = new float3(0f, 0f, 0f);
 		}
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
-		public ComponentLookup<CreatureCore> cores;
-		[ReadOnly] public ComponentLookup<EventTrigger> triggers;
+		public ComponentLookup<CreatureCore> CoreGroup;
+		[ReadOnly] public ComponentLookup<EventTrigger> TriggerGroup;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
+
 		public void Execute(Entity entity, Entity target) {
-			if (cores.HasComponent(entity) && !triggers.HasComponent(target)) {
-				var core = cores[entity];
+			if (CoreGroup.HasComponent(entity) && !TriggerGroup.HasComponent(target)) {
+				var core = CoreGroup[entity];
 				core.GravityFactor = 0;
-				cores[entity] = core;
+				CoreGroup[entity] = core;
 			}
 		}
 	}
@@ -1318,15 +1333,20 @@ partial struct CreatureBeginPredictedSimulationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSPredictedSimulationSystemGroup), OrderLast = true)]
 partial struct CreatureEndPredictedSimulationSystem : ISystem {
 
-	[BurstCompile]
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<CreatureCore>();
+	}
+
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new EndCreatureSimulationJob {
 		}.ScheduleParallel(state.Dependency);
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct EndCreatureSimulationJob : IJobEntity {
-		public void Execute(in CreatureCore core, ref PhysicsVelocity velocity) {
+		public void Execute(
+			in  CreatureCore    core,
+			ref PhysicsVelocity velocity) {
 
 			if (!core.HasFlag(Flag.Floating)) {
 				float multiplier = CreaturePhysics.GravityMultiplier;
@@ -1350,64 +1370,64 @@ partial struct CreatureEndPredictedSimulationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct CreatureSimulationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<BeginInitializationEntityCommandBufferSystem.Singleton>();
 		state.RequireForUpdate<SimulationSingleton>();
 		state.RequireForUpdate<CameraManagerBridge>();
 		state.RequireForUpdate<PrefabContainer>();
+		state.RequireForUpdate<CreatureCore>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		var system = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
 		state.Dependency = new CreatureLandingParticleJob {
-			buffer        = system.CreateCommandBuffer(state.WorldUnmanaged),
-			cameraManager = SystemAPI.GetSingletonRW<CameraManagerBridge>(),
-			prefabs       = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
-			transforms    = SystemAPI.GetComponentLookup<LocalTransform>(true),
-			bases         = SystemAPI.GetComponentLookup<CreatureBlob>(true),
-			cores         = SystemAPI.GetComponentLookup<CreatureCore>(true),
-			masses        = SystemAPI.GetComponentLookup<PhysicsMass >(true),
-			triggers      = SystemAPI.GetComponentLookup<EventTrigger>(true),
-			random        = new Random((uint)(1 + 4801 * SystemAPI.Time.ElapsedTime) % 1000000),
+			buffer          = system.CreateCommandBuffer(state.WorldUnmanaged),
+			CameraManager   = SystemAPI.GetSingletonRW<CameraManagerBridge>(),
+			PrefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
+			TransformGroup  = SystemAPI.GetComponentLookup<LocalToWorld>(true),
+			BlobGroup       = SystemAPI.GetComponentLookup<CreatureBlob>(true),
+			CoreGroup       = SystemAPI.GetComponentLookup<CreatureCore>(true),
+			MassGroup       = SystemAPI.GetComponentLookup<PhysicsMass >(true),
+			TriggerGroup    = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			Random          = new Random(1u + (uint)(4801 * SystemAPI.Time.ElapsedTime) % 1000),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct CreatureLandingParticleJob : ITriggerEventsJob {
 		public EntityCommandBuffer buffer;
-		[NativeDisableUnsafePtrRestriction] public RefRW<CameraManagerBridge> cameraManager;
-		[ReadOnly] public DynamicBuffer<PrefabContainer> prefabs;
-		[ReadOnly] public ComponentLookup<LocalTransform> transforms;
-		[ReadOnly] public ComponentLookup<CreatureBlob> bases;
-		[ReadOnly] public ComponentLookup<CreatureCore> cores;
-		[ReadOnly] public ComponentLookup<PhysicsMass > masses;
-		[ReadOnly] public ComponentLookup<EventTrigger> triggers;
-		[ReadOnly] public Random random;
+		[NativeDisableUnsafePtrRestriction] public RefRW<CameraManagerBridge> CameraManager;
+		[ReadOnly] public DynamicBuffer<PrefabContainer> PrefabContainer;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
+		[ReadOnly] public ComponentLookup<CreatureBlob> BlobGroup;
+		[ReadOnly] public ComponentLookup<CreatureCore> CoreGroup;
+		[ReadOnly] public ComponentLookup<PhysicsMass > MassGroup;
+		[ReadOnly] public ComponentLookup<EventTrigger> TriggerGroup;
+		[ReadOnly] public Random Random;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
+
 		public void Execute(Entity entity, Entity target) {
-			if (cores.HasComponent(entity) && !triggers.HasComponent(target)) {
-				var entityCore = cores[entity];
+			if (CoreGroup.HasComponent(entity) && !TriggerGroup.HasComponent(target)) {
+				var entityCore = CoreGroup[entity];
 				var gravity = entityCore.GravityFactor * CreaturePhysics.GravityMultiplier;
 				var knock   = entityCore.KnockFactor   * CreaturePhysics.KnockMultiplier;
 				var match = true;
 				match &= gravity + knock < CreaturePhysics.DustThreshold;
 				match &= !entityCore.HasFlag(Flag.Pinned);
-				if (match && !cores.HasComponent(target)) {
+				if (match && !CoreGroup.HasComponent(target)) {
 
-					var position = transforms[entity].Position;
-					var radius = bases[entity].Value.Value.Radius;
-					var right   = cameraManager.ValueRO.Right();
-					var up      = cameraManager.ValueRO.Up();
-					var forward = cameraManager.ValueRO.Forward();
+					var position = TransformGroup[entity].Position;
+					var radius = BlobGroup[entity].Value.Value.Radius;
+					var right   = CameraManager.ValueRO.Right();
+					var up      = CameraManager.ValueRO.Up();
+					var forward = CameraManager.ValueRO.Forward();
 
-					var smoke0 = buffer.Instantiate(prefabs[(int)Prefab.SmokeTiny].Prefab);
-					var smoke1 = buffer.Instantiate(prefabs[(int)Prefab.SmokeTiny].Prefab);
+					var smoke0 = buffer.Instantiate(PrefabContainer[(int)Prefab.SmokeTiny].Prefab);
+					var smoke1 = buffer.Instantiate(PrefabContainer[(int)Prefab.SmokeTiny].Prefab);
 					var position0 = position + right * radius - forward * radius;
 					var position1 = position - right * radius - forward * radius;
 					buffer.SetComponent(smoke0, LocalTransform.FromPosition(position0));
@@ -1429,7 +1449,10 @@ partial struct CreatureSimulationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct CreaturePresentationSystem : ISystem {
 
-	[BurstCompile]
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<CreatureCore>();
+	}
+
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new CreaturePresentationJob {
 		}.ScheduleParallel(state.Dependency);
@@ -1438,9 +1461,10 @@ partial struct CreaturePresentationSystem : ISystem {
 	[BurstCompile]
 	partial struct CreaturePresentationJob : IJobEntity {
 		public void Execute(
-			in CreatureBlob blob,
-			ref CreatureStatus status,
+			in CreatureBlob   blob,
+			in CreatureStatus status,
 			DynamicBuffer<UIDrawer> ui) {
+
 			//if (core.BarTick == 0) {
 			//	if (!drawer.UIs.IsEmpty) drawer.UIs.Clear();
 			//} else {

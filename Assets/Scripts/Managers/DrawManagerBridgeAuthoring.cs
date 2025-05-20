@@ -70,19 +70,16 @@ public static class DrawManagerBridgeExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /*
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class DrawManagerBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	DrawManagerBridge prev;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<DrawManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<DrawManagerBridge>();
 		if (initialized == false) {

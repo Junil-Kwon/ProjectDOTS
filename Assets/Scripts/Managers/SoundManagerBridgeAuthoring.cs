@@ -67,19 +67,16 @@ public static class SoundManagerBridgeExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /*
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class SoundManagerBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	SoundManagerBridge prev = default;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<SoundManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<SoundManagerBridge>();
 		if (initialized == false) {

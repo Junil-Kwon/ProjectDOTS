@@ -192,18 +192,14 @@ public class GameManager : MonoSingleton<GameManager> {
 // Game Manager Server System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class GameManagerServerSystem : SystemBase {
 
-	[BurstCompile]
 	protected override void OnCreate() {
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
-
 	}
 }
 
@@ -213,17 +209,14 @@ public partial class GameManagerServerSystem : SystemBase {
 // Game Manager Client System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class GameManagerClientSystem : SystemBase {
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<PlayerHead>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		GameManager.Players.Clear();
 		GameManager.Players.Add(default);

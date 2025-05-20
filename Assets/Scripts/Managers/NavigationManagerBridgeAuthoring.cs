@@ -74,19 +74,16 @@ public static class NavigationManagerBridgeExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /*
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class NavigationManagerBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	NavigationManagerBridge prev;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<NavigationManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<NavigationManagerBridge>();
 		if (initialized == false) {

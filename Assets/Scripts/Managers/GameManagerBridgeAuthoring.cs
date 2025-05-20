@@ -73,19 +73,16 @@ public static class GameManagerBridgeExtensions {
 // Game Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class GameManagerBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	GameManagerBridge prev;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<GameManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
 		if (initialized == false) {

@@ -17,8 +17,8 @@ GameObject:
   - component: {fileID: 4407778216440943606}
   - component: {fileID: 3578951256646902265}
   - component: {fileID: 6800752375898292781}
-  - component: {fileID: -6794022713922519158}
-  - component: {fileID: 8904786029556575049}
+  - component: {fileID: 1932836632822334981}
+  - component: {fileID: -2112267033263501941}
   m_Layer: 0
   m_Name: Temp
   m_TagString: Untagged
@@ -492,7 +492,7 @@ MonoBehaviour:
   UsePreSerialization: 0
   RollbackPredictedSpawnedGhostState: 0
   RollbackPredictionOnStructuralChanges: 1
---- !u!33 &-6794022713922519158
+--- !u!33 &1932836632822334981
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -500,7 +500,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7883430157158324649}
   m_Mesh: {fileID: 4300000, guid: 9ca76392493c8ff458e881958f107c80, type: 2}
---- !u!23 &8904786029556575049
+--- !u!23 &-2112267033263501941
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

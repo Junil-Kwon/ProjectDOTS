@@ -27,32 +27,32 @@ public struct PlayerHead : IComponentData {
 [UpdateInGroup(typeof(GhostInputSystemGroup))]
 partial struct PlayerHeadSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<InputManagerBridge >();
 		state.RequireForUpdate<CameraManagerBridge>();
 		state.RequireForUpdate<PlayerHead>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new PlayerHeadSimulationJob() {
-			inputManager  = SystemAPI.GetSingleton<InputManagerBridge >(),
-			cameraManager = SystemAPI.GetSingleton<CameraManagerBridge>(),
+			InputManager  = SystemAPI.GetSingleton<InputManagerBridge >(),
+			CameraManager = SystemAPI.GetSingleton<CameraManagerBridge>(),
 		}.ScheduleParallel(state.Dependency);
 	}
 
-	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal))]
+	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal), typeof(Simulate))]
 	partial struct PlayerHeadSimulationJob : IJobEntity {
-		public InputManagerBridge  inputManager;
-		public CameraManagerBridge cameraManager;
+		[ReadOnly] public InputManagerBridge  InputManager;
+		[ReadOnly] public CameraManagerBridge CameraManager;
+
 		public void Execute(
 			ref CreatureInput input,
 			in  CreatureCore  core,
 			ref PlayerHead    head) {
-			input.Key = (ushort)inputManager.KeyNext;
-			float3 moveDirection = new(inputManager.MoveDirection.x, 0f, inputManager.MoveDirection.y);
-			float3 eulerRotation = new(0f, cameraManager.GetYaw() * math.TORADIANS, 0f);
+
+			input.Key = (ushort)InputManager.KeyNext;
+			float3 moveDirection = new(InputManager.MoveDirection.x, 0f, InputManager.MoveDirection.y);
+			float3 eulerRotation = new(0f, CameraManager.GetYaw() * math.TORADIANS, 0f);
 			input.MoveVector = math.mul(quaternion.Euler(eulerRotation), moveDirection);
 		}
 	}

@@ -69,19 +69,16 @@ public static class AIManagerBridgeExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /*
-[BurstCompile]
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class AIManagerBridgeSystem : SystemBase {
 
 	bool initialized = false;
 	AIManagerBridge prev;
 
-	[BurstCompile]
 	protected override void OnCreate() {
 		RequireForUpdate<AIManagerBridge>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<AIManagerBridge>();
 		if (initialized == false) {

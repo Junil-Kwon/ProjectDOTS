@@ -18,17 +18,7 @@ using Random = Unity.Mathematics.Random;
 // Particle Patterns
 
 public enum Pattern : byte {
-	None,
-}
-public static class ParticleExtensions {
-	public static Pattern ToEnum(this ComponentType type) => type switch {
-		_ when type == ComponentType.ReadWrite<NonePattern>() => Pattern.None,
-		_ => default,
-	};
-	public static ComponentType ToComponentType(this Pattern pattern) => pattern switch {
-		Pattern.None => ComponentType.ReadWrite<NonePattern>(),
-		_ => default,
-	};
+	
 }
 
 
@@ -110,15 +100,7 @@ public class ParticleAuthoring : MonoBehaviour {
 				FlipRandom = authoring.FlipRandom,
 
 			});
-			foreach (Pattern pattern in Enum.GetValues(typeof(Pattern))) {
-				if (authoring.HasPattern(pattern)) switch (pattern) {
-					case global::Pattern.None:
-						break;
-					default:
-						AddComponent(entity, pattern.ToComponentType());
-						break;
-				}
-			}
+			//if (authoring.HasPattern(Pattern.None)) AddComponent(entity, new NonePattern {});
 		}
 	}
 }
@@ -143,11 +125,13 @@ public struct Particle : IComponentData {
 	public bool2 FlipRandom;
 }
 
+
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Particle Pattern
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public struct NonePattern : IComponentData { }
+
 
 
 
@@ -159,31 +143,30 @@ public struct NonePattern : IComponentData { }
 [UpdateInGroup(typeof(DOTSInitializationSystemGroup))]
 partial struct ParticleInitializationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<ParticleInitialize>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ParticleInitializationJob() {
-			random = new Random((uint)(1 + 4801 * SystemAPI.Time.ElapsedTime) % 1000000),
+			Random = new Random(1u + (uint)(4801 * SystemAPI.Time.ElapsedTime) % 1000),
 		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(ParticleInitialize))]
 	partial struct ParticleInitializationJob : IJobEntity {
-		public Random random;
+		public Random Random;
 		public void Execute(
 			in Particle particle,
 			DynamicBuffer<SpriteDrawer> sprite,
 			EnabledRefRW<ParticleInitialize> initialize) {
+
 			initialize.ValueRW = false;
 			if (particle.FlipRandom.x || particle.FlipRandom.y) {
 				for (int i = 0; i < sprite.Length; i++) {
 					var flip = sprite.ElementAt(i).Flip;
-					if (particle.FlipRandom.x) flip.x = random.NextBool();
-					if (particle.FlipRandom.y) flip.y = random.NextBool();
+					if (particle.FlipRandom.x) flip.x = Random.NextBool();
+					if (particle.FlipRandom.y) flip.y = Random.NextBool();
 					sprite.ElementAt(i).Flip = flip;
 				}
 			}
@@ -201,27 +184,29 @@ partial struct ParticleInitializationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct ParticleSimulationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<EndInitializationEntityCommandBufferSystem.Singleton>();
 		state.RequireForUpdate<Particle>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		var singleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
 		state.Dependency = new ParticleLifetimeSimulationJob() {
-			buffer    = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
-			deltaTime = SystemAPI.Time.DeltaTime,
+			Buffer    = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+			DeltaTime = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct ParticleLifetimeSimulationJob : IJobEntity {
-		public EntityCommandBuffer.ParallelWriter buffer;
-		public float deltaTime;
-		public void Execute([ChunkIndexInQuery] int sortKey, Entity entity, ref Particle particle) {
-			if ((particle.Lifetime -= deltaTime) <= 0f) buffer.DestroyEntity(sortKey, entity);
+		public EntityCommandBuffer.ParallelWriter Buffer;
+		public float DeltaTime;
+		public void Execute(
+			[ChunkIndexInQuery] int sortKey,
+			Entity entity,
+			ref Particle particle) {
+
+			if ((particle.Lifetime -= DeltaTime) <= 0f) Buffer.DestroyEntity(sortKey, entity);
 		}
 	}
 }
@@ -236,18 +221,16 @@ partial struct ParticleSimulationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct ParticlePresentationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<Particle>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		var deltaTime = SystemAPI.Time.DeltaTime;
-		var tilePresentationJob   = new ParticleTilePresentationJob  () { deltaTime = deltaTime, };
-		var spritePresentationJob = new ParticleSpritePresentationJob() { deltaTime = deltaTime, };
-		var shadowPresentationJob = new ParticleShadowPresentationJob() { deltaTime = deltaTime, };
-		var uiPresentationJob     = new ParticleUIPresentationJob    () { deltaTime = deltaTime, };
+		var tilePresentationJob   = new ParticleTilePresentationJob  () { DeltaTime = deltaTime, };
+		var spritePresentationJob = new ParticleSpritePresentationJob() { DeltaTime = deltaTime, };
+		var shadowPresentationJob = new ParticleShadowPresentationJob() { DeltaTime = deltaTime, };
+		var uiPresentationJob     = new ParticleUIPresentationJob    () { DeltaTime = deltaTime, };
 		var tile   = tilePresentationJob  .ScheduleParallel(state.Dependency);
 		var sprite = spritePresentationJob.ScheduleParallel(state.Dependency);
 		var shadow = shadowPresentationJob.ScheduleParallel(state.Dependency);
@@ -258,33 +241,33 @@ partial struct ParticlePresentationSystem : ISystem {
 
 	[BurstCompile, WithAll(typeof(Particle))]
 	partial struct ParticleTilePresentationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(DynamicBuffer<TileDrawer> tile) {
-			for (int i = 0; i < tile.Length; i++) tile.ElementAt(i).Offset += deltaTime;
+			for (int i = 0; i < tile.Length; i++) tile.ElementAt(i).Offset += DeltaTime;
 		}
 	}
 
 	[BurstCompile, WithAll(typeof(Particle))]
 	partial struct ParticleSpritePresentationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(DynamicBuffer<SpriteDrawer> sprite) {
-			for (int i = 0; i < sprite.Length; i++) sprite.ElementAt(i).Offset += deltaTime;
+			for (int i = 0; i < sprite.Length; i++) sprite.ElementAt(i).Offset += DeltaTime;
 		}
 	}
 
 	[BurstCompile, WithAll(typeof(Particle))]
 	partial struct ParticleShadowPresentationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(DynamicBuffer<ShadowDrawer> shadow) {
-			for (int i = 0; i < shadow.Length; i++) shadow.ElementAt(i).Offset += deltaTime;
+			for (int i = 0; i < shadow.Length; i++) shadow.ElementAt(i).Offset += DeltaTime;
 		}
 	}
 
 	[BurstCompile, WithAll(typeof(Particle))]
 	partial struct ParticleUIPresentationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(DynamicBuffer<UIDrawer> ui) {
-			for (int i = 0; i < ui.Length; i++) ui.ElementAt(i).Offset += deltaTime;
+			for (int i = 0; i < ui.Length; i++) ui.ElementAt(i).Offset += DeltaTime;
 		}
 	}
 }

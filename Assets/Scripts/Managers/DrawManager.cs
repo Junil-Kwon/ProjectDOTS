@@ -1083,289 +1083,285 @@ public class DrawManager : MonoSingleton<DrawManager> {
 // Draw Manager System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [UpdateInGroup(typeof(DOTSPresentationSystemGroup), OrderLast = true)]
 public partial class DrawManagerSystem : SystemBase {
-	BeginInitializationEntityCommandBufferSystem system;
+	BeginInitializationEntityCommandBufferSystem System;
 
-	NativeHashMap<uint, uint> tileLUTable;
-	NativeHashMap<uint, uint> spriteLUTable;
-	NativeHashMap<uint, uint> shadowLUTable;
-	NativeHashMap<uint, uint> uiLUTable;
+	NativeHashMap<uint, uint> TileLUTable;
+	NativeHashMap<uint, uint> SpriteLUTable;
+	NativeHashMap<uint, uint> ShadowLUTable;
+	NativeHashMap<uint, uint> UILUTable;
 
-	NativeHashMap<uint, AtlasData> tileDataMap;
-	NativeHashMap<uint, AtlasData> spriteDataMap;
-	NativeHashMap<uint, AtlasData> shadowDataMap;
-	NativeHashMap<uint, AtlasData> uiDataMap;
+	NativeHashMap<uint, AtlasData> TileDataMap;
+	NativeHashMap<uint, AtlasData> SpriteDataMap;
+	NativeHashMap<uint, AtlasData> ShadowDataMap;
+	NativeHashMap<uint, AtlasData> UIDataMap;
 
-	IndirectRenderer<TileDrawData  > tileRenderer;
-	IndirectRenderer<SpriteDrawData> spriteRenderer;
-	IndirectRenderer<ShadowDrawData> shadowRenderer;
-	IndirectRenderer<UIDrawData    > uiRenderer;
+	IndirectRenderer<TileDrawData  > TileRenderer;
+	IndirectRenderer<SpriteDrawData> SpriteRenderer;
+	IndirectRenderer<ShadowDrawData> ShadowRenderer;
+	IndirectRenderer<UIDrawData    > UIRenderer;
 
-	NativeArray<EntityQuery> tileQuery;
-	NativeArray<EntityQuery> spriteQuery;
-	NativeArray<EntityQuery> shadowQuery;
-	NativeArray<EntityQuery> uiQuery;
+	NativeArray<EntityQuery> TileQuery;
+	NativeArray<EntityQuery> SpriteQuery;
+	NativeArray<EntityQuery> ShadowQuery;
+	NativeArray<EntityQuery> UIQuery;
 
-	[BurstDiscard]
 	protected override void OnCreate() {
-		system = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
+		System = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
 
-		tileLUTable   = new(DrawManager.TileLUTable  .Count, Allocator.Persistent);
-		spriteLUTable = new(DrawManager.SpriteLUTable.Count, Allocator.Persistent);
-		shadowLUTable = new(DrawManager.ShadowLUTable.Count, Allocator.Persistent);
-		uiLUTable     = new(DrawManager.UILUTable    .Count, Allocator.Persistent);
-		tileDataMap   = new(DrawManager.TileDataMap  .Count, Allocator.Persistent);
-		spriteDataMap = new(DrawManager.SpriteDataMap.Count, Allocator.Persistent);
-		shadowDataMap = new(DrawManager.ShadowDataMap.Count, Allocator.Persistent);
-		uiDataMap     = new(DrawManager.UIDataMap    .Count, Allocator.Persistent);
-		foreach (var pair in DrawManager.TileLUTable  ) tileLUTable  .Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.SpriteLUTable) spriteLUTable.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.ShadowLUTable) shadowLUTable.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UILUTable    ) uiLUTable    .Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.TileDataMap  ) tileDataMap  .Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.SpriteDataMap) spriteDataMap.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.ShadowDataMap) shadowDataMap.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UIDataMap    ) uiDataMap    .Add(pair.Key, pair.Value);
+		TileLUTable   = new(DrawManager.TileLUTable  .Count, Allocator.Persistent);
+		SpriteLUTable = new(DrawManager.SpriteLUTable.Count, Allocator.Persistent);
+		ShadowLUTable = new(DrawManager.ShadowLUTable.Count, Allocator.Persistent);
+		UILUTable     = new(DrawManager.UILUTable    .Count, Allocator.Persistent);
+		TileDataMap   = new(DrawManager.TileDataMap  .Count, Allocator.Persistent);
+		SpriteDataMap = new(DrawManager.SpriteDataMap.Count, Allocator.Persistent);
+		ShadowDataMap = new(DrawManager.ShadowDataMap.Count, Allocator.Persistent);
+		UIDataMap     = new(DrawManager.UIDataMap    .Count, Allocator.Persistent);
+		foreach (var pair in DrawManager.TileLUTable  ) TileLUTable  .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.SpriteLUTable) SpriteLUTable.Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.ShadowLUTable) ShadowLUTable.Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UILUTable    ) UILUTable    .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.TileDataMap  ) TileDataMap  .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.SpriteDataMap) SpriteDataMap.Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.ShadowDataMap) ShadowDataMap.Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UIDataMap    ) UIDataMap    .Add(pair.Key, pair.Value);
 
-		tileRenderer   = new(DrawManager.TileMaterial,   DrawManager.TileMesh  );
-		spriteRenderer = new(DrawManager.SpriteMaterial, DrawManager.SpriteMesh);
-		shadowRenderer = new(DrawManager.ShadowMaterial, DrawManager.ShadowMesh);
-		uiRenderer     = new(DrawManager.UIMaterial,     DrawManager.UIMesh    );
-		tileRenderer  .param.shadowCastingMode = ShadowCastingMode.On;
-		spriteRenderer.param.shadowCastingMode = ShadowCastingMode.Off;
-		shadowRenderer.param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
-		uiRenderer    .param.shadowCastingMode = ShadowCastingMode.Off;
-		tileRenderer  .param.receiveShadows = true;
-		spriteRenderer.param.receiveShadows = false;
-		shadowRenderer.param.receiveShadows = false;
-		uiRenderer    .param.receiveShadows = false;
+		TileRenderer   = new(DrawManager.TileMaterial,   DrawManager.TileMesh  );
+		SpriteRenderer = new(DrawManager.SpriteMaterial, DrawManager.SpriteMesh);
+		ShadowRenderer = new(DrawManager.ShadowMaterial, DrawManager.ShadowMesh);
+		UIRenderer     = new(DrawManager.UIMaterial,     DrawManager.UIMesh    );
+		TileRenderer  .param.shadowCastingMode = ShadowCastingMode.On;
+		SpriteRenderer.param.shadowCastingMode = ShadowCastingMode.Off;
+		ShadowRenderer.param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		UIRenderer    .param.shadowCastingMode = ShadowCastingMode.Off;
+		TileRenderer  .param.receiveShadows = true;
+		SpriteRenderer.param.receiveShadows = false;
+		ShadowRenderer.param.receiveShadows = false;
+		UIRenderer    .param.receiveShadows = false;
 
-		tileQuery   = new NativeArray<EntityQuery>(2, Allocator.Persistent);
-		spriteQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
-		shadowQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
-		uiQuery     = new NativeArray<EntityQuery>(2, Allocator.Persistent);
+		TileQuery   = new NativeArray<EntityQuery>(2, Allocator.Persistent);
+		SpriteQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
+		ShadowQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
+		UIQuery     = new NativeArray<EntityQuery>(2, Allocator.Persistent);
 		var localToWorld = ComponentType.ReadOnly<LocalToWorld>();
 		var tileDrawer   = ComponentType.ReadOnly<TileDrawer  >();
 		var spriteDrawer = ComponentType.ReadOnly<SpriteDrawer>();
 		var shadowDrawer = ComponentType.ReadOnly<ShadowDrawer>();
 		var uiDrawer     = ComponentType.ReadOnly<UIDrawer    >();
-		tileQuery  [0] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.ReadOnly<Static>());
-		spriteQuery[0] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.ReadOnly<Static>());
-		shadowQuery[0] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.ReadOnly<Static>());
-		uiQuery    [0] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.ReadOnly<Static>());
-		tileQuery  [1] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.Exclude <Static>());
-		spriteQuery[1] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.Exclude <Static>());
-		shadowQuery[1] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.Exclude <Static>());
-		uiQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude <Static>());
+		TileQuery  [0] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.ReadOnly<Static>());
+		SpriteQuery[0] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.ReadOnly<Static>());
+		ShadowQuery[0] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.ReadOnly<Static>());
+		UIQuery    [0] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.ReadOnly<Static>());
+		TileQuery  [1] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.Exclude <Static>());
+		SpriteQuery[1] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.Exclude <Static>());
+		ShadowQuery[1] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.Exclude <Static>());
+		UIQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude <Static>());
 	}
 
-	[BurstDiscard]
 	protected override void OnDestroy() {
-		if (tileLUTable  .IsCreated) tileLUTable  .Dispose();
-		if (spriteLUTable.IsCreated) spriteLUTable.Dispose();
-		if (shadowLUTable.IsCreated) shadowLUTable.Dispose();
-		if (uiLUTable    .IsCreated) uiLUTable    .Dispose();
-		if (tileDataMap  .IsCreated) tileDataMap  .Dispose();
-		if (spriteDataMap.IsCreated) spriteDataMap.Dispose();
-		if (shadowDataMap.IsCreated) shadowDataMap.Dispose();
-		if (uiDataMap    .IsCreated) uiDataMap    .Dispose();
-		tileRenderer  ?.Dispose();
-		spriteRenderer?.Dispose();
-		shadowRenderer?.Dispose();
-		uiRenderer    ?.Dispose();
-		if (tileQuery  .IsCreated) tileQuery  .Dispose();
-		if (spriteQuery.IsCreated) spriteQuery.Dispose();
-		if (shadowQuery.IsCreated) shadowQuery.Dispose();
-		if (uiQuery    .IsCreated) uiQuery    .Dispose();
+		if (TileLUTable  .IsCreated) TileLUTable  .Dispose();
+		if (SpriteLUTable.IsCreated) SpriteLUTable.Dispose();
+		if (ShadowLUTable.IsCreated) ShadowLUTable.Dispose();
+		if (UILUTable    .IsCreated) UILUTable    .Dispose();
+		if (TileDataMap  .IsCreated) TileDataMap  .Dispose();
+		if (SpriteDataMap.IsCreated) SpriteDataMap.Dispose();
+		if (ShadowDataMap.IsCreated) ShadowDataMap.Dispose();
+		if (UIDataMap    .IsCreated) UIDataMap    .Dispose();
+		TileRenderer  ?.Dispose();
+		SpriteRenderer?.Dispose();
+		ShadowRenderer?.Dispose();
+		UIRenderer    ?.Dispose();
+		if (TileQuery  .IsCreated) TileQuery  .Dispose();
+		if (SpriteQuery.IsCreated) SpriteQuery.Dispose();
+		if (ShadowQuery.IsCreated) ShadowQuery.Dispose();
+		if (UIQuery    .IsCreated) UIQuery    .Dispose();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
-		var buffer = system.CreateCommandBuffer();
+		var buffer = System.CreateCommandBuffer();
 		var transform = GetComponentLookup<LocalToWorld>(true);
 
 		var tileDrawer = GetBufferLookup<TileDrawer>(true);
-		for (int i = 0; i < tileQuery.Length; i++) if (0 < tileQuery[i].CalculateEntityCount()) {
-			var entities = tileQuery[i].ToEntityArray(Allocator.TempJob);
-			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
-			indices[0] = 0;
-			new GetLengthJob<TileDrawer>() {
-				indices  = indices,
-				entities = entities,
-				drawers  = tileDrawer,
-			}.Schedule(entities.Length, 64, Dependency).Complete();
-			new PrefixSumJob() {
-				indices = indices,
+		for (int i = 0; i < TileQuery.Length; i++) if (0 < TileQuery[i].CalculateEntityCount()) {
+			var entityArray = TileQuery[i].ToEntityArray(Allocator.TempJob);
+			var indexArray  = new NativeArray<int>(entityArray.Length + 1, Allocator.TempJob);
+			indexArray[0] = 0;
+			new GetLengthJob<TileDrawer> {
+				IndexArray  = indexArray,
+				EntityArray = entityArray,
+				DrawerGroup = tileDrawer,
+			}.Schedule(entityArray.Length, 64, Dependency).Complete();
+			new PrefixSumJob {
+				IndexArray = indexArray,
 			}.Schedule(Dependency).Complete();
-			var count = indices[^1];
+			var count = indexArray[^1];
 			if (0 < count) {
-				new DrawTileJob() {
-					array      = tileRenderer.AllocateAndLockBuffer(i, count),
-					indices    = indices,
-					entities   = entities,
-					transforms = transform,
-					drawers    = tileDrawer,
-					luTable    = tileLUTable,
-					dataMap    = tileDataMap,
-					random     = new Random(73856093u),
-				}.Schedule(entities.Length, 64, Dependency).Complete();
-				tileRenderer.UnlockBuffer(count);
+				new DrawTileJob {
+					DataArray      = TileRenderer.AllocateAndLockBuffer(i, count),
+					IndexArray     = indexArray,
+					EntityArray    = entityArray,
+					TransformGroup = transform,
+					DrawerGroup    = tileDrawer,
+					LUTable        = TileLUTable,
+					DataMap        = TileDataMap,
+					Random         = new Random(1u + (uint)(4801 * SystemAPI.Time.ElapsedTime) % 1000),
+				}.Schedule(entityArray.Length, 64, Dependency).Complete();
+				TileRenderer.UnlockBuffer(count);
 			}
-			if (i != tileQuery.Length - 1) foreach (var entity in entities) {
+			if (i != TileQuery.Length - 1) foreach (var entity in entityArray) {
 				buffer.RemoveComponent<TileDrawer>(entity);
 			}
-			entities.Dispose();
-			indices .Dispose();
+			entityArray.Dispose();
+			indexArray .Dispose();
 		}
-		tileRenderer.Draw();
-		tileRenderer.Clear(tileQuery.Length - 1);
+		TileRenderer.Draw();
+		TileRenderer.Clear(TileQuery.Length - 1);
 
 		var spriteDrawer = GetBufferLookup<SpriteDrawer>(true);
-		for (int i = 0; i < spriteQuery.Length; i++) if (0 < spriteQuery[i].CalculateEntityCount()) {
-			var entities = spriteQuery[i].ToEntityArray(Allocator.TempJob);
-			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
-			indices[0] = 0;
-			new GetLengthJob<SpriteDrawer>() {
-				indices  = indices,
-				entities = entities,
-				drawers  = spriteDrawer,
-			}.Schedule(entities.Length, 64, Dependency).Complete();
-			new PrefixSumJob() {
-				indices = indices,
+		for (int i = 0; i < SpriteQuery.Length; i++) if (0 < SpriteQuery[i].CalculateEntityCount()) {
+			var entityArray = SpriteQuery[i].ToEntityArray(Allocator.TempJob);
+			var indexArray  = new NativeArray<int>(entityArray.Length + 1, Allocator.TempJob);
+			indexArray[0] = 0;
+			new GetLengthJob<SpriteDrawer> {
+				IndexArray  = indexArray,
+				EntityArray = entityArray,
+				DrawerGroup = spriteDrawer,
+			}.Schedule(entityArray.Length, 64, Dependency).Complete();
+			new PrefixSumJob {
+				IndexArray = indexArray,
 			}.Schedule(Dependency).Complete();
-			var count = indices[^1];
+			var count = indexArray[^1];
 			if (0 < count) {
-				new DrawSpriteJob() {
-					array      = spriteRenderer.AllocateAndLockBuffer(i, count),
-					indices    = indices,
-					entities   = entities,
-					transforms = transform,
-					drawers    = spriteDrawer,
-					luTable    = spriteLUTable,
-					dataMap    = spriteDataMap,
-					yawGlobal  = CameraManager.EulerRotation.y,
-				}.Schedule(entities.Length, 64, Dependency).Complete();
-				spriteRenderer.UnlockBuffer(count);
+				new DrawSpriteJob {
+					DataArray      = SpriteRenderer.AllocateAndLockBuffer(i, count),
+					IndexArray     = indexArray,
+					EntityArray    = entityArray,
+					TransformGroup = transform,
+					DrawerGroup    = spriteDrawer,
+					LUTable        = SpriteLUTable,
+					DataMap        = SpriteDataMap,
+					YawGlobal      = CameraManager.EulerRotation.y,
+				}.Schedule(entityArray.Length, 64, Dependency).Complete();
+				SpriteRenderer.UnlockBuffer(count);
 			}
-			if (i != spriteQuery.Length - 1) foreach (var entity in entities) {
+			if (i != SpriteQuery.Length - 1) foreach (var entity in entityArray) {
 				buffer.RemoveComponent<SpriteDrawer>(entity);
 			}
-			entities.Dispose();
-			indices .Dispose();
+			entityArray.Dispose();
+			indexArray .Dispose();
 		}
-		spriteRenderer.Draw();
-		spriteRenderer.Clear(spriteQuery.Length - 1);
+		SpriteRenderer.Draw();
+		SpriteRenderer.Clear(SpriteQuery.Length - 1);
 
 		var shadowDrawer = GetBufferLookup<ShadowDrawer>(true);
-		for (int i = 0; i < shadowQuery.Length; i++) if (0 < shadowQuery[i].CalculateEntityCount()) {
-			var entities = shadowQuery[i].ToEntityArray(Allocator.TempJob);
-			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
-			indices[0] = 0;
-			new GetLengthJob<ShadowDrawer>() {
-				indices  = indices,
-				entities = entities,
-				drawers  = shadowDrawer,
-			}.Schedule(entities.Length, 64, Dependency).Complete();
-			new PrefixSumJob() {
-				indices = indices,
+		for (int i = 0; i < ShadowQuery.Length; i++) if (0 < ShadowQuery[i].CalculateEntityCount()) {
+			var entityArray = ShadowQuery[i].ToEntityArray(Allocator.TempJob);
+			var indexArray  = new NativeArray<int>(entityArray.Length + 1, Allocator.TempJob);
+			indexArray[0] = 0;
+			new GetLengthJob<ShadowDrawer> {
+				IndexArray  = indexArray,
+				EntityArray = entityArray,
+				DrawerGroup = shadowDrawer,
+			}.Schedule(entityArray.Length, 64, Dependency).Complete();
+			new PrefixSumJob {
+				IndexArray = indexArray,
 			}.Schedule(Dependency).Complete();
-			var count = indices[^1];
+			var count = indexArray[^1];
 			if (0 < count) {
-				new DrawShadowJob() {
-					array      = shadowRenderer.AllocateAndLockBuffer(i, count),
-					indices    = indices,
-					entities   = entities,
-					transforms = transform,
-					drawers    = shadowDrawer,
-					luTable    = shadowLUTable,
-					dataMap    = shadowDataMap,
-					yawGlobal  = CameraManager.EulerRotation.y,
-				}.Schedule(entities.Length, 64, Dependency).Complete();
-				shadowRenderer.UnlockBuffer(count);
+				new DrawShadowJob {
+					DataArray      = ShadowRenderer.AllocateAndLockBuffer(i, count),
+					IndexArray     = indexArray,
+					EntityArray    = entityArray,
+					TransformGroup = transform,
+					DrawerGroup    = shadowDrawer,
+					LUTable        = ShadowLUTable,
+					DataMap        = ShadowDataMap,
+					YawGlobal      = CameraManager.EulerRotation.y,
+				}.Schedule(entityArray.Length, 64, Dependency).Complete();
+				ShadowRenderer.UnlockBuffer(count);
 			}
-			if (i != shadowQuery.Length - 1) foreach (var entity in entities) {
+			if (i != ShadowQuery.Length - 1) foreach (var entity in entityArray) {
 				buffer.RemoveComponent<ShadowDrawer>(entity);
 			}
-			entities.Dispose();
-			indices .Dispose();
+			entityArray.Dispose();
+			indexArray .Dispose();
 		}
-		shadowRenderer.Draw();
-		shadowRenderer.Clear(shadowQuery.Length - 1);
+		ShadowRenderer.Draw();
+		ShadowRenderer.Clear(ShadowQuery.Length - 1);
 
 		var uiDrawer = GetBufferLookup<UIDrawer>(true);
-		for (int i = 0; i < uiQuery.Length; i++) if (0 < uiQuery[i].CalculateEntityCount()) {
-			var entities = uiQuery[i].ToEntityArray(Allocator.TempJob);
-			var indices  = new NativeArray<int>(entities.Length + 1, Allocator.TempJob);
-			indices[0] = 0;
-			new GetLengthJob<UIDrawer>() {
-				indices  = indices,
-				entities = entities,
-				drawers  = uiDrawer,
-			}.Schedule(entities.Length, 64, Dependency).Complete();
-			new PrefixSumJob() {
-				indices = indices,
+		for (int i = 0; i < UIQuery.Length; i++) if (0 < UIQuery[i].CalculateEntityCount()) {
+			var entityArray = UIQuery[i].ToEntityArray(Allocator.TempJob);
+			var indexArray  = new NativeArray<int>(entityArray.Length + 1, Allocator.TempJob);
+			indexArray[0] = 0;
+			new GetLengthJob<UIDrawer> {
+				IndexArray  = indexArray,
+				EntityArray = entityArray,
+				DrawerGroup = uiDrawer,
+			}.Schedule(entityArray.Length, 64, Dependency).Complete();
+			new PrefixSumJob {
+				IndexArray = indexArray,
 			}.Schedule(Dependency).Complete();
-			var count = indices[^1];
+			var count = indexArray[^1];
 			if (0 < count) {
-				new DrawUIJob() {
-					array      = uiRenderer.AllocateAndLockBuffer(i, count),
-					indices    = indices,
-					entities   = entities,
-					transforms = transform,
-					drawers    = uiDrawer,
-					luTable    = uiLUTable,
-					dataMap    = uiDataMap,
-					random     = new Random(73856093u),
-				}.Schedule(entities.Length, 64, Dependency).Complete();
-				uiRenderer.UnlockBuffer(count);
+				new DrawUIJob {
+					DataArray      = UIRenderer.AllocateAndLockBuffer(i, count),
+					IndexArray     = indexArray,
+					EntityArray    = entityArray,
+					TransformGroup = transform,
+					DrawerGroup    = uiDrawer,
+					LUTable        = UILUTable,
+					DataMap        = UIDataMap,
+					Random         = new Random(1u + (uint)(4801 * SystemAPI.Time.ElapsedTime) % 1000),
+				}.Schedule(entityArray.Length, 64, Dependency).Complete();
+				UIRenderer.UnlockBuffer(count);
 			}
-			if (i != uiQuery.Length - 1) foreach (var entity in entities) {
+			if (i != UIQuery.Length - 1) foreach (var entity in entityArray) {
 				buffer.RemoveComponent<UIDrawer>(entity);
 			}
-			entities.Dispose();
-			indices .Dispose();
+			entityArray.Dispose();
+			indexArray .Dispose();
 		}
-		uiRenderer.Draw();
-		uiRenderer.Clear(uiQuery.Length - 1);
+		UIRenderer.Draw();
+		UIRenderer.Clear(UIQuery.Length - 1);
 	}
 
 	[BurstCompile]
 	partial struct GetLengthJob<T> : IJobParallelFor where T : unmanaged, IBufferElementData {
-		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public BufferLookup<T> drawers;
-		[NativeDisableParallelForRestriction] public NativeArray<int> indices;
+		[NativeDisableParallelForRestriction] public NativeArray<int> IndexArray;
+		[ReadOnly] public NativeArray<Entity> EntityArray;
+		[ReadOnly] public BufferLookup<T> DrawerGroup;
 		public void Execute(int index) {
-			indices[1 + index] = drawers[entities[index]].Length;
+			IndexArray[1 + index] = DrawerGroup[EntityArray[index]].Length;
 		}
 	}
 
 	[BurstCompile]
 	partial struct PrefixSumJob : IJob {
-		public NativeArray<int> indices;
+		public NativeArray<int> IndexArray;
 		public void Execute() {
-			for (int i = 1; i < indices.Length; i++) indices[i] += indices[i - 1];
+			for (int i = 1; i < IndexArray.Length; i++) IndexArray[i] += IndexArray[i - 1];
 		}
 	}
 
 	[BurstCompile]
 	partial struct DrawTileJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[NativeDisableParallelForRestriction] public NativeArray<TileDrawData> array;
-		[ReadOnly] public NativeArray<int> indices;
-		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup<TileDrawer> drawers;
-		[ReadOnly] public NativeHashMap<uint, uint> luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public Random random;
+		[NativeDisableParallelForRestriction] public NativeArray<TileDrawData> DataArray;
+		[ReadOnly] public NativeArray<int   > IndexArray;
+		[ReadOnly] public NativeArray<Entity> EntityArray;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
+		[ReadOnly] public BufferLookup   <TileDrawer  > DrawerGroup;
+		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
+		[ReadOnly] public Random Random;
 
 		public void Execute(int index) {
-			var transform = transforms[entities[index]];
-			var drawer    = drawers   [entities[index]];
+			var transform = TransformGroup[EntityArray[index]];
+			var drawer    = DrawerGroup   [EntityArray[index]];
 			for (int i = 0; i < drawer.Length; i++) {
-				array[indices[index] + i] = GetTileData(transform, drawer[i]);
+				DataArray[IndexArray[index] + i] = GetTileData(transform, drawer[i]);
 			}
 		}
 
@@ -1381,13 +1377,13 @@ public partial class DrawManagerSystem : SystemBase {
 			var sampleBit = ((uint)0u          + 1u) <<  0;
 
 			var totalMillisecondsKey = tileBit;
-			if (luTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
+			if (LUTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
 				var sample = SampleRate * ((uint)(drawer.Offset * 1000f) % totalMilliseconds) * 0.001f;
 				sampleBit = ((uint)sample + 1u) <<  0;
 			}
 			var sampleKey = tileBit | sampleBit;
-			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
-				if (dataMap.TryGetValue(dataKey, out var atlas)) {
+			if (LUTable.TryGetValue(sampleKey, out var dataKey)) {
+				if (DataMap.TryGetValue(dataKey, out var atlas)) {
 					scale  = new float3(atlas.scale.x, atlas.scale.y, 1f);
 					pivot  = new float3(atlas.pivot.x, atlas.pivot.y, 0f);
 					tiling = atlas.tiling;
@@ -1405,7 +1401,7 @@ public partial class DrawManagerSystem : SystemBase {
 				maskcolor = drawer.MaskColor,
 				emission  = drawer.Emission,
 			};
-			if (drawer.FlipRandomly) drawer.Flip = random.NextBool2();
+			if (drawer.FlipRandomly) drawer.Flip = Random.NextBool2();
 			if (drawer.Flip.x) data.offset.x -= data.tiling.x *= -1f;
 			if (drawer.Flip.y) data.offset.y -= data.tiling.y *= -1f;
 			return data;
@@ -1415,20 +1411,20 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawSpriteJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[NativeDisableParallelForRestriction] public NativeArray<SpriteDrawData> array;
-		[ReadOnly] public NativeArray<int> indices;
-		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup<SpriteDrawer> drawers;
-		[ReadOnly] public NativeHashMap<uint, uint> luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public float yawGlobal;
+		[NativeDisableParallelForRestriction] public NativeArray<SpriteDrawData> DataArray;
+		[ReadOnly] public NativeArray<int   > IndexArray;
+		[ReadOnly] public NativeArray<Entity> EntityArray;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
+		[ReadOnly] public BufferLookup   <SpriteDrawer> DrawerGroup;
+		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
+		[ReadOnly] public float YawGlobal;
 
 		public void Execute(int index) {
-			var transform = transforms[entities[index]];
-			var drawer    = drawers   [entities[index]];
+			var transform = TransformGroup[EntityArray[index]];
+			var drawer    = DrawerGroup   [EntityArray[index]];
 			for (int i = 0; i < drawer.Length; i++) {
-				array[indices[index] + i] = GetSpriteData(transform, drawer[i]);
+				DataArray[IndexArray[index] + i] = GetSpriteData(transform, drawer[i]);
 			}
 		}
 
@@ -1446,9 +1442,9 @@ public partial class DrawManagerSystem : SystemBase {
 			var sampleBit    = ((uint)0u            + 1u) <<  0;
 
 			var numDirectionsKey = spriteBit | motionBit;
-			if (luTable.TryGetValue(numDirectionsKey, out var numDirections)) {
+			if (LUTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 				var maxDirections = 1u;
-				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
+				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : YawGlobal);
 				switch (numDirections) {
 					case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
 					case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
@@ -1473,13 +1469,13 @@ public partial class DrawManagerSystem : SystemBase {
 				directionBit = ((uint)direction + 1u) << 12;
 			}
 			var totalMillisecondsKey = spriteBit | motionBit | directionBit;
-			if (luTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
+			if (LUTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
 				var sample = SampleRate * ((uint)(drawer.Offset * 1000f) % totalMilliseconds) * 0.001f;
 				sampleBit = ((uint)sample + 1u) <<  0;
 			}
 			var sampleKey = spriteBit | motionBit | directionBit | sampleBit;
-			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
-				if (dataMap.TryGetValue(dataKey, out var atlas)) {
+			if (LUTable.TryGetValue(sampleKey, out var dataKey)) {
+				if (DataMap.TryGetValue(dataKey, out var atlas)) {
 					scale  = atlas.scale;
 					pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 					tiling = atlas.tiling;
@@ -1506,20 +1502,20 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawShadowJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[NativeDisableParallelForRestriction] public NativeArray<ShadowDrawData> array;
-		[ReadOnly] public NativeArray<int> indices;
-		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup<ShadowDrawer> drawers;
-		[ReadOnly] public NativeHashMap<uint, uint> luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public float yawGlobal;
+		[NativeDisableParallelForRestriction] public NativeArray<ShadowDrawData> DataArray;
+		[ReadOnly] public NativeArray<int   > IndexArray;
+		[ReadOnly] public NativeArray<Entity> EntityArray;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
+		[ReadOnly] public BufferLookup   <ShadowDrawer> DrawerGroup;
+		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
+		[ReadOnly] public float YawGlobal;
 
 		public void Execute(int index) {
-			var transform = transforms[entities[index]];
-			var drawer    = drawers   [entities[index]];
+			var transform = TransformGroup[EntityArray[index]];
+			var drawer    = DrawerGroup   [EntityArray[index]];
 			for (int i = 0; i < drawer.Length; i++) {
-				array[indices[index] + i] = GetShadowData(transform, drawer[i]);
+				DataArray[IndexArray[index] + i] = GetShadowData(transform, drawer[i]);
 			}
 		}
 
@@ -1536,9 +1532,9 @@ public partial class DrawManagerSystem : SystemBase {
 			var sampleBit = ((uint)0u            + 1u) <<  0;
 
 			var numDirectionsKey = shadowBit | motionBit;
-			if (luTable.TryGetValue(numDirectionsKey, out var numDirections)) {
+			if (LUTable.TryGetValue(numDirectionsKey, out var numDirections)) {
 				var maxDirections = 1u;
-				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : yawGlobal);
+				var yaw = drawer.Yaw + (drawer.YawLocal ? 0f : YawGlobal);
 				switch (numDirections) {
 					case >=  1u and <=  2u: maxDirections =  2u; yaw += 00.00f; break;
 					case >=  3u and <=  4u: maxDirections =  4u; yaw += 45.00f; break;
@@ -1556,13 +1552,13 @@ public partial class DrawManagerSystem : SystemBase {
 				xflip = numDirections <= direction;
 			}
 			var totalMillisecondsKey = shadowBit | motionBit;
-			if (luTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
+			if (LUTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
 				var sample = SampleRate * ((uint)(drawer.Offset * 1000f) % totalMilliseconds) * 0.001f;
 				sampleBit = ((uint)sample + 1u) <<  0;
 			}
 			var sampleKey = shadowBit | motionBit | sampleBit;
-			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
-				if (dataMap.TryGetValue(dataKey, out var atlas)) {
+			if (LUTable.TryGetValue(sampleKey, out var dataKey)) {
+				if (DataMap.TryGetValue(dataKey, out var atlas)) {
 					scale  = atlas.scale;
 					pivot += atlas.pivot * new float2(xflip ? -1f : 1f, 1f);
 					tiling = atlas.tiling;
@@ -1586,20 +1582,20 @@ public partial class DrawManagerSystem : SystemBase {
 	[BurstCompile]
 	partial struct DrawUIJob : IJobParallelFor {
 		const float SampleRate = DrawManager.SampleRate;
-		[NativeDisableParallelForRestriction] public NativeArray<UIDrawData> array;
-		[ReadOnly] public NativeArray<int> indices;
-		[ReadOnly] public NativeArray<Entity> entities;
-		[ReadOnly] public ComponentLookup<LocalToWorld> transforms;
-		[ReadOnly] public BufferLookup<UIDrawer> drawers;
-		[ReadOnly] public NativeHashMap<uint, uint> luTable;
-		[ReadOnly] public NativeHashMap<uint, AtlasData> dataMap;
-		[ReadOnly] public Random random;
+		[NativeDisableParallelForRestriction] public NativeArray<UIDrawData> DataArray;
+		[ReadOnly] public NativeArray<int   > IndexArray;
+		[ReadOnly] public NativeArray<Entity> EntityArray;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
+		[ReadOnly] public BufferLookup   <UIDrawer    > DrawerGroup;
+		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
+		[ReadOnly] public Random Random;
 
 		public void Execute(int index) {
-			var transform = transforms[entities[index]];
-			var drawer    = drawers   [entities[index]];
+			var transform = TransformGroup[EntityArray[index]];
+			var drawer    = DrawerGroup   [EntityArray[index]];
 			for (int i = 0; i < drawer.Length; i++) {
-				array[indices[index] + i] = GetUIData(transform, drawer[i]);
+				DataArray[IndexArray[index] + i] = GetUIData(transform, drawer[i]);
 			}
 		}
 
@@ -1614,13 +1610,13 @@ public partial class DrawManagerSystem : SystemBase {
 			var sampleBit = ((uint)0u        + 1u) <<  0;
 
 			var totalMillisecondsKey = uiBit;
-			if (luTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
+			if (LUTable.TryGetValue(totalMillisecondsKey, out var totalMilliseconds)) {
 				var sample = SampleRate * ((uint)(drawer.Offset * 1000f) % totalMilliseconds) * 0.001f;
 				sampleBit = ((uint)sample + 1u) <<  0;
 			}
 			var sampleKey = uiBit | sampleBit;
-			if (luTable.TryGetValue(sampleKey, out var dataKey)) {
-				if (dataMap.TryGetValue(dataKey, out var atlas)) {
+			if (LUTable.TryGetValue(sampleKey, out var dataKey)) {
+				if (DataMap.TryGetValue(dataKey, out var atlas)) {
 					scale *= atlas.scale;
 					pivot += atlas.pivot;
 					tiling = atlas.tiling;

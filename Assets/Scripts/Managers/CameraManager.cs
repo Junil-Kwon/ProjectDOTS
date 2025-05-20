@@ -241,10 +241,9 @@ public partial class CameraManagerSystem : SystemBase {
 
 	[BurstDiscard]
 	protected override void OnUpdate() {
-		var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
-		foreach (var (transform, @base) in SystemAPI
-			.Query<RefRO<LocalTransform>, RefRO<CreatureBlob>>()
-			.WithAll<GhostOwnerIsLocal>()) {
+		var world = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+		foreach (var (transform, blob) in SystemAPI
+			.Query<RefRO<LocalToWorld>, RefRO<CreatureBlob>>().WithAll<GhostOwnerIsLocal>()) {
 
 			var point = transform.ValueRO.Position;
 			var ray = new RaycastInput {
@@ -255,8 +254,8 @@ public partial class CameraManagerSystem : SystemBase {
 					CollidesWith = ~(1u << (int)PhysicsCategory.Creature),
 				}
 			};
-			if (physicsWorld.CastRay(ray, out var hit)) point = hit.Position;
-			point += new float3(0f, @base.ValueRO.Value.Value.Height + 1f, 0f);
+			if (world.CastRay(ray, out var hit)) point = hit.Position;
+			point += new float3(0f, blob.ValueRO.Value.Value.Height + 1f, 0f);
 
 			var delta = (Vector3)point - CameraManager.Position;
 			CameraManager.Position += 5f * SystemAPI.Time.DeltaTime * delta;

@@ -443,24 +443,21 @@ public struct RequestApproval : IApprovalRpcCommand {
 
 
 
-[BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerServerSystem : SystemBase {
-	BeginInitializationEntityCommandBufferSystem system;
-	EntityQuery queryApproved;
+	BeginInitializationEntityCommandBufferSystem System;
+	EntityQuery QueryApproved;
 
-	[BurstCompile]
 	protected override void OnCreate() {
-		system = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
-		queryApproved = GetEntityQuery(ComponentType.ReadOnly<ConnectionApproved>());
+		System = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
+		QueryApproved = GetEntityQuery(ComponentType.ReadOnly<ConnectionApproved>());
 		RequireForUpdate<NetworkStreamDriver>();
 		RequireForUpdate<PrefabContainer>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
-		var buffer = system.CreateCommandBuffer();
+		var buffer = System.CreateCommandBuffer();
 
 		var connections = SystemAPI.GetSingleton<NetworkStreamDriver>().ConnectionEventsForTick;
 		foreach (var connection in connections) switch (connection.State) {
@@ -484,7 +481,7 @@ public partial class NetworkManagerServerSystem : SystemBase {
 				break;
 		}
 
-		var numApproved = queryApproved.CalculateEntityCount();
+		var numApproved = QueryApproved.CalculateEntityCount();
 		foreach (var (rpc, approval, entity) in SystemAPI
 			.Query<RefRO<ReceiveRpcCommandRequest>, RefRW<RequestApproval>>()
 			.WithEntityAccess()) {
@@ -515,21 +512,18 @@ public partial class NetworkManagerServerSystem : SystemBase {
 // Network Manager Client System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerClientSystem : SystemBase {
-	EndInitializationEntityCommandBufferSystem system;
+	EndInitializationEntityCommandBufferSystem System;
 
-	[BurstCompile]
 	protected override void OnCreate() {
-		system = World.GetOrCreateSystemManaged<EndInitializationEntityCommandBufferSystem>();
+		System = World.GetOrCreateSystemManaged<EndInitializationEntityCommandBufferSystem>();
 		RequireForUpdate<NetworkStreamDriver>();
 	}
 
-	[BurstDiscard]
 	protected override void OnUpdate() {
-		var buffer = system.CreateCommandBuffer();
+		var buffer = System.CreateCommandBuffer();
 
 		var connections = SystemAPI.GetSingleton<NetworkStreamDriver>().ConnectionEventsForTick;
         foreach (var connection in connections) switch (connection.State) {

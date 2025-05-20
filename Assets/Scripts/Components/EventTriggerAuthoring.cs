@@ -156,56 +156,55 @@ public struct ClientEvent : IComponentData { }
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct GlobalEventSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<SimulationSingleton>();
 		state.RequireForUpdate<GameManagerBridge>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ServerEventSimulationJob {
-			deltaTime = SystemAPI.Time.DeltaTime,
+			DeltaTime = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new TriggerServerEventJob {
-			gameManager  = SystemAPI.GetSingletonRW<GameManagerBridge>(),
-			trigger      = SystemAPI.GetComponentLookup<EventTrigger>(),
-			server       = SystemAPI.GetComponentLookup<ServerEvent>(),
-			interactable = SystemAPI.GetComponentLookup<Interactable>(true),
-			ghostOwner   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
+			GameManager       = SystemAPI.GetSingletonRW<GameManagerBridge>(),
+			TriggerGroup      = SystemAPI.GetComponentLookup<EventTrigger>(),
+			ServerGroup       = SystemAPI.GetComponentLookup<ServerEvent>(),
+			InteractableGroup = SystemAPI.GetComponentLookup<Interactable>(true),
+			LocalGhostGroup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(ServerEvent), typeof(Simulate))]
 	partial struct ServerEventSimulationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(ref EventTrigger trigger) {
-			trigger.Cooldown = math.max(0f, trigger.Cooldown - deltaTime);
+			trigger.Cooldown = math.max(0f, trigger.Cooldown - DeltaTime);
 		}
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct TriggerServerEventJob : ITriggerEventsJob {
-		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> gameManager;
-		public ComponentLookup<EventTrigger> trigger;
-		public ComponentLookup<ServerEvent> server;
-		[ReadOnly] public ComponentLookup<Interactable> interactable;
-		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> ghostOwner;
+		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> GameManager;
+		public ComponentLookup<EventTrigger> TriggerGroup;
+		public ComponentLookup<ServerEvent> ServerGroup;
+		[ReadOnly] public ComponentLookup<Interactable> InteractableGroup;
+		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> LocalGhostGroup;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
-		public void Execute(Entity entity, Entity target) {
-			if (server.HasComponent(entity) && !interactable.HasComponent(entity)) {
-					if (ghostOwner.HasComponent(target)) {
-					if (trigger[entity].Count != 0 && trigger[entity].Cooldown == 0f) {
-						gameManager.ValueRW.PlayEvent(trigger[entity].Event);
 
-						var temp = trigger[entity];
+		public void Execute(Entity entity, Entity target) {
+			if (ServerGroup.HasComponent(entity) && !InteractableGroup.HasComponent(entity)) {
+					if (LocalGhostGroup.HasComponent(target)) {
+					if (TriggerGroup[entity].Count != 0 && TriggerGroup[entity].Cooldown == 0f) {
+						GameManager.ValueRW.PlayEvent(TriggerGroup[entity].Event);
+
+						var temp = TriggerGroup[entity];
 						if (0 < temp.Count) temp.Count--;
 						temp.Cooldown = math.max(float.Epsilon, temp.Timer);
-						trigger[entity] = temp;
+						TriggerGroup[entity] = temp;
 					}
 				}
 			}
@@ -224,56 +223,55 @@ partial struct GlobalEventSystem : ISystem {
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct LocalEventSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<SimulationSingleton>();
 		state.RequireForUpdate<GameManagerBridge>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new ClientEventSimulationJob {
-			deltaTime = SystemAPI.Time.DeltaTime,
+			DeltaTime = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new TriggerClientEventJob {
-			gameManager  = SystemAPI.GetSingletonRW<GameManagerBridge>(),
-			trigger      = SystemAPI.GetComponentLookup<EventTrigger>(),
-			client       = SystemAPI.GetComponentLookup<ClientEvent>(),
-			interactable = SystemAPI.GetComponentLookup<Interactable>(true),
-			ghostOwner   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
+			GameManager       = SystemAPI.GetSingletonRW<GameManagerBridge>(),
+			TriggerGroup      = SystemAPI.GetComponentLookup<EventTrigger>(),
+			ClientGroup       = SystemAPI.GetComponentLookup<ClientEvent>(),
+			InteractableGroup = SystemAPI.GetComponentLookup<Interactable>(true),
+			LocalGhostGroup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(ClientEvent), typeof(Simulate))]
 	partial struct ClientEventSimulationJob : IJobEntity {
-		public float deltaTime;
+		public float DeltaTime;
 		public void Execute(ref EventTrigger trigger) {
-			trigger.Cooldown = math.max(0f, trigger.Cooldown - deltaTime);
+			trigger.Cooldown = math.max(0f, trigger.Cooldown - DeltaTime);
 		}
 	}
 
-	[BurstCompile]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct TriggerClientEventJob : ITriggerEventsJob {
-		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> gameManager;
-		public ComponentLookup<EventTrigger> trigger;
-		public ComponentLookup<ClientEvent> client;
-		[ReadOnly] public ComponentLookup<Interactable> interactable;
-		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> ghostOwner;
+		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> GameManager;
+		public ComponentLookup<EventTrigger> TriggerGroup;
+		public ComponentLookup<ClientEvent> ClientGroup;
+		[ReadOnly] public ComponentLookup<Interactable> InteractableGroup;
+		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> LocalGhostGroup;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
 			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
 		}
-		public void Execute(Entity entity, Entity target) {
-			if (client.HasComponent(entity) && !interactable.HasComponent(entity)) {
-					if (ghostOwner.HasComponent(target)) {
-					if (trigger[entity].Count != 0 && trigger[entity].Cooldown == 0f) {
-						gameManager.ValueRW.PlayEvent(trigger[entity].Event);
 
-						var temp = trigger[entity];
+		public void Execute(Entity entity, Entity target) {
+			if (ClientGroup.HasComponent(entity) && !InteractableGroup.HasComponent(entity)) {
+					if (LocalGhostGroup.HasComponent(target)) {
+					if (TriggerGroup[entity].Count != 0 && TriggerGroup[entity].Cooldown == 0f) {
+						GameManager.ValueRW.PlayEvent(TriggerGroup[entity].Event);
+
+						var temp = TriggerGroup[entity];
 						if (0 < temp.Count) temp.Count--;
 						temp.Cooldown = math.max(float.Epsilon, temp.Timer);
-						trigger[entity] = temp;
+						TriggerGroup[entity] = temp;
 					}
 				}
 			}

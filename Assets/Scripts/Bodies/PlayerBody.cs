@@ -29,15 +29,13 @@ public struct PlayerBody : IComponentData {
 [UpdateInGroup(typeof(DOTSPredictedSimulationSystemGroup))]
 partial struct PlayerBodySimulationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<PlayerBody>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
-		var simulationJob = new PlayerBodySimulationJob();
-		state.Dependency = simulationJob.ScheduleParallel(state.Dependency);
+		state.Dependency = new PlayerBodySimulationJob {
+		}.ScheduleParallel(state.Dependency);
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
@@ -55,7 +53,6 @@ partial struct PlayerBodySimulationSystem : ISystem {
 			if (core.HasFlag(Flag.Piercing) && !input.GetKey(KeyAction.Ability1)) {
 				core.SetFlag(Flag.Piercing, false);
 			}
-
 			switch (core.MotionX) {
 				case Motion.None:
 					core.MotionX = Motion.Idle;
@@ -104,12 +101,10 @@ partial struct PlayerBodySimulationSystem : ISystem {
 [UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
 partial struct PlayerBodyPresentationSystem : ISystem {
 
-	[BurstCompile]
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<PlayerBody>();
 	}
 
-	[BurstCompile]
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new PlayerBodyPresentationJob {
 		}.ScheduleParallel(state.Dependency);
@@ -121,6 +116,7 @@ partial struct PlayerBodyPresentationSystem : ISystem {
 			in CreatureCore core,
 			DynamicBuffer<SpriteDrawer> sprite,
 			DynamicBuffer<ShadowDrawer> shadow) {
+
 			sprite.ElementAt(0).Motion = core.MotionX;
 			shadow.ElementAt(0).Motion = core.MotionX;
 			sprite.ElementAt(0).Offset = core.MotionXOffset;
