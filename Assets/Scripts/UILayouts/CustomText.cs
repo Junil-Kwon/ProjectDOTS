@@ -27,10 +27,12 @@ public class CustomText : Selectable {
 		class CustomTextEditor : SelectableEditorExtensions {
 			CustomText I => target as CustomText;
 			public override void OnInspectorGUI() {
-				base.OnInspectorGUI();
 				Begin("Custom Text");
 
-				LabelField("Text");
+				LabelField("Selectable", EditorStyles.boldLabel);
+				base.OnInspectorGUI();
+				Space();
+				LabelField("Text", EditorStyles.boldLabel);
 				Space();
 
 				End();
