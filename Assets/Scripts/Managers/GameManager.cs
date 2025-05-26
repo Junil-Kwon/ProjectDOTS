@@ -149,6 +149,14 @@ public class GameManager : MonoSingleton<GameManager> {
 		}
 	}
 
+	public static void Quit() {
+		#if UNITY_EDITOR
+			EditorApplication.isPlaying = false;
+		#else
+			Application.Quit();
+		#endif
+	}
+
 
 
 	// Lifecycle
@@ -161,6 +169,7 @@ public class GameManager : MonoSingleton<GameManager> {
 		if (startDirectly == false) {
 			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 			GameState = GameState.Paused;
+			UIManager.Initialize();
 		} else {
 			GameState = GameState.Gameplay;
 		}

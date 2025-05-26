@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 [AddComponentMenu("Manager/Environment Manager")]
 public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
-    
+
 	// Editor
 
 	#if UNITY_EDITOR

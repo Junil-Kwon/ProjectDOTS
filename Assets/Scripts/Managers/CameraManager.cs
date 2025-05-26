@@ -91,13 +91,15 @@ public class CameraManager : MonoSingleton<CameraManager> {
 
 	// Properties
 
+	static Transform Transform => Instance.transform;
+
 	public static Vector3 Position {
-		get => Instance.transform.position;
-		set => Instance.transform.position = value;
+		get => Transform.position;
+		set => Transform.position = value;
 	}
 	public static Quaternion Rotation {
-		get => Instance.transform.rotation;
-		set => Instance.transform.rotation = value;
+		get => Transform.rotation;
+		set => Transform.rotation = value;
 	}
 	public static Vector3 EulerRotation {
 		get => Rotation.eulerAngles;
@@ -128,16 +130,16 @@ public class CameraManager : MonoSingleton<CameraManager> {
 
 	static Camera MainCamera {
 		get {
-			if (!Instance.m_MainCamera) for (int i = 0; i < Instance.transform.childCount; i++) {
-				if (Instance.transform.GetChild(i).TryGetComponent(out Instance.m_MainCamera)) break;
+			if (!Instance.m_MainCamera) for (int i = 0; i < Transform.childCount; i++) {
+				if (Transform.GetChild(i).TryGetComponent(out Instance.m_MainCamera)) break;
 			}
 			return Instance.m_MainCamera;
 		}
 	}
 	static UniversalAdditionalCameraData CameraData {
 		get {
-			if (!Instance.m_CameraData) for (int i = 0; i < Instance.transform.childCount; i++) {
-				if (Instance.transform.GetChild(i).TryGetComponent(out Instance.m_CameraData)) break;
+			if (!Instance.m_CameraData) for (int i = 0; i < Transform.childCount; i++) {
+				if (Transform.GetChild(i).TryGetComponent(out Instance.m_CameraData)) break;
 			}
 			return Instance.m_CameraData;
 		}

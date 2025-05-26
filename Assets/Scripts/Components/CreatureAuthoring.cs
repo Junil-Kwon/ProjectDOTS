@@ -977,29 +977,6 @@ public struct CreatureStatus : IComponentData {
 public struct CreatureEffect : IBufferElementData {
 
 	[GhostField] public uint Data;
-
-
-
-	[GhostField] public Effect Effect {
-		get => this.GetEffect();
-		set => this.SetEffect(value);
-	}
-	[GhostField] public ushort Value {
-		get => this.GetValue();
-		set => this.SetValue(value);
-	}
-	[GhostField] public int Tick {
-		get => this.GetTick();
-		set => this.SetTick(value);
-	}
-	[GhostField] public float Strength {
-		get => this.GetStrength();
-		set => this.SetStrength(value);
-	}
-	[GhostField] public float Duration {
-		get => this.GetDuration();
-		set => this.SetDuration(value);
-	}
 }
 
 

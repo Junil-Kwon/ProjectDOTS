@@ -438,7 +438,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 public struct RequestApproval : IApprovalRpcCommand {
-    public FixedString512Bytes payload;
+	public FixedString512Bytes payload;
 }
 
 
@@ -486,7 +486,7 @@ public partial class NetworkManagerServerSystem : SystemBase {
 			.Query<RefRO<ReceiveRpcCommandRequest>, RefRW<RequestApproval>>()
 			.WithEntityAccess()) {
 
-            var connectionEntity = rpc.ValueRO.SourceConnection;
+			var connectionEntity = rpc.ValueRO.SourceConnection;
 			var match = true;
 			match &= approval.ValueRO.payload.Equals("0000");
 			match &= numApproved < NetworkManager.MaxPlayer;
@@ -526,7 +526,7 @@ public partial class NetworkManagerClientSystem : SystemBase {
 		var buffer = System.CreateCommandBuffer();
 
 		var connections = SystemAPI.GetSingleton<NetworkStreamDriver>().ConnectionEventsForTick;
-        foreach (var connection in connections) switch (connection.State) {
+		foreach (var connection in connections) switch (connection.State) {
 			case ConnectionState.State.Connecting:
 				break;
 			case ConnectionState.State.Handshake:
