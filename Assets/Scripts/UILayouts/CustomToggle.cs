@@ -16,7 +16,7 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("UI/Custom Toggle")]
-public class CustomToggle : Selectable, IPointerClickHandler {
+public sealed class CustomToggle : Selectable, IPointerClickHandler {
 
 	// Editor
 
@@ -30,20 +30,17 @@ public class CustomToggle : Selectable, IPointerClickHandler {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Toggle UI", EditorStyles.boldLabel);
-				I.PositiveImage = ObjectField("Positive Image", I.PositiveImage);
-				I.NegativeImage = ObjectField("Negative Image", I.NegativeImage);
-				Space();
-				LabelField("Toggle Value", EditorStyles.boldLabel);
-				I.Value = Toggle("Value", I.Value);
-				Space();
-				LabelField("Toggle Text", EditorStyles.boldLabel);
+				LabelField("Toggle Layout", EditorStyles.boldLabel);
+				I.PositiveImage    = ObjectField("Positive Image",     I.PositiveImage);
+				I.NegativeImage    = ObjectField("Negative Image",     I.NegativeImage);
 				I.PositiveTextUGUI = ObjectField("Positive Text UGUI", I.PositiveTextUGUI);
 				I.NegativeTextUGUI = ObjectField("Negative Text UGUI", I.NegativeTextUGUI);
-				if (I.PositiveTextUGUI) I.PositiveText = TextField("Positive Text", I.PositiveText);
-				if (I.NegativeTextUGUI) I.NegativeText = TextField("Negative Text", I.NegativeText);
+				I.RestoreButton    = ObjectField("Restore Button",     I.RestoreButton);
 				Space();
 				LabelField("Toggle Event", EditorStyles.boldLabel);
+				I.Default = Toggle("Default", I.Default);
+				I.Value   = Toggle("Value",   I.Value);
+				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
 				Space();
@@ -57,20 +54,22 @@ public class CustomToggle : Selectable, IPointerClickHandler {
 
 	// Fields
 
-	[SerializeField] GameObject m_PositiveImage;
-	[SerializeField] GameObject m_NegativeImage;
+	[SerializeField] GameObject      m_PositiveImage;
+	[SerializeField] GameObject      m_NegativeImage;
 	[SerializeField] TextMeshProUGUI m_PositiveTextUGUI;
 	[SerializeField] TextMeshProUGUI m_NegativeTextUGUI;
+	[SerializeField] GameObject      m_RestoreButton;
 
-	[SerializeField] bool m_Value = true;
+	[SerializeField] bool m_Default = false;
+	[SerializeField] bool m_Value   = false;
 
-	[SerializeField] UnityEvent<CustomToggle> m_OnStateUpdated;
-	[SerializeField] UnityEvent<bool        > m_OnValueChanged;
+	[SerializeField] UnityEvent<CustomToggle> m_OnStateUpdated = new();
+	[SerializeField] UnityEvent<bool        > m_OnValueChanged = new();
 
 
 
 	// Properties
-	
+
 	public RectTransform Transform => transform as RectTransform;
 
 	GameObject PositiveImage {
@@ -81,17 +80,10 @@ public class CustomToggle : Selectable, IPointerClickHandler {
 		get => m_NegativeImage;
 		set => m_NegativeImage = value;
 	}
-
-	public bool Value {
-		get => m_Value;
-		set {
-			if (m_Value == value) return;
-			m_Value = value;
-			m_OnValueChanged.Invoke(m_Value);
-			Refresh();
-		}
+	GameObject RestoreButton {
+		get => m_RestoreButton;
+		set => m_RestoreButton = value;
 	}
-
 	TextMeshProUGUI PositiveTextUGUI {
 		get => m_PositiveTextUGUI;
 		set => m_PositiveTextUGUI = value;
@@ -100,13 +92,24 @@ public class CustomToggle : Selectable, IPointerClickHandler {
 		get => m_NegativeTextUGUI;
 		set => m_NegativeTextUGUI = value;
 	}
-	public string PositiveText {
-		get => PositiveTextUGUI.text;
-		set => PositiveTextUGUI.text = value;
+
+
+
+	public bool Default {
+		get => m_Default;
+		set {
+			if (Default == value) return;
+			Value = m_Default = value;
+		}
 	}
-	public string NegativeText {
-		get => NegativeTextUGUI.text;
-		set => NegativeTextUGUI.text = value;
+	public bool Value {
+		get => m_Value;
+		set {
+			if (m_Value == value) return;
+			m_Value = value;
+			OnValueChanged.Invoke(Value);
+			Refresh();
+		}
 	}
 
 	public UnityEvent<CustomToggle> OnStateUpdated => m_OnStateUpdated;
@@ -121,10 +124,19 @@ public class CustomToggle : Selectable, IPointerClickHandler {
 		if (NegativeImage) NegativeImage.SetActive(!Value);
 		if (PositiveTextUGUI) PositiveTextUGUI.gameObject.SetActive( Value);
 		if (NegativeTextUGUI) NegativeTextUGUI.gameObject.SetActive(!Value);
+		if (RestoreButton) {
+			RestoreButton.SetActive(Value != Default);
+		}
 		OnStateUpdated.Invoke(this);
 	}
 
+	public void Restore() {
+		Value = Default;
+	}
 
+
+
+	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable) Value = !Value;

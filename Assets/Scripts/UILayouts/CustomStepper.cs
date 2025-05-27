@@ -16,7 +16,7 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("UI/Custom Stepper")]
-public class CustomStepper : Selectable, IPointerClickHandler {
+public sealed class CustomStepper : Selectable, IPointerClickHandler {
 
 	// Editor
 
@@ -30,28 +30,27 @@ public class CustomStepper : Selectable, IPointerClickHandler {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Stepper UI", EditorStyles.boldLabel);
-				I.LeftArrow  = ObjectField("Left Arrow ", I.LeftArrow);
-				I.RightArrow = ObjectField("Right Arrow", I.RightArrow);
+				LabelField("Stepper Layout", EditorStyles.boldLabel);
+				I.LeftArrow     = ObjectField("Left Arrow ",    I.LeftArrow);
+				I.RightArrow    = ObjectField("Right Arrow",    I.RightArrow);
+				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 				Space();
-				LabelField("Stepper Value", EditorStyles.boldLabel);
-				PropertyField("m_TextArray");
-				I.Value = IntField("Value", I.Value);
-				I.Loop  = Toggle  ("Loop",  I.Loop);
-				Space();
-				LabelField("Stepper Text", EditorStyles.boldLabel);
-				I.TextMeshProUGUI = ObjectField("TMPro UGUI", I.TextMeshProUGUI);
-				if (I.TextMeshProUGUI) {
-					I.Text = TextField("Text", I.Text);
+				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
+				if (I.TextUGUI) {
 					BeginHorizontal();
 					PrefixLabel("Alignment");
-					if (Button("Left"  )) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Right;
+					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
+					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
+					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
 				LabelField("Stepper Event", EditorStyles.boldLabel);
+				PropertyField("m_Elements");
+				I.Loop    = Toggle  ("Loop",    I.Loop);
+				I.Default = IntField("Default", I.Default);
+				I.Value   = IntField("Value",   I.Value);
+				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
 				Space();
@@ -67,15 +66,17 @@ public class CustomStepper : Selectable, IPointerClickHandler {
 
 	[SerializeField] GameObject m_LeftArrow;
 	[SerializeField] GameObject m_RightArrow;
+	[SerializeField] GameObject m_RestoreButton;
 
-	[SerializeField] string[] m_TextArray = new string[] { "Prev", "Next", };
-	[SerializeField] int  m_Value = 0;
-	[SerializeField] bool m_Loop;
+	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
-	[SerializeField] TextMeshProUGUI m_TextMeshProUGUI;
+	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
+	[SerializeField] bool m_Loop    = false;
+	[SerializeField] int  m_Default = 0;
+	[SerializeField] int  m_Value   = 0;
 
-	[SerializeField] UnityEvent<CustomStepper> m_OnStateUpdated;
-	[SerializeField] UnityEvent<int          > m_OnValueChanged;
+	[SerializeField] UnityEvent<CustomStepper> m_OnStateUpdated = new();
+	[SerializeField] UnityEvent<int          > m_OnValueChanged = new();
 
 
 
@@ -91,23 +92,23 @@ public class CustomStepper : Selectable, IPointerClickHandler {
 		get => m_RightArrow;
 		set => m_RightArrow = value;
 	}
-
-	public string[] TextArray {
-		get => m_TextArray;
-		set {
-			m_TextArray = value;
-			Refresh();
-		}
+	GameObject RestoreButton {
+		get => m_RestoreButton;
+		set => m_RestoreButton = value;
 	}
-	public int Value {
-		get => m_Value;
+
+	public TextMeshProUGUI TextUGUI {
+		get => m_TextUGUI;
+		set => m_TextUGUI = value;
+	}
+
+
+
+	public string[] Elements {
+		get => m_Elements;
 		set {
-			if (Loop) value = (int)Mathf.Repeat(value, TextArray.Length);
-			else      value = Mathf.Clamp(value, 0, TextArray.Length - 1);
-			if (m_Value == value) return;
-			m_Value = value;
-			m_OnValueChanged.Invoke(m_Value);
-			Refresh();
+			m_Elements = value;
+			Default = Default;
 		}
 	}
 	public bool Loop {
@@ -117,16 +118,25 @@ public class CustomStepper : Selectable, IPointerClickHandler {
 			Refresh();
 		}
 	}
-
-
-
-	public TextMeshProUGUI TextMeshProUGUI {
-		get => m_TextMeshProUGUI;
-		set => m_TextMeshProUGUI = value;
+	public int Default {
+		get => m_Default;
+		set {
+			if (Loop) value = (int)Mathf.Repeat(value, Elements.Length);
+			else      value = Mathf.Clamp(value, 0, Elements.Length - 1);
+			if (Default == value) return;
+			Value = m_Default = value;
+		}
 	}
-	public string Text {
-		get => TextMeshProUGUI.text;
-		set => TextMeshProUGUI.text = value;
+	public int Value {
+		get => m_Value;
+		set {
+			if (Loop) value = (int)Mathf.Repeat(value, Elements.Length);
+			else      value = Mathf.Clamp(value, 0, Elements.Length - 1);
+			if (m_Value == value) return;
+			m_Value = value;
+			OnValueChanged.Invoke(Value);
+			Refresh();
+		}
 	}
 
 	public UnityEvent<CustomStepper> OnStateUpdated => m_OnStateUpdated;
@@ -138,20 +148,31 @@ public class CustomStepper : Selectable, IPointerClickHandler {
 
 	public void Refresh() {
 		if (LeftArrow ) LeftArrow .SetActive(Loop || 0 < Value);
-		if (RightArrow) RightArrow.SetActive(Loop || Value < TextArray.Length - 1);
-		if (TextMeshProUGUI) {
-			var match = TextArray != null && 0 < TextArray.Length;
-			TextMeshProUGUI.text = match ? TextArray[Value] : "Null";
+		if (RightArrow) RightArrow.SetActive(Loop || Value < Elements.Length - 1);
+		if (RestoreButton) {
+			RestoreButton.SetActive(Value != Default);
+		}
+		if (TextUGUI) {
+			var match = Elements != null && 0 < Elements.Length;
+			TextUGUI.text = match ? Elements[Value] : "Null";
 		}
 		OnStateUpdated.Invoke(this);
 	}
 
+	public void Restore() {
+		Value = Default;
+	}
 
+
+
+	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable) {
 			var point = Transform.InverseTransformPoint(eventData.position);
-			Value += (0 <= point.x && (point.x < Transform.rect.width / 3)) ? -1 : 1;
+			point.x -= Transform.anchoredPosition.x;
+			point.y -= Transform.anchoredPosition.y;
+			Value += (0f <= point.x && (point.x < Transform.rect.width * 0.5f)) ? -1 : 1;
 		}
 	}
 

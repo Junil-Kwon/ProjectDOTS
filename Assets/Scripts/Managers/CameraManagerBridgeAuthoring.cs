@@ -41,14 +41,6 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 			Entity entity = GetEntity(TransformUsageFlags.None);
 			AddComponent(entity, new CameraManagerBridge {
 
-				Position         = CameraManager.Position,
-				Rotation         = CameraManager.Rotation,
-				Constraints      = CameraManager.Constraints,
-				FocusDistance    = CameraManager.FocusDistance,
-				FieldOfView      = CameraManager.FieldOfView,
-				OrthographicSize = CameraManager.OrthographicSize,
-				Projection       = CameraManager.Projection,
-
 			});
 		}
 	}
@@ -122,7 +114,13 @@ public partial class CameraBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			prev.Position         = CameraManager.Position;
+			prev.Rotation         = CameraManager.Rotation;
+			prev.Constraints      = CameraManager.Constraints;
+			prev.FocusDistance    = CameraManager.FocusDistance;
+			prev.FieldOfView      = CameraManager.FieldOfView;
+			prev.OrthographicSize = CameraManager.OrthographicSize;
+			prev.Projection       = CameraManager.Projection;
 		}
 		var next = bridge.ValueRO;
 

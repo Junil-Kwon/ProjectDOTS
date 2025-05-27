@@ -87,7 +87,7 @@ public partial class GameManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			// prev.
 		}
 		var next = bridge.ValueRO;
 

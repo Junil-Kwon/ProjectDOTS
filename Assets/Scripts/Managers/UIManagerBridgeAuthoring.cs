@@ -83,7 +83,7 @@ public partial class UIManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<UIManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			prev.
 		}
 		var next = bridge.ValueRO;
 

@@ -104,7 +104,7 @@ public partial class InputManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<InputManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			// prev.
 		}
 		var next = bridge.ValueRO;
 

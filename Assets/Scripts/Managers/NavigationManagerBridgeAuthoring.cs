@@ -88,7 +88,7 @@ public partial class NavigationManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<NavigationManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			prev.
 		}
 		var next = bridge.ValueRO;
 

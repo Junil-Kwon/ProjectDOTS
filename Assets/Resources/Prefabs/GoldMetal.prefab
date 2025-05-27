@@ -16,8 +16,8 @@ GameObject:
   - component: {fileID: 3532901235315166235}
   - component: {fileID: 4294225871712326046}
   - component: {fileID: 4480612405488540148}
-  - component: {fileID: -7861454348752911660}
-  - component: {fileID: 7482425126708199684}
+  - component: {fileID: -6991413745174742203}
+  - component: {fileID: -3527675526885025486}
   m_Layer: 0
   m_Name: GoldMetal
   m_TagString: Untagged
@@ -321,7 +321,7 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!33 &-7861454348752911660
+--- !u!33 &-6991413745174742203
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,7 +329,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 362312251402167067}
   m_Mesh: {fileID: 4300000, guid: 04756aa99e4587e429e0bc844a8532aa, type: 2}
---- !u!23 &7482425126708199684
+--- !u!23 &-3527675526885025486
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

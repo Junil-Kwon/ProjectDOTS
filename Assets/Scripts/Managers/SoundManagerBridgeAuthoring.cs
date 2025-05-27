@@ -81,7 +81,7 @@ public partial class SoundManagerBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<SoundManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev = bridge.ValueRO;
+			prev.
 		}
 		var next = bridge.ValueRO;
 

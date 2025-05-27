@@ -16,7 +16,7 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("UI/Custom Button")]
-public class CustomButton : Selectable, IPointerClickHandler {
+public sealed class CustomButton : Selectable, IPointerClickHandler {
 
 	// Editor
 
@@ -30,15 +30,14 @@ public class CustomButton : Selectable, IPointerClickHandler {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Button Text", EditorStyles.boldLabel);
-				I.TextMeshProUGUI = ObjectField("TMPro UGUI", I.TextMeshProUGUI);
-				if (I.TextMeshProUGUI) {
+				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
+				if (I.TextUGUI) {
 					I.Text = TextField("Text", I.Text);
 					BeginHorizontal();
 					PrefixLabel("Alignment");
-					if (Button("Left"  )) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextMeshProUGUI.alignment = TextAlignmentOptions.Right;
+					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
+					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
+					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
@@ -56,10 +55,10 @@ public class CustomButton : Selectable, IPointerClickHandler {
 
 	// Fields
 
-	[SerializeField] TextMeshProUGUI m_TextMeshProUGUI;
+	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
-	[SerializeField] UnityEvent<CustomButton> m_OnStateUpdated;
-	[SerializeField] UnityEvent m_OnClick;
+	[SerializeField] UnityEvent<CustomButton> m_OnStateUpdated = new();
+	[SerializeField] UnityEvent m_OnClick = new();
 
 
 
@@ -67,13 +66,13 @@ public class CustomButton : Selectable, IPointerClickHandler {
 
 	public RectTransform Transform => transform as RectTransform;
 
-	TextMeshProUGUI TextMeshProUGUI {
-		get => m_TextMeshProUGUI;
-		set => m_TextMeshProUGUI = value;
+	TextMeshProUGUI TextUGUI {
+		get => m_TextUGUI;
+		set => m_TextUGUI = value;
 	}
 	public string Text {
-		get => TextMeshProUGUI.text;
-		set => TextMeshProUGUI.text = value;
+		get => TextUGUI.text;
+		set => TextUGUI.text = value;
 	}
 
 	public UnityEvent<CustomButton> OnStateUpdated => m_OnStateUpdated;
@@ -88,6 +87,8 @@ public class CustomButton : Selectable, IPointerClickHandler {
 	}
 
 
+
+	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable) OnClick.Invoke();
