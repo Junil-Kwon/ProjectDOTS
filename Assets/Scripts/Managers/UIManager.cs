@@ -28,7 +28,11 @@ public class UIManager : MonoSingleton<UIManager> {
 			UIManager I => target as UIManager;
 			public override void OnInspectorGUI() {
 				Begin("UI Manager");
-				
+
+				LabelField("Main Canvas", MainCanvas ? MainCanvas.name : "None");
+				LabelField("Overlay Canvas");
+				foreach (var canvas in OverlayCanvas) LabelField(" ", canvas.name);
+
 				End();
 			}
 		}
@@ -120,6 +124,8 @@ public class UIManager : MonoSingleton<UIManager> {
 	}
 	static Queue<BaseCanvas> OverlayCanvas => Instance.m_OverlayCanvas;
 
+	public static bool IsUIActive => MainCanvas != GameCanvas || 0 < OverlayCanvas.Count;
+
 
 
 	// Methods
@@ -136,7 +142,7 @@ public class UIManager : MonoSingleton<UIManager> {
 	public static void Back() {
 		if (!OverlayCanvas.TryPeek(out var canvas)) switch (MainCanvas) {
 			case global::TitleCanvas:
-				ShowConfirmationScreen("Are you sure you want to quit?");
+				//ShowConfirmationScreen("Are you sure you want to quit?");
 				// ConfirmationCanvas.PositiveResponse.AddListener(GameManager.Quit);
 				break;
 			case global::GameCanvas:
@@ -194,4 +200,12 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	public static void FadeIn () { }
 	public static void FadeOut() { }
+
+
+
+	// Lifecycle
+
+	void Update() {
+		if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
+	}
 }

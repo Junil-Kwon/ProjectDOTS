@@ -114,13 +114,14 @@ public partial class CameraBridgeSystem : SystemBase {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
 		if (initialized == false) {
 			initialized = true;
-			prev.Position         = CameraManager.Position;
-			prev.Rotation         = CameraManager.Rotation;
-			prev.Constraints      = CameraManager.Constraints;
-			prev.FocusDistance    = CameraManager.FocusDistance;
-			prev.FieldOfView      = CameraManager.FieldOfView;
-			prev.OrthographicSize = CameraManager.OrthographicSize;
-			prev.Projection       = CameraManager.Projection;
+			bridge.ValueRW.Position         = CameraManager.Position;
+			bridge.ValueRW.Rotation         = CameraManager.Rotation;
+			bridge.ValueRW.Constraints      = CameraManager.Constraints;
+			bridge.ValueRW.FocusDistance    = CameraManager.FocusDistance;
+			bridge.ValueRW.FieldOfView      = CameraManager.FieldOfView;
+			bridge.ValueRW.OrthographicSize = CameraManager.OrthographicSize;
+			bridge.ValueRW.Projection       = CameraManager.Projection;
+			prev = bridge.ValueRO;
 		}
 		var next = bridge.ValueRO;
 

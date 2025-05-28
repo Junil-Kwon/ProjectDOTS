@@ -30,6 +30,7 @@ public enum KeyAction : byte {
 	Ability3,
 	Ping,
 	Emotion,
+	Menu,
 
 	Point,
 	Click,
@@ -147,7 +148,7 @@ public class InputManager : MonoSingleton<InputManager> {
 				if (!Enum.TryParse(inputAction.name, out KeyAction keyAction)) continue;
 
 				int index = (int)keyAction;
-				Action<InputAction.CallbackContext> action = (KeyAction)index switch {
+				inputAction.performed += (KeyAction)index switch {
 					KeyAction.Look        => callback => LookDirection = callback.ReadValue<Vector2>(),
 					KeyAction.Move        => callback => MoveDirection = callback.ReadValue<Vector2>(),
 					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
@@ -157,7 +158,8 @@ public class InputManager : MonoSingleton<InputManager> {
 						KeyNext = flag ? (KeyNext | (1u << index)) : (KeyNext & ~(1u << index));
 					},
 				};
-				inputAction.performed += action;
+				inputAction.started  += callback => KeyNext |=  (1u << index);
+				inputAction.canceled += callback => KeyNext &= ~(1u << index);
 			}
 		}
 	}

@@ -172,8 +172,11 @@ public class GameManager : MonoSingleton<GameManager> {
 			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 			GameState = GameState.Paused;
 			UIManager.Initialize();
+			UIManager.ShowTitleScreen();
 		} else {
 			GameState = GameState.Gameplay;
+			UIManager.Initialize();
+			UIManager.ShowGameScreen();
 		}
 	}
 
@@ -193,7 +196,20 @@ public class GameManager : MonoSingleton<GameManager> {
 
 
 	void Update() {
-		SimulateEvents();
+		switch (GameState) {
+			case GameState.Gameplay:
+				SimulateEvents();
+				if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) {
+					GameState = GameState.Paused;
+					UIManager.Back();
+				}
+				break;
+			case GameState.Paused:
+				if (!UIManager.IsUIActive) {
+					GameState = GameState.Gameplay;
+				}
+				break;
+		}
 	}
 }
 
