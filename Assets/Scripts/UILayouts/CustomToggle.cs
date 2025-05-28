@@ -139,12 +139,13 @@ public sealed class CustomToggle : Selectable, IPointerClickHandler {
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
-		if (interactable) Value = !Value;
+		if (interactable) {
+			Value = !Value;
+		}
 	}
 
 	public void OnSubmit() {
 		if (interactable) {
-			DoStateTransition(SelectionState.Pressed, false);
 			Value = !Value;
 		}
 	}
@@ -153,7 +154,6 @@ public sealed class CustomToggle : Selectable, IPointerClickHandler {
 		if (interactable) switch (eventData.moveDir) {
 			case MoveDirection.Left:
 			case MoveDirection.Right:
-				DoStateTransition(SelectionState.Pressed, false);
 				Value = !Value;
 				return;
 		}

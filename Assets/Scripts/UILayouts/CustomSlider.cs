@@ -201,29 +201,24 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable && !eventData.dragging) {
-			var point = Transform.InverseTransformPoint(eventData.position);
-			point.x -= Transform.anchoredPosition.x;
-			point.y -= Transform.anchoredPosition.y;
-			var x = HandleRect.anchoredPosition.x + HandleRect.rect.width * 0.5f;
-			if (point.x < x - HandleRect.rect.width * 0.25f) Value -= Step;
-			if (x + HandleRect.rect.width * 0.25f < point.x) Value += Step;
+			var point = HandleRect.InverseTransformPoint(eventData.position);
+			point.x -= HandleRect.rect.width * 0.5f;
+			if (point.x < HandleRect.rect.width * -0.25f) Value -= Step;
+			if (HandleRect.rect.width * +0.25f < point.x) Value += Step;
 		}
 	}
 
 	public void OnDrag(PointerEventData eventData) {
 		if (interactable) {
-			var point = Transform.InverseTransformPoint(eventData.position);
-			point.x -= Transform.anchoredPosition.x;
-			point.y -= Transform.anchoredPosition.y;
+			var point = BodyRect.InverseTransformPoint(eventData.position);
 			var a = 0f                  + HandleRect.rect.width * 0.5f;
 			var b = BodyRect.rect.width - HandleRect.rect.width * 0.5f;
-			Value = Mathf.Lerp(MinValue, MaxValue, Mathf.InverseLerp(a, b, point.x));
+			Value = MinValue + (MaxValue - MinValue) * Mathf.InverseLerp(a, b, point.x);
 		}
 	}
 
 	public void OnSubmit() {
 		if (interactable) {
-			DoStateTransition(SelectionState.Pressed, false);
 			Value += Step;
 		}
 	}
@@ -232,7 +227,6 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 		if (interactable) switch (eventData.moveDir) {
 			case MoveDirection.Left:
 			case MoveDirection.Right:
-				DoStateTransition(SelectionState.Pressed, false);
 				var flag = eventData.moveDir == MoveDirection.Left;
 				Value += flag ? -Step : Step;
 				return;

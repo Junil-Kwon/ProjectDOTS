@@ -16,7 +16,7 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("UI/Custom Stepper")]
-public sealed class CustomStepper : Selectable, IPointerClickHandler {
+public sealed class CustomStepper : Selectable, IPointerClickHandler, ISubmitHandler {
 
 	// Editor
 
@@ -31,6 +31,7 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler {
 				base.OnInspectorGUI();
 				Space();
 				LabelField("Stepper Layout", EditorStyles.boldLabel);
+				I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
 				I.LeftArrow     = ObjectField("Left Arrow ",    I.LeftArrow);
 				I.RightArrow    = ObjectField("Right Arrow",    I.RightArrow);
 				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
@@ -64,9 +65,10 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler {
 
 	// Fields
 
-	[SerializeField] GameObject m_LeftArrow;
-	[SerializeField] GameObject m_RightArrow;
-	[SerializeField] GameObject m_RestoreButton;
+	[SerializeField] RectTransform m_BodyRect;
+	[SerializeField] GameObject    m_LeftArrow;
+	[SerializeField] GameObject    m_RightArrow;
+	[SerializeField] GameObject    m_RestoreButton;
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
@@ -84,6 +86,10 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler {
 
 	public RectTransform Transform => transform as RectTransform;
 
+	RectTransform BodyRect {
+		get => m_BodyRect;
+		set => m_BodyRect = value;
+	}
 	GameObject LeftArrow {
 		get => m_LeftArrow;
 		set => m_LeftArrow = value;
@@ -169,16 +175,13 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler {
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable) {
-			var point = Transform.InverseTransformPoint(eventData.position);
-			point.x -= Transform.anchoredPosition.x;
-			point.y -= Transform.anchoredPosition.y;
-			Value += (0f <= point.x && (point.x < Transform.rect.width * 0.5f)) ? -1 : 1;
+			var point = BodyRect.InverseTransformPoint(eventData.position);
+			Value += (0f < point.x && point.x < BodyRect.rect.width * 0.5f) ? 1 : -1;
 		}
 	}
 
-	public void OnSubmit() {
+	public void OnSubmit(BaseEventData eventData) {
 		if (interactable) {
-			DoStateTransition(SelectionState.Pressed, false);
 			Value += 1;
 		}
 	}
@@ -187,7 +190,6 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler {
 		if (interactable) switch (eventData.moveDir) {
 			case MoveDirection.Left:
 			case MoveDirection.Right:
-				DoStateTransition(SelectionState.Pressed, false);
 				var flag = eventData.moveDir == MoveDirection.Left;
 				Value += flag ? -1 : 1;
 				return;

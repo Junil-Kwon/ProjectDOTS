@@ -16,7 +16,7 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("UI/Custom Button")]
-public sealed class CustomButton : Selectable, IPointerClickHandler {
+public sealed class CustomButton : Selectable, IPointerClickHandler, ISubmitHandler {
 
 	// Editor
 
@@ -91,14 +91,25 @@ public sealed class CustomButton : Selectable, IPointerClickHandler {
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
-		if (interactable) OnClick.Invoke();
-	}
-
-	public void OnSubmit() {
 		if (interactable) {
-			DoStateTransition(SelectionState.Pressed, false);
 			OnClick.Invoke();
 		}
+	}
+
+	public void OnSubmit(BaseEventData eventData) {
+		if (interactable) {
+			OnClick.Invoke();
+		}
+	}
+
+	public override void OnMove(AxisEventData eventData) {
+		if (interactable) switch (eventData.moveDir) {
+			case MoveDirection.Left:
+			case MoveDirection.Right:
+				OnClick.Invoke();
+				return;
+		}
+		base.OnMove(eventData);
 	}
 
 

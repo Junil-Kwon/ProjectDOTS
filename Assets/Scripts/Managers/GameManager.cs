@@ -87,7 +87,9 @@ public class GameManager : MonoSingleton<GameManager> {
 		set {
 			var flag = StartDirectly != value;
 			Instance.m_StartDirectly  = value;
-			if (flag) CompilationPipeline.RequestScriptCompilation();
+			#if UNITY_EDITOR
+				if (flag) CompilationPipeline.RequestScriptCompilation();
+			#endif
 		}
 	}
 
