@@ -84,7 +84,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 
 
-	// Definitions
+	// Constants
 
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
@@ -103,10 +103,12 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 			this.serverData = serverData;
 			this.clientData = clientData;
 		}
-		public void CreateServerDriver(World world, ref NetworkDriverStore driver, NetDebug debug)
-			=> DefaultDriverBuilder.RegisterServerDriver(world, ref driver, debug, ref serverData);
-		public void CreateClientDriver(World world, ref NetworkDriverStore driver, NetDebug debug)
-			=> DefaultDriverBuilder.RegisterClientDriver(world, ref driver, debug, ref clientData);
+		public void CreateServerDriver(World world, ref NetworkDriverStore driver, NetDebug debug) {
+			DefaultDriverBuilder.RegisterServerDriver(world, ref driver, debug, ref serverData);
+		}
+		public void CreateClientDriver(World world, ref NetworkDriverStore driver, NetDebug debug) {
+			DefaultDriverBuilder.RegisterClientDriver(world, ref driver, debug, ref clientData);
+		}
 	}
 
 

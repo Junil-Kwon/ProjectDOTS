@@ -42,6 +42,50 @@ MonoBehaviour:
     m_Localized: Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 131843698610176
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132213476839424
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132419584937984
+    m_Localized: Full Screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132499314462720
+    m_Localized: Screen Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132586371436544
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132631976103936
+    m_Localized: Sound FX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132746954559488
+    m_Localized: Mouse Sensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132884800360448
+    m_Localized: General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132967201656832
+    m_Localized: Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 133056485806080
+    m_Localized: Advanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 135187141906432
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -92,7 +92,6 @@ public class GameManager : MonoSingleton<GameManager> {
 			#endif
 		}
 	}
-
 	public static GameState GameState {
 		get => Instance.m_GameState;
 		private set {
@@ -106,7 +105,6 @@ public class GameManager : MonoSingleton<GameManager> {
 			}, value != GameState.Paused);
 		}
 	}
-
 	public static List<CreatureCore> Players => Instance.m_Players;
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
@@ -151,14 +149,6 @@ public class GameManager : MonoSingleton<GameManager> {
 		}
 	}
 
-	public static void Quit() {
-		#if UNITY_EDITOR
-			EditorApplication.isPlaying = false;
-		#else
-			Application.Quit();
-		#endif
-	}
-
 
 
 	// Lifecycle
@@ -172,11 +162,11 @@ public class GameManager : MonoSingleton<GameManager> {
 			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 			GameState = GameState.Paused;
 			UIManager.Initialize();
-			UIManager.ShowTitleScreen();
+			UIManager.ShowTitle();
 		} else {
 			GameState = GameState.Gameplay;
 			UIManager.Initialize();
-			UIManager.ShowGameScreen();
+			UIManager.ShowGame();
 		}
 	}
 

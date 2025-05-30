@@ -275,10 +275,10 @@ public class CreatureAuthoring : MonoBehaviour {
 		set => m_Tag = value;
 	}
 	public bool GetTag(Tag tag) => (Tag & (1u << (int)tag)) != 0u;
-	public void SetTag(Tag tag, bool value) {
-		if (value) Tag |= (byte) (1 << (int)tag);
-		else       Tag &= (byte)~(1 << (int)tag);
-	}
+	public void SetTag(Tag tag, bool value) => Tag = value switch {
+		true  => (byte)(Tag |  (1 << (int)tag)),
+		false => (byte)(Tag & ~(1 << (int)tag)),
+	};
 	public bool HasTag   (Tag tag) => GetTag(tag);
 	public void AddTag   (Tag tag) => SetTag(tag, true);
 	public void RemoveTag(Tag tag) => SetTag(tag, false);
@@ -329,16 +329,18 @@ public class CreatureAuthoring : MonoBehaviour {
 
 				switch ((Flag)i) {
 					case global::Flag.Pinned:
-						if (TryGetComponent(out PhysicsBodyAuthoring body)) {
-							if (b) body.Mass = CreaturePhysics.PinnedMass;
-							else   body.Mass = CreaturePhysics.InitialMass;
+						if (TryGetComponent(out PhysicsBodyAuthoring body)) body.Mass = b switch {
+							true  => CreaturePhysics.PinnedMass,
+							false => CreaturePhysics.InitialMass,
 						};
 						break;
 					case global::Flag.Piercing:
 						foreach (var shape in GetComponents<PhysicsShapeAuthoring>()) {
 							var collidesWith = shape.CollidesWith;
-							if (b) collidesWith.Value &= ~(1u << (int)PhysicsCategory.Creature);
-							else   collidesWith.Value |=  (1u << (int)PhysicsCategory.Creature);
+							collidesWith.Value = b switch {
+								true  => collidesWith.Value & ~(1u << (int)PhysicsCategory.Creature),
+								false => collidesWith.Value |  (1u << (int)PhysicsCategory.Creature),
+							};
 							shape.CollidesWith = collidesWith;
 						}
 						break;
@@ -348,9 +350,10 @@ public class CreatureAuthoring : MonoBehaviour {
 		}
 	}
 	public bool GetFlag(Flag flag) => (Flag & (1u << (int)flag)) != 0u;
-	public void SetFlag(Flag flag, bool value) {
-		Flag = value ? (Flag | (1u << (int)flag)) : (Flag & ~(1u << (int)flag));
-	}
+	public void SetFlag(Flag flag, bool value) => Flag = value switch {
+		true  => Flag |  (1u << (int)flag),
+		false => Flag & ~(1u << (int)flag),
+	};
 	public bool HasFlag   (Flag flag) => GetFlag(flag);
 	public void AddFlag   (Flag flag) => SetFlag(flag, true);
 	public void RemoveFlag(Flag flag) => SetFlag(flag, false);
@@ -360,9 +363,10 @@ public class CreatureAuthoring : MonoBehaviour {
 		set => m_Team = value;
 	}
 	public bool GetTeam(Team team) => (Team & (1u << (int)team)) != 0u;
-	public void SetTeam(Team team, bool value) {
-		Team = value ? (Team | (1u << (int)team)) : (Team & ~(1u << (int)team));
-	}
+	public void SetTeam(Team team, bool value) => Team = value switch {
+		true  => Team |  (1u << (int)team),
+		false => Team & ~(1u << (int)team),
+	};
 	public bool HasTeam   (Team team) => GetTeam(team);
 	public void AddTeam   (Team team) => SetTeam(team, true);
 	public void RemoveTeam(Team team) => SetTeam(team, false);
@@ -432,10 +436,10 @@ public class CreatureAuthoring : MonoBehaviour {
 			AddComponent(entity, creatureStatus);
 			AddBuffer<CreatureEffect>(entity);
 
-			bool hasTileDrawer   = authoring.TryGetComponent(out TileDrawerAuthoring   tileDrawer  );
+			bool hasTileDrawer   = authoring.TryGetComponent(out TileDrawerAuthoring   tileDrawer);
 			bool hasSpriteDrawer = authoring.TryGetComponent(out SpriteDrawerAuthoring spriteDrawer);
 			bool hasShadowDrawer = authoring.TryGetComponent(out ShadowDrawerAuthoring shadowDrawer);
-			bool hasUIDrawer     = authoring.TryGetComponent(out UIDrawerAuthoring     uiDrawer    );
+			bool hasUIDrawer     = authoring.TryGetComponent(out UIDrawerAuthoring     uiDrawer);
 			if (!hasTileDrawer   || !tileDrawer  .enabled) AddBuffer<TileDrawer  >(entity);
 			if (!hasSpriteDrawer || !spriteDrawer.enabled) AddBuffer<SpriteDrawer>(entity);
 			if (!hasShadowDrawer || !shadowDrawer.enabled) AddBuffer<ShadowDrawer>(entity);
@@ -517,8 +521,10 @@ public static class CreatureInputExtensions {
 		return (input.GetKey() & (1 << (int)key)) != 0;
 	}
 	public static void SetKey(this ref CreatureInput input, KeyAction key, bool value) {
-		if (value) input.SetKey(input.GetKey() |  (1u << (int)key));
-		else       input.SetKey(input.GetKey() & ~(1u << (int)key));
+		input.SetKey(value switch {
+			true  => input.GetKey() |  (1u << (int)key),
+			false => input.GetKey() & ~(1u << (int)key),
+		});
 	}
 
 	public static float GetMoveFactor(this in CreatureInput input) {
@@ -593,8 +599,10 @@ public static class CreatureBlobAssetExtensions {
 		return (data.Tag & (1 << (int)tag)) != 0;
 	}
 	public static void SetTag(this ref CreatureBlobData data, Tag tag, bool value) {
-		if (value) data.Tag |= (byte) (1 << (int)tag);
-		else       data.Tag &= (byte)~(1 << (int)tag);
+		data.Tag = value switch {
+			true  => (byte)(data.Tag |  (1u << (int)tag)),
+			false => (byte)(data.Tag & ~(1u << (int)tag)),
+		};
 	}
 	public static bool HasTag   (this in  CreatureBlobData data, Tag tag) => data.GetTag(tag);
 	public static void AddTag   (this ref CreatureBlobData data, Tag tag) => data.SetTag(tag, true);
@@ -747,8 +755,10 @@ public static class CreatureCoreExtensions {
 		return (core.GetFlag() & (1u << (int)flag)) != 0u;
 	}
 	public static void SetFlag(this ref CreatureCore core, Flag flag, bool value) {
-		if (value) core.SetFlag(core.GetFlag() |  (1u << (int)flag));
-		else       core.SetFlag(core.GetFlag() & ~(1u << (int)flag));
+		core.SetFlag(value switch {
+			true  => core.GetFlag() |  (1u << (int)flag),
+			false => core.GetFlag() & ~(1u << (int)flag),
+		});
 	}
 	public static bool HasFlag   (this in  CreatureCore core, Flag flag) => core.GetFlag(flag);
 	public static void AddFlag   (this ref CreatureCore core, Flag flag) => core.SetFlag(flag, true);
@@ -764,8 +774,10 @@ public static class CreatureCoreExtensions {
 		return (core.GetTeam() & (1u << (int)team)) != 0u;
 	}
 	public static void SetTeam(this ref CreatureCore core, Team team, bool value) {
-		if (value) core.SetTeam(core.GetTeam() |  (1u << (int)team));
-		else       core.SetTeam(core.GetTeam() & ~(1u << (int)team));
+		core.SetTeam(value switch {
+			true  => core.GetTeam() |  (1u << (int)team),
+			false => core.GetTeam() & ~(1u << (int)team),
+		});
 	}
 	public static bool HasTeam   (this in  CreatureCore core, Team team) => core.GetTeam(team);
 	public static void AddTeam   (this ref CreatureCore core, Team team) => core.SetTeam(team, true);
@@ -928,8 +940,10 @@ public static class CreatureTempExtensions {
 		return (temp.GetFlag() & (1u << (int)flag)) != 0u;
 	}
 	public static void SetFlag(this ref CreatureTemp temp, Flag flag, bool value) {
-		if (value) temp.SetFlag(temp.GetFlag() |  (1u << (int)flag));
-		else       temp.SetFlag(temp.GetFlag() & ~(1u << (int)flag));
+		temp.SetFlag(value switch {
+			true  => temp.GetFlag() |  (1u << (int)flag),
+			false => temp.GetFlag() & ~(1u << (int)flag),
+		});
 	}
 	public static bool HasFlag   (this in  CreatureTemp temp, Flag flag) => temp.GetFlag(flag);
 	public static void AddFlag   (this ref CreatureTemp temp, Flag flag) => temp.SetFlag(flag, true);
@@ -945,8 +959,10 @@ public static class CreatureTempExtensions {
 		return (temp.GetTeam() & (1u << (int)team)) != 0u;
 	}
 	public static void SetTeam(this ref CreatureTemp temp, Team team, bool value) {
-		if (value) temp.SetTeam(temp.GetTeam() |  (1u << (int)team));
-		else       temp.SetTeam(temp.GetTeam() & ~(1u << (int)team));
+		temp.SetTeam(value switch {
+			true  => temp.GetTeam() |  (1u << (int)team),
+			false => temp.GetTeam() & ~(1u << (int)team),
+		});
 	}
 	public static bool HasTeam   (this in  CreatureTemp temp, Team team) => temp.GetTeam(team);
 	public static void AddTeam   (this ref CreatureTemp temp, Team team) => temp.SetTeam(team, true);
@@ -1041,7 +1057,7 @@ public static class CreatureEffectBufferExtensions {
 	public static void AddEffect(
 		this DynamicBuffer<CreatureEffect> buffer, in CreatureBlob blob, Effect effect,
 		float strength, float duration, float maxStrength = 0f, float maxDuration = 0f) {
-		var multiplier = math.max(0f, 1f - blob.Value.Value.GetImmunity(effect).ToValue());
+		float multiplier = math.max(0f, 1f - blob.Value.Value.GetImmunity(effect).ToValue());
 		if (multiplier == 0f) return;
 		strength *= multiplier;
 		duration *= effect.IsValueType() ? 1f : multiplier;
@@ -1118,7 +1134,7 @@ partial struct CreatureInitializationSystem : ISystem {
 			in CreatureTemp temp,
 			EnabledRefRW<CreatureInitialize> initialize) {
 
-			var match = false;
+			bool match = false;
 			if      (temp.Head != core.Head) match = true;
 			else if (temp.Body != core.Body) match = true;
 			else if (temp.Team != core.Team) match = true;

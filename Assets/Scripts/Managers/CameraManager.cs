@@ -261,7 +261,7 @@ public partial class CameraManagerSystem : SystemBase {
 
 			var delta = (Vector3)point - CameraManager.Position;
 			CameraManager.Position += 5f * SystemAPI.Time.DeltaTime * delta;
-			CameraManager.Yaw += InputManager.LookDirection.x * 0.3f;
+			CameraManager.Yaw += InputManager.LookDirection.x * InputManager.MouseSensitivity;
 			break;
 		}
 	}

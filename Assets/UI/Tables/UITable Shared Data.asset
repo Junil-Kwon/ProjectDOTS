@@ -24,23 +24,67 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5770654666752
-    m_Key: Achievements
+    m_Key: Menu_Achievements
     m_Metadata:
       m_Items: []
   - m_Id: 146046865408
-    m_Key: Settings
+    m_Key: Menu_Settings
     m_Metadata:
       m_Items: []
   - m_Id: 450565918720
-    m_Key: Return to Lobby
+    m_Key: Menu_ReturnToLobby
     m_Metadata:
       m_Items: []
   - m_Id: 299419979776
-    m_Key: Quit Game
+    m_Key: Menu_QuitGame
     m_Metadata:
       m_Items: []
   - m_Id: 3591474663424
-    m_Key: Back
+    m_Key: Menu_Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 131843698610176
+    m_Key: Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132884800360448
+    m_Key: Settings_General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132213476839424
+    m_Key: Settings_Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132419584937984
+    m_Key: Settings_FullScreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132499314462720
+    m_Key: Settings_ScreenResolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132586371436544
+    m_Key: Settings_Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132631976103936
+    m_Key: Settings_SoundFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132967201656832
+    m_Key: Settings_Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 132746954559488
+    m_Key: Settings_MouseSensitivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 133056485806080
+    m_Key: Settings_Advanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 135187141906432
+    m_Key: Settings_Back
     m_Metadata:
       m_Items: []
   m_Metadata:

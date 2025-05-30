@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -34,12 +35,32 @@ public class ConfirmationCanvas : BaseCanvas {
 
 	// Fields
 
+	readonly UnityEvent m_PositiveResponse = new();
+	readonly UnityEvent m_NegativeResponse = new();
+
 
 
 	// Properties
+
+	public UnityEvent PositiveResponse => m_PositiveResponse;
+	public UnityEvent NegativeResponse => m_NegativeResponse;
 
 
 
 	// Methods
 
+	public override void Show() {
+		base.Show();
+		PositiveResponse.RemoveAllListeners();
+		NegativeResponse.RemoveAllListeners();
+	}
+
+	public void OnPositiveResponse() {
+		PositiveResponse.Invoke();
+		UIManager.Back();
+	}
+	public void OnNegativeResponse() {
+		NegativeResponse.Invoke();
+		UIManager.Back();
+	}
 }

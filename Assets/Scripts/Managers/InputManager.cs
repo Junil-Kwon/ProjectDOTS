@@ -66,6 +66,11 @@ public class InputManager : MonoSingleton<InputManager> {
 				if (!InputActionAsset) {
 					HelpBox("No input action asset found.");
 					Space();
+				} else {
+					LabelField("Key Bindings", EditorStyles.boldLabel);
+					const string label = "Mouse Sensitivity";
+					DefaultMouseSensitivity = Slider(label, DefaultMouseSensitivity, 0.0f, 5.0f);
+					Space();
 				}
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
@@ -81,10 +86,19 @@ public class InputManager : MonoSingleton<InputManager> {
 
 
 
+	// Constants
+
+	const string MouseSensitivityKey = "MouseSensitivity";
+
+
+
 	// Fields
 
 	PlayerInput m_PlayerInput;
 
+	[SerializeField] float m_DefaultMouseSensitivity = 0.2f;
+
+	float m_MouseSensitivity;
 	uint m_KeyNext;
 	uint m_KeyPrev;
 	Vector2 m_LookDirection;
@@ -98,13 +112,30 @@ public class InputManager : MonoSingleton<InputManager> {
 
 	// Properties
 
-	static PlayerInput PlayerInput
-		=> Instance.m_PlayerInput || Instance.TryGetComponent(out Instance.m_PlayerInput)
-		?  Instance.m_PlayerInput :  null;
-
+	static PlayerInput PlayerInput {
+		get {
+			if (!Instance.m_PlayerInput) Instance.TryGetComponent(out Instance.m_PlayerInput);
+			return Instance.m_PlayerInput;
+		}
+	}
 	static InputActionAsset InputActionAsset => PlayerInput.actions;
 
 
+
+	static float DefaultMouseSensitivity {
+		get => Instance.m_DefaultMouseSensitivity;
+		set => Instance.m_DefaultMouseSensitivity = value;
+	}
+	public static float MouseSensitivity {
+		get {
+			if (Instance.m_MouseSensitivity == default) {
+				float defaultValue = DefaultMouseSensitivity;
+				Instance.m_MouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityKey, defaultValue);
+			}
+			return Instance.m_MouseSensitivity;
+		}
+		set => PlayerPrefs.SetFloat(MouseSensitivityKey, Instance.m_MouseSensitivity = value);
+	}
 
 	public static uint KeyNext {
 		get         => Instance.m_KeyNext;
@@ -130,7 +161,6 @@ public class InputManager : MonoSingleton<InputManager> {
 		get         => Instance.m_ScrollWheel;
 		private set => Instance.m_ScrollWheel = value;
 	}
-
 	public static string KeyPressed {
 		get         => Instance.m_KeyPressed;
 		private set => Instance.m_KeyPressed = value;
