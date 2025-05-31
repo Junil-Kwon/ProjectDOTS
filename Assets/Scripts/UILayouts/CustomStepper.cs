@@ -115,6 +115,8 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler, ISubmitHan
 		set {
 			m_Elements = value;
 			Default = Default;
+			Value = Value;
+			Refresh();
 		}
 	}
 	public bool Loop {
@@ -127,21 +129,28 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler, ISubmitHan
 	public int Default {
 		get => m_Default;
 		set {
-			if (Loop) value = (int)Mathf.Repeat(value, Elements.Length);
-			else      value = Mathf.Clamp(value, 0, Elements.Length - 1);
-			if (Default == value) return;
-			Value = m_Default = value;
+			value = Loop switch {
+				true  => (int)Mathf.Repeat(value, Elements.Length),
+				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+			};
+			if (m_Default != value) {
+				m_Default = value;
+				Value = value;
+			}
 		}
 	}
 	public int Value {
 		get => m_Value;
 		set {
-			if (Loop) value = (int)Mathf.Repeat(value, Elements.Length);
-			else      value = Mathf.Clamp(value, 0, Elements.Length - 1);
-			if (m_Value == value) return;
-			m_Value = value;
-			OnValueChanged.Invoke(Value);
-			Refresh();
+			value = Loop switch {
+				true  => (int)Mathf.Repeat(value, Elements.Length),
+				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+			};
+			if (m_Value != value) {
+				m_Value = value;
+				OnValueChanged.Invoke(value);
+				Refresh();
+			}
 		}
 	}
 
@@ -160,7 +169,7 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler, ISubmitHan
 		}
 		if (TextUGUI) {
 			var match = Elements != null && 0 < Elements.Length;
-			TextUGUI.text = match ? Elements[Value] : "Null";
+			TextUGUI.text = match ? Elements[Value] : string.Empty;
 		}
 		OnStateUpdated.Invoke(this);
 	}
@@ -184,17 +193,6 @@ public sealed class CustomStepper : Selectable, IPointerClickHandler, ISubmitHan
 		if (interactable) {
 			Value += 1;
 		}
-	}
-
-	public override void OnMove(AxisEventData eventData) {
-		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:
-			case MoveDirection.Right:
-				var flag = eventData.moveDir == MoveDirection.Left;
-				Value += flag ? -1 : 1;
-				return;
-		}
-		base.OnMove(eventData);
 	}
 
 

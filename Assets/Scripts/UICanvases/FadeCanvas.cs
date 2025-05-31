@@ -21,25 +21,10 @@ public class FadeCanvas : BaseCanvas {
 			FadeCanvas I => target as FadeCanvas;
 			public override void OnInspectorGUI() {
 				Begin("Fade Canvas");
-				
-				LabelField("", EditorStyles.boldLabel);
-				Space();
 
 				End();
 			}
 		}
 	#endif
-
-
-
-	// Fields
-
-
-
-	// Properties
-
-
-
-	// Methods
 
 }

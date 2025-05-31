@@ -21,25 +21,10 @@ public class DialogueCanvas : BaseCanvas {
 			DialogueCanvas I => target as DialogueCanvas;
 			public override void OnInspectorGUI() {
 				Begin("Dialogue Canvas");
-				
-				LabelField("", EditorStyles.boldLabel);
-				Space();
 
 				End();
 			}
 		}
 	#endif
-
-
-
-	// Fields
-
-
-
-	// Properties
-
-
-
-	// Methods
 
 }

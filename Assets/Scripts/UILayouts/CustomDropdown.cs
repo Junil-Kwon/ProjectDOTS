@@ -85,7 +85,7 @@ public sealed class CustomDropdown : TMP_Dropdown, IUpdateSelectedHandler {
 
 	// Properties
 
-	public RectTransform Transform => transform as RectTransform;
+	RectTransform Transform => transform as RectTransform;
 
 	RectTransform Template {
 		get => template;
@@ -111,7 +111,6 @@ public sealed class CustomDropdown : TMP_Dropdown, IUpdateSelectedHandler {
 	
 
 
-
 	public string[] Elements {
 		get => m_Elements;
 		set {
@@ -119,24 +118,29 @@ public sealed class CustomDropdown : TMP_Dropdown, IUpdateSelectedHandler {
 			options.Clear();
 			foreach (var element in value) options.Add(new OptionData(element));
 			Default = Default;
+			Value = Value;
+			Refresh();
 		}
 	}
 	public int Default {
 		get => m_Default;
 		set {
-			value = Mathf.Clamp(value, 0, Elements.Length - 1);
-			if (Default == value) return;
-			Value = m_Default = value;
+			value = Mathf.Max(0, Mathf.Min(value, Elements.Length - 1));
+			if (m_Default != value) {
+				m_Default = value;
+				Value = value;
+			}
 		}
 	}
 	public int Value {
 		get => value;
 		set {
-			value = Mathf.Clamp(value, 0, Elements.Length - 1);
-			if (Value == value) return;
-			this.value = value;
-			OnValueChanged.Invoke(Value);
-			Refresh();
+			value = Mathf.Max(0, Mathf.Min(value, Elements.Length - 1));
+			if (this.value != value) {
+				this.value = value;
+				OnValueChanged.Invoke(value);
+				Refresh();
+			}
 		}
 	}
 

@@ -68,7 +68,7 @@ MonoBehaviour:
   m_text: 50 %
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
-  m_sharedMaterial: {fileID: -3174364987692675752, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
+  m_sharedMaterial: {fileID: 4179389832121334825, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 3563117759699070500}
   - component: {fileID: 4185804680456807161}
   m_Layer: 5
-  m_Name: Background
+  m_Name: Highlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

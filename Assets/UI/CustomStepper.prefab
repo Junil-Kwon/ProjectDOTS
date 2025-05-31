@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 5873380076760518166}
   - component: {fileID: 5315563140411812255}
   m_Layer: 5
-  m_Name: Background
+  m_Name: Highlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -286,7 +286,7 @@ GameObject:
   - component: {fileID: 5241679845742822375}
   - component: {fileID: 5225108296991489176}
   m_Layer: 5
-  m_Name: Right Arrow
+  m_Name: RightArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: cd39e6b84a8a52d4b8e2f8404a514d26, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -492,7 +492,7 @@ MonoBehaviour:
   m_text: Option 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
-  m_sharedMaterial: {fileID: -3174364987692675752, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
+  m_sharedMaterial: {fileID: 4179389832121334825, guid: 8ba8819bd7c44c0429c1607561fd9bcf, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -572,7 +572,7 @@ GameObject:
   - component: {fileID: 6199088707821314613}
   - component: {fileID: 2081186613744217843}
   m_Layer: 5
-  m_Name: Left Arrow
+  m_Name: LeftArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -626,7 +626,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 7dee9a6c8f401ee479dde24f825fe8f0, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

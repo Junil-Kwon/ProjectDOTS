@@ -98,17 +98,20 @@ public sealed class CustomToggle : Selectable, IPointerClickHandler {
 	public bool Default {
 		get => m_Default;
 		set {
-			if (Default == value) return;
-			Value = m_Default = value;
+			if (m_Default != value) {
+				m_Default = value;
+				Value = value;
+			}
 		}
 	}
 	public bool Value {
 		get => m_Value;
 		set {
-			if (m_Value == value) return;
-			m_Value = value;
-			OnValueChanged.Invoke(Value);
-			Refresh();
+			if (m_Value != value) {
+				m_Value = value;
+				OnValueChanged.Invoke(value);
+				Refresh();
+			}
 		}
 	}
 
@@ -148,16 +151,6 @@ public sealed class CustomToggle : Selectable, IPointerClickHandler {
 		if (interactable) {
 			Value = !Value;
 		}
-	}
-
-	public override void OnMove(AxisEventData eventData) {
-		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:
-			case MoveDirection.Right:
-				Value = !Value;
-				return;
-		}
-		base.OnMove(eventData);
 	}
 
 

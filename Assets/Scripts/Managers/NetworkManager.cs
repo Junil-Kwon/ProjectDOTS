@@ -89,8 +89,8 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
 
-	const int RelayMaxPlayer = 5;
-	const int LocalMaxPlayer = 5;
+	const int RelayMaxPlayer = 16;
+	const int LocalMaxPlayer = 64;
 	const float ConnectionTimeOut = 8f;
 
 
@@ -180,10 +180,10 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 	// Relay Connection Methods
 
-	public static void CreateRelayHost(int maxPlayer = RelayMaxPlayer) {
-		_ = CreateRelayHostAsync(maxPlayer);
+	public static void CreateRelayHost(int maxPlayers) {
+		_ = CreateRelayHostAsync(maxPlayers);
 	}
-	public static async Task CreateRelayHostAsync(int maxPlayer = RelayMaxPlayer) {
+	public static async Task CreateRelayHostAsync(int maxPlayer) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
@@ -272,14 +272,14 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 
 	// Local Connection Methods
 
-	public static void CreateLocalHost(ushort port = 7979, int maxPlayer = LocalMaxPlayer) {
-		_ = CreateLocalHostAsync(port, maxPlayer);
+	public static void CreateLocalHost(ushort port, int maxPlayers) {
+		_ = CreateLocalHostAsync(port, maxPlayers);
 	}
-	public static async Task CreateLocalHostAsync(ushort port = 7979, int maxPlayer = LocalMaxPlayer) {
+	public static async Task CreateLocalHostAsync(ushort port, int maxPlayers) {
 		if (NetworkState == NetworkState.Ready) {
 
 			NetworkState = NetworkState.SceneLoading;
-			MaxPlayer = Mathf.Max(maxPlayer, LocalMaxPlayer);
+			MaxPlayer = Mathf.Max(maxPlayers, LocalMaxPlayer);
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
 			DestroyLocalSimulationWorld();
@@ -300,10 +300,10 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		}
 	}
 
-	public static void JoinLocalServer(string address = "127.0.0.1", ushort port = 7979) {
+	public static void JoinLocalServer(string address, ushort port) {
 		_ = JoinLocalServerAsync(address, port);
 	}
-	public static async Task JoinLocalServerAsync(string address = "127.0.0.1", ushort port = 7979) {
+	public static async Task JoinLocalServerAsync(string address, ushort port) {
 		if (NetworkState == NetworkState.Ready) {
 
 			NetworkState = NetworkState.SceneLoading;

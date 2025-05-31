@@ -64,7 +64,7 @@ public sealed class CustomButton : Selectable, IPointerClickHandler, ISubmitHand
 
 	// Properties
 
-	public RectTransform Transform => transform as RectTransform;
+	RectTransform Transform => transform as RectTransform;
 
 	TextMeshProUGUI TextUGUI {
 		get => m_TextUGUI;
@@ -100,16 +100,6 @@ public sealed class CustomButton : Selectable, IPointerClickHandler, ISubmitHand
 		if (interactable) {
 			OnClick.Invoke();
 		}
-	}
-
-	public override void OnMove(AxisEventData eventData) {
-		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:
-			case MoveDirection.Right:
-				OnClick.Invoke();
-				return;
-		}
-		base.OnMove(eventData);
 	}
 
 

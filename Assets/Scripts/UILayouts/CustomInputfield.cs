@@ -32,17 +32,21 @@ public sealed class CustomInputfield : TMP_InputField {
 				Space();
 				LabelField("Inputfield Layout", EditorStyles.boldLabel);
 				I.AreaRect      = ObjectField("Area Rect",      I.AreaRect);
+				I.HideToggle    = ObjectField("Hide Toggle",    I.HideToggle);
 				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 				Space();
 				LabelField("Inputfield Event", EditorStyles.boldLabel);
-				I.TextType       = EnumField ("Text Type",       I.TextType);
-				I.CharacterLimit = IntField  ("Character Limit", I.CharacterLimit);
-				I.SelectionColor = ColorField("Selection Color", I.SelectionColor);
+				I.contentType = ContentType.Custom;
+				I.CharValidation = EnumField("Char Validation", I.CharValidation);
+				if (I.CharValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
+				I.CharLimit = IntField("Char Limit", I.CharLimit);
+				I.MaskValue = Toggle  ("Mask Value", I.MaskValue);
 				Space();
 				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
 				if (I.TextUGUI) {
-					I.Default = TextField("Default", I.Default);
-					I.Value   = TextField("Value",   I.Value);
+					I.Default        = TextField ("Default",         I.Default);
+					I.Value          = TextField ("Value",           I.Value);
+					I.SelectionColor = ColorField("Selection Color", I.SelectionColor);
 					BeginHorizontal();
 					PrefixLabel("Alignment");
 					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
@@ -75,9 +79,8 @@ public sealed class CustomInputfield : TMP_InputField {
 
 	// Fields
 
-	[SerializeField] GameObject m_RestoreButton;
-
-	[SerializeField] TextMeshProUGUI m_TMProUGUI;
+	[SerializeField] CustomToggle m_HideToggle;
+	[SerializeField] GameObject   m_RestoreButton;
 
 	[SerializeField] string m_Default = "";
 
@@ -87,55 +90,71 @@ public sealed class CustomInputfield : TMP_InputField {
 
 	// Properties
 
-	public RectTransform Transform => transform as RectTransform;
+	RectTransform Transform => transform as RectTransform;
 
 	RectTransform AreaRect {
 		get => m_TextViewport;
 		set => m_TextViewport = value;
+	}
+	CustomToggle HideToggle {
+		get => m_HideToggle;
+		set => m_HideToggle = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
 		set => m_RestoreButton = value;
 	}
 
-	public TextMeshProUGUI TextUGUI {
+	TextMeshProUGUI TextUGUI {
 		get => m_TextComponent as TextMeshProUGUI;
 		set => m_TextComponent = value;
 	}
-	public TextMeshProUGUI PlaceHolderUGUI {
+	TextMeshProUGUI PlaceHolderUGUI {
 		get => m_Placeholder as TextMeshProUGUI;
 		set => m_Placeholder = value;
 	}
 
 
 
-	public ContentType TextType {
-		get => contentType;
-		set => contentType = value;
+	public CharacterValidation CharValidation {
+		get => characterValidation;
+		set => characterValidation = value;
 	}
-	public int CharacterLimit {
+	public int CharLimit {
 		get => characterLimit;
 		set => characterLimit = value;
 	}
-	public Color SelectionColor {
-		get => selectionColor;
-		set => selectionColor = value;
+	public bool MaskValue {
+		get => inputType == InputType.Password;
+		set {
+			if (MaskValue != value) {
+				inputType = value ? InputType.Password : InputType.Standard;
+				UpdateLabel();
+			}
+		}
 	}
 
 	public string Default {
 		get => m_Default;
 		set {
-			if (m_Default == value) return;
-			Value = m_Default = value;
+			if (m_Default != value) {
+				m_Default = value;
+				Value = value;
+			}
 		}
 	}
 	public string Value {
 		get => text;
 		set {
-			if (text == value) return;
-			text = value;
-			Refresh();
+			if (text != value) {
+				text = value;
+				Refresh();
+			}
 		}
+	}
+	Color SelectionColor {
+		get => selectionColor;
+		set => selectionColor = value;
 	}
 	public string PlaceHolder {
 		get => PlaceHolderUGUI.text;
@@ -151,6 +170,7 @@ public sealed class CustomInputfield : TMP_InputField {
 	// Methods
 
 	public void Refresh() {
+		if (HideToggle) HideToggle.Value = MaskValue;
 		if (RestoreButton) {
 			RestoreButton.SetActive(Value != Default);
 		}

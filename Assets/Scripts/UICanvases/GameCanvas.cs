@@ -43,8 +43,6 @@ public class GameCanvas : BaseCanvas {
 
 	// Properties
 
-	public override bool IsOverlay => false;
-
 	GameObject PlayerStatus {
 		get => m_PlayerStatus;
 		set => m_PlayerStatus = value;

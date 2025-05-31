@@ -8,12 +8,6 @@ using UnityEngine;
 
 public abstract class BaseCanvas : MonoBehaviour {
 
-	// Properties
-
-	public virtual bool IsOverlay => true;
-
-
-
 	// Methods
 
 	public virtual void Show() => gameObject.SetActive(true);

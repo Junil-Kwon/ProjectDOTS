@@ -1,14 +1,9 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
-using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Collections;
-using Unity.Burst;
-using Unity.NetCode;
 
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -35,11 +30,24 @@ public class UIManager : MonoSingleton<UIManager> {
 				LabelField("Canvas", EditorStyles.boldLabel);
 				if (!TitleCanvas       ) HelpBox("No title canvas found.");
 				if (!GameCanvas        ) HelpBox("No game canvas found.");
+				if (!MultiplayerCanvas ) HelpBox("No multiplayer canvas found.");
 				if (!DialogueCanvas    ) HelpBox("No dialogue canvas found.");
 				if (!MenuCanvas        ) HelpBox("No menu canvas found.");
+				if (!AchievementCanvas ) HelpBox("No achievement canvas found.");
 				if (!SettingsCanvas    ) HelpBox("No settings canvas found.");
 				if (!ConfirmationCanvas) HelpBox("No confirmation canvas found.");
+				if (!AlertCanvas	   ) HelpBox("No alert canvas found.");
 				if (!FadeCanvas        ) HelpBox("No fade canvas found.");
+				PropertyField("m_FirstTitleSelected");
+				PropertyField("m_FirstGameSelected");
+				PropertyField("m_FirstMultiplayerSelected");
+				PropertyField("m_FirstDialogueSelected");
+				PropertyField("m_FirstMenuSelected");
+				PropertyField("m_FirstAchievementSelected");
+				PropertyField("m_FirstSettingsSelected");
+				PropertyField("m_FirstConfirmationSelected");
+				PropertyField("m_FirstAlertSelected");
+				PropertyField("m_FirstFadeSelected");
 				Space();
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
@@ -59,7 +67,17 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	// Constants
 
+	public const string LocalizationTable = "UITable";
+
 	const string LanguageKey = "Language";
+
+	public static readonly Vector2Int[] ScreenResolution = new Vector2Int[] {
+		new( 640,  360),
+		new(1280,  720),
+		new(1920, 1080),
+		new(2560, 1440),
+		new(3840, 2160),
+	};
 
 
 
@@ -69,14 +87,41 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	TitleCanvas        m_TitleCanvas;
 	GameCanvas         m_GameCanvas;
+	MultiplayerCanvas  m_MultiplayerCanvas;
 	DialogueCanvas     m_DialogueCanvas;
 	MenuCanvas         m_MenuCanvas;
+	AchievementCanvas  m_AchievementCanvas;
 	SettingsCanvas     m_SettingsCanvas;
 	ConfirmationCanvas m_ConfirmationCanvas;
+	AlertCanvas        m_AlertCanvas;
 	FadeCanvas         m_FadeCanvas;
 
 	BaseCanvas m_MainCanvas;
 	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
+
+	[SerializeField] Selectable m_FirstTitleSelected;
+	[SerializeField] Selectable m_FirstGameSelected;
+	[SerializeField] Selectable m_FirstMultiplayerSelected;
+	[SerializeField] Selectable m_FirstDialogueSelected;
+	[SerializeField] Selectable m_FirstMenuSelected;
+	[SerializeField] Selectable m_FirstAchievementSelected;
+	[SerializeField] Selectable m_FirstSettingsSelected;
+	[SerializeField] Selectable m_FirstConfirmationSelected;
+	[SerializeField] Selectable m_FirstAlertSelected;
+	[SerializeField] Selectable m_FirstFadeSelected;
+
+	Selectable m_LastTitleSelected;
+	Selectable m_LastGameSelected;
+	Selectable m_LastMultiplayerSelected;
+	Selectable m_LastDialogueSelected;
+	Selectable m_LastMenuSelected;
+	Selectable m_LastAchievementSelected;
+	Selectable m_LastSettingsSelected;
+	Selectable m_LastConfirmationSelected;
+	Selectable m_LastAlertSelected;
+	Selectable m_LastFadeSelected;
+
+	readonly UnityEvent m_BackEvent = new();
 
 
 
@@ -90,10 +135,9 @@ public class UIManager : MonoSingleton<UIManager> {
 			if (string.IsNullOrEmpty(Instance.m_Language)) {
 				string systemLanguage = Application.systemLanguage.ToString();
 				foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
-					var name = locale.Identifier.CultureInfo.EnglishName;
-					if (Regex.Replace(name, "[ \\(\\)]", "").Equals(systemLanguage)) {
+					var englishName = locale.Identifier.CultureInfo.EnglishName;
+					if (Regex.Replace(englishName, "[ \\(\\)]", "").Equals(systemLanguage)) {
 						Instance.m_Language = locale.Identifier.CultureInfo.NativeName;
-						LocalizationSettings.SelectedLocale = locale;
 						break;
 					}
 				}
@@ -131,6 +175,14 @@ public class UIManager : MonoSingleton<UIManager> {
 			return Instance.m_GameCanvas;
 		}
 	}
+	static MultiplayerCanvas MultiplayerCanvas {
+		get {
+			if (!Instance.m_MultiplayerCanvas) for (int i = 0; i < Transform.childCount; i++) {
+				if (Transform.GetChild(i).TryGetComponent(out Instance.m_MultiplayerCanvas)) break;
+			}
+			return Instance.m_MultiplayerCanvas;
+		}
+	}
 	static DialogueCanvas DialogueCanvas {
 		get {
 			if (!Instance.m_DialogueCanvas) for (int i = 0; i < Transform.childCount; i++) {
@@ -147,6 +199,14 @@ public class UIManager : MonoSingleton<UIManager> {
 			return Instance.m_MenuCanvas;
 		}
 	}
+	static AchievementCanvas AchievementCanvas {
+		get {
+			if (!Instance.m_AchievementCanvas) for (int i = 0; i < Transform.childCount; i++) {
+				if (Transform.GetChild(i).TryGetComponent(out Instance.m_AchievementCanvas)) break;
+			}
+			return Instance.m_AchievementCanvas;
+		}
+	}
 	static SettingsCanvas SettingsCanvas {
 		get {
 			if (!Instance.m_SettingsCanvas) for (int i = 0; i < Transform.childCount; i++) {
@@ -161,6 +221,14 @@ public class UIManager : MonoSingleton<UIManager> {
 				if (Transform.GetChild(i).TryGetComponent(out Instance.m_ConfirmationCanvas)) break;
 			}
 			return Instance.m_ConfirmationCanvas;
+		}
+	}
+	static AlertCanvas AlertCanvas {
+		get {
+			if (!Instance.m_AlertCanvas) for (int i = 0; i < Transform.childCount; i++) {
+				if (Transform.GetChild(i).TryGetComponent(out Instance.m_AlertCanvas)) break;
+			}
+			return Instance.m_AlertCanvas;
 		}
 	}
 	static FadeCanvas FadeCanvas {
@@ -182,38 +250,137 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	public static bool IsUIActive => MainCanvas != GameCanvas || 0 < OverlayCanvas.Count;
 
+	public static UnityEvent BackEvent => Instance.m_BackEvent;
+
+
+
+	Selectable FirstTitleSelected {
+		get => Instance.m_FirstTitleSelected;
+		set => Instance.m_FirstTitleSelected = value;
+	}
+	Selectable FirstGameSelected {
+		get => Instance.m_FirstGameSelected;
+		set => Instance.m_FirstGameSelected = value;
+	}
+	Selectable FirstMultiplayerSelected {
+		get => Instance.m_FirstMultiplayerSelected;
+		set => Instance.m_FirstMultiplayerSelected = value;
+	}
+	Selectable FirstDialogueSelected {
+		get => Instance.m_FirstDialogueSelected;
+		set => Instance.m_FirstDialogueSelected = value;
+	}
+	Selectable FirstMenuSelected {
+		get => Instance.m_FirstMenuSelected;
+		set => Instance.m_FirstMenuSelected = value;
+	}
+	Selectable FirstAchievementSelected {
+		get => Instance.m_FirstAchievementSelected;
+		set => Instance.m_FirstAchievementSelected = value;
+	}
+	Selectable FirstSettingsSelected {
+		get => Instance.m_FirstSettingsSelected;
+		set => Instance.m_FirstSettingsSelected = value;
+	}
+	Selectable FirstConfirmationSelected {
+		get => Instance.m_FirstConfirmationSelected;
+		set => Instance.m_FirstConfirmationSelected = value;
+	}
+	Selectable FirstAlertSelected {
+		get => Instance.m_FirstAlertSelected;
+		set => Instance.m_FirstAlertSelected = value;
+	}
+	Selectable FirstFadeSelected {
+		get => Instance.m_FirstFadeSelected;
+		set => Instance.m_FirstFadeSelected = value;
+	}
+
+	Selectable LastTitleSelected {
+		get => Instance.m_LastTitleSelected;
+		set => Instance.m_LastTitleSelected = value;
+	}
+	Selectable LastGameSelected {
+		get => Instance.m_LastGameSelected;
+		set => Instance.m_LastGameSelected = value;
+	}
+	Selectable LastMultiplayerSelected {
+		get => Instance.m_LastMultiplayerSelected;
+		set => Instance.m_LastMultiplayerSelected = value;
+	}
+	Selectable LastDialogueSelected {
+		get => Instance.m_LastDialogueSelected;
+		set => Instance.m_LastDialogueSelected = value;
+	}
+	Selectable LastMenuSelected {
+		get => Instance.m_LastMenuSelected;
+		set => Instance.m_LastMenuSelected = value;
+	}
+	Selectable LastAchievementSelected {
+		get => Instance.m_LastAchievementSelected;
+		set => Instance.m_LastAchievementSelected = value;
+	}
+	Selectable LastSettingsSelected {
+		get => Instance.m_LastSettingsSelected;
+		set => Instance.m_LastSettingsSelected = value;
+	}
+	Selectable LastConfirmationSelected {
+		get => Instance.m_LastConfirmationSelected;
+		set => Instance.m_LastConfirmationSelected = value;
+	}
+	Selectable LastAlertSelected {
+		get => Instance.m_LastAlertSelected;
+		set => Instance.m_LastAlertSelected = value;
+	}
+	Selectable LastFadeSelected {
+		get => Instance.m_LastFadeSelected;
+		set => Instance.m_LastFadeSelected = value;
+	}
+
 
 
 	// Methods
 
 	public static void Initialize() {
-		TitleCanvas       .Hide();
-		GameCanvas        .Hide();
-		DialogueCanvas    .Hide();
-		MenuCanvas        .Hide();
-		SettingsCanvas    .Hide();
+		TitleCanvas.Hide();
+		GameCanvas.Hide();
+		MultiplayerCanvas.Hide();
+		DialogueCanvas.Hide();
+		MenuCanvas.Hide();
+		AchievementCanvas.Hide();
+		SettingsCanvas.Hide();
 		ConfirmationCanvas.Hide();
-		FadeCanvas        .Hide();
+		AlertCanvas.Hide();
+		FadeCanvas.Hide();
 	}
 
 	public static void Back() {
-		if (!OverlayCanvas.TryPeek(out var canvas)) switch (MainCanvas) {
-			case global::TitleCanvas:
-				ConfirmQuit();
-				break;
-			case global::GameCanvas:
-				ShowMenu();
-				break;
-		} else switch (canvas) {
-			case global::DialogueCanvas:
-				ShowMenu();
-				break;
-			default:
+		if (!OverlayCanvas.TryPeek(out var canvas)) {
+			switch (MainCanvas) {
+				case global::TitleCanvas:
+					ConfirmQuitGame();
+					break;
+				case global::GameCanvas:
+					ShowMenu();
+					break;
+			}
+		} else {
+			bool flag = true;
+			switch (canvas) {
+				case global::ConfirmationCanvas:
+					ConfirmationCanvas.CancelEvent.Invoke();
+					break;
+				case global::AlertCanvas:
+					AlertCanvas.CloseEvent.Invoke();
+					break;
+			}
+			if (flag) {
 				OverlayCanvas.Pop();
 				canvas.Hide();
 				if (OverlayCanvas.TryPeek(out canvas)) canvas.Show();
-				break;
+			}
 		}
+		BackEvent.Invoke();
+		BackEvent.RemoveAllListeners();
 	}
 
 
@@ -233,9 +400,13 @@ public class UIManager : MonoSingleton<UIManager> {
 		mainCanvas.Show();
 	}
 
-	public static void ShowDialogue() => ShowOverlayCanvas(DialogueCanvas);
-	public static void ShowMenu    () => ShowOverlayCanvas(MenuCanvas);
-	public static void ShowSettings() => ShowOverlayCanvas(SettingsCanvas);
+	public static void ShowMultiplayer () => ShowOverlayCanvas(MultiplayerCanvas);
+	public static void ShowDialogue    () => ShowOverlayCanvas(DialogueCanvas);
+	public static void ShowMenu        () => ShowOverlayCanvas(MenuCanvas);
+	public static void ShowAchievement () => ShowOverlayCanvas(AchievementCanvas);
+	public static void ShowSettings    () => ShowOverlayCanvas(SettingsCanvas);
+	public static void ShowConfirmation() => ShowOverlayCanvas(ConfirmationCanvas);
+	public static void ShowAlert       () => ShowOverlayCanvas(AlertCanvas);
 
 	static void ShowOverlayCanvas(BaseCanvas overlayCanvas) {
 		if (OverlayCanvas.TryPeek(out var canvas)) {
@@ -251,19 +422,53 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	// Confirmation Canvas Methods
 
-	public static void ShowConfirmation(string message) {
-		ShowOverlayCanvas(ConfirmationCanvas);
+	public static UnityEvent GetConfirmEvent() => ConfirmationCanvas.ConfirmEvent;
+	public static UnityEvent GetCancelEvent () => ConfirmationCanvas.CancelEvent;
+
+	public static void ConfirmReturnToLobby() {
+		ShowConfirmation();
+		ConfirmationCanvas.HeaderKey  = "Confirmation_ReturnToLobbyHeader";
+		ConfirmationCanvas.ContentKey = "Confirmation_ReturnToLobbyContent";
+		ConfirmationCanvas.ConfirmKey = "Confirmation_ReturnToLobbyConfirm";
+		ConfirmationCanvas.CancelKey  = "Confirmation_ReturnToLobbyCancel";
+		ConfirmationCanvas.ConfirmEvent.AddListener(() => {});
 	}
 
-	public static void ConfirmQuit() {
-		var action = default(UnityAction);
+	public static void ConfirmQuitGame() {
+		ShowConfirmation();
+		ConfirmationCanvas.HeaderKey  = "Confirmation_QuitGameHeader";
+		ConfirmationCanvas.ContentKey = "Confirmation_QuitGameContent";
+		ConfirmationCanvas.ConfirmKey = "Confirmation_QuitGameConfirm";
+		ConfirmationCanvas.CancelKey  = "Confirmation_QuitGameCancel";
 		#if UNITY_EDITOR
-			action = () => EditorApplication.isPlaying = false;
+			ConfirmationCanvas.ConfirmEvent.AddListener(() => EditorApplication.isPlaying = false);
 		#else
-			action = Application.Quit();
+			ConfirmationCanvas.ConfirmEvent.AddListener(() => Application.Quit());
 		#endif
-		ShowConfirmation("Are you sure you want to quit?");
-		ConfirmationCanvas.PositiveResponse.AddListener(action);
+	}
+
+	public static void ConfirmResetAllData() {
+		ShowConfirmation();
+		ConfirmationCanvas.HeaderKey  = "Confirmation_ResetAllDataHeader";
+		ConfirmationCanvas.ContentKey = "Confirmation_ResetAllDataContent";
+		ConfirmationCanvas.ConfirmKey = "Confirmation_ResetAllDataConfirm";
+		ConfirmationCanvas.CancelKey  = "Confirmation_ResetAllDataCancel";
+	}
+
+
+
+	// Alert Canvas Methods
+
+	public static void AlertServerConnectionLost() {
+		ShowAlert();
+		AlertCanvas.ContentKey = "Alert_ServerConnectionLostContent";
+		AlertCanvas.CloseKey   = "Alert_ServerConnectionLostClose";
+	}
+
+	public static void AlertAllDataReset() {
+		ShowAlert();
+		AlertCanvas.ContentKey = "Alert_AllDataResetContent";
+		AlertCanvas.CloseKey   = "Alert_AllDataResetClose";
 	}
 
 
@@ -278,7 +483,12 @@ public class UIManager : MonoSingleton<UIManager> {
 	// Lifecycle
 
 	void Awake() {
-		_ = Language;
+		foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
+			if (locale.Identifier.CultureInfo.NativeName.Equals(Language)) {
+				LocalizationSettings.SelectedLocale = locale;
+				break;
+			}
+		}
 	}
 
 	void Update() {

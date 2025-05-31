@@ -51,9 +51,10 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 				LabelField("Slider Event", EditorStyles.boldLabel);
 				I.MinValue = FloatField("Min Value", I.MinValue);
 				I.MaxValue = FloatField("Max Value", I.MaxValue);
-				I.Step     = Slider("Step",    I.Step,    I.MinValue, I.MaxValue);
+				I.Step     = Slider("Step",    I.Step,    0f,         I.MaxValue - I.MinValue);
 				I.Default  = Slider("Default", I.Default, I.MinValue, I.MaxValue);
 				I.Value    = Slider("Value",   I.Value,   I.MinValue, I.MaxValue);
+				I.Integer  = Toggle("Integer", I.Integer);
 				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
@@ -81,6 +82,7 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 	[SerializeField] float m_Step     = 0.10f;
 	[SerializeField] float m_Default  = 0.50f;
 	[SerializeField] float m_Value    = 0.50f;
+	[SerializeField] bool  m_Integer  = false;
 
 	[SerializeField] UnityEvent<CustomSlider> m_OnStateUpdated = new();
 	[SerializeField] UnityEvent<float       > m_OnValueChanged = new();
@@ -133,6 +135,8 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 		set {
 			m_MinValue = Mathf.Min(value, MaxValue);
 			Default = Default;
+			Value = Value;
+			Refresh();
 		}
 	}
 	public float MaxValue {
@@ -140,6 +144,8 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 		set {
 			m_MaxValue = Mathf.Max(value, MinValue);
 			Default = Default;
+			Value = Value;
+			Refresh();
 		}
 	}
 	public float Step {
@@ -150,19 +156,39 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 	public float Default {
 		get => m_Default;
 		set {
-			value = Mathf.Clamp(value, MinValue, MaxValue);
-			if (Default == value) return;
-			Value = m_Default = value;
+			value = Integer switch {
+				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
+				false => Mathf.Clamp(value, MinValue, MaxValue),
+			};
+			if (m_Default != value) {
+				m_Default = value;
+				Value = value;
+			}
 		}
 	}
 	public float Value {
 		get => m_Value;
 		set {
-			value = Mathf.Clamp(value, MinValue, MaxValue);
-			if (Value == value) return;
-			m_Value = value;
-			OnValueChanged.Invoke(Value);
-			Refresh();
+			value = Integer switch {
+				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
+				false => Mathf.Clamp(value, MinValue, MaxValue),
+			};
+			if (m_Value != value) {
+				m_Value = value;
+				OnValueChanged.Invoke(value);
+				Refresh();
+			}
+		}
+	}
+	public bool Integer {
+		get => m_Integer;
+		set {
+			if (m_Integer != value) {
+				m_Integer = value;
+				Default = Default;
+				Value = Value;
+				Refresh();
+			}
 		}
 	}
 
@@ -174,6 +200,7 @@ public sealed class CustomSlider : Selectable, IPointerClickHandler, IDragHandle
 	// Methods
 
 	public void Refresh() {
+		if (Integer) Value = Mathf.Round(Value);
 		if (BodyRect && HandleRect) {
 			if (FillRect) {
 				var sizeDelta = FillRect.sizeDelta;

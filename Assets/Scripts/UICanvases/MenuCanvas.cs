@@ -21,25 +21,10 @@ public class MenuCanvas : BaseCanvas {
 			MenuCanvas I => target as MenuCanvas;
 			public override void OnInspectorGUI() {
 				Begin("Menu Canvas");
-				
-				LabelField("", EditorStyles.boldLabel);
-				Space();
 
 				End();
 			}
 		}
 	#endif
-
-
-
-	// Fields
-
-
-
-	// Properties
-
-
-
-	// Methods
 
 }

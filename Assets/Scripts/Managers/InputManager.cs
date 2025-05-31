@@ -69,7 +69,7 @@ public class InputManager : MonoSingleton<InputManager> {
 				} else {
 					LabelField("Key Bindings", EditorStyles.boldLabel);
 					const string label = "Mouse Sensitivity";
-					DefaultMouseSensitivity = Slider(label, DefaultMouseSensitivity, 0.0f, 5.0f);
+					DefaultMouseSensitivity = Slider(label, DefaultMouseSensitivity, 0.1f, 5.0f);
 					Space();
 				}
 				LabelField("Debug", EditorStyles.boldLabel);
@@ -206,6 +206,12 @@ public class InputManager : MonoSingleton<InputManager> {
 	public static void SwitchActionMap(ActionMap actionMap, bool hideCursor = false) {
 		if (InputActionAsset == null) return;
 		PlayerInput.currentActionMap = InputActionAsset.FindActionMap(actionMap.ToString());
+		KeyNext = 0u;
+		KeyPrev = 0u;
+		LookDirection = Vector2.zero;
+		MoveDirection = Vector2.zero;
+		PointPosition = Vector2.zero;
+		ScrollWheel   = Vector2.zero;
 		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
 		Cursor.visible = !hideCursor;
 	}

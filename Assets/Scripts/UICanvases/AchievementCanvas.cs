@@ -7,24 +7,32 @@ using UnityEngine;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Title Canvas
+// Achievement Canvas
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Title Canvas")]
-public class TitleCanvas : BaseCanvas {
+[AddComponentMenu("UI/Achievement Canvas")]
+public class AchievementCanvas : BaseCanvas {
 
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(TitleCanvas))]
-		class TitleCanvasEditor : EditorExtensions {
-			TitleCanvas I => target as TitleCanvas;
+		[CustomEditor(typeof(AchievementCanvas))]
+		class AchievementCanvasEditor : EditorExtensions {
+			AchievementCanvas I => target as AchievementCanvas;
 			public override void OnInspectorGUI() {
-				Begin("Title Canvas");
+				Begin("Achievement Canvas");
 
 				End();
 			}
 		}
 	#endif
+
+
+
+	// Fields
+
+
+
+	// Methods
 
 }
