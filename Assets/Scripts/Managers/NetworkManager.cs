@@ -72,7 +72,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 				TextField("Service State", serviceState);
 				TextField("Network State", networkState);
 				Space();
-				TextField("Players", $"{Players.Count} / {MaxPlayer}");
+				TextField("Players", $"{Players.Count} / {MaxPlayers}");
 				foreach (var player in Players) TextField(" ", $"{player}");
 				EndDisabledGroup();
 				Space();
@@ -89,8 +89,8 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
 
-	const int RelayMaxPlayer = 16;
-	const int LocalMaxPlayer = 64;
+	const int RelayMaxPlayers =  8;
+	const int LocalMaxPlayers = 64;
 	const float ConnectionTimeOut = 8f;
 
 
@@ -118,7 +118,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	ServiceState m_ServiceState;
 	NetworkState m_NetworkState;
 
-	int m_MaxPlayer;
+	int m_MaxPlayers;
 	readonly List<Entity> m_Players = new();
 
 
@@ -134,9 +134,9 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		private set => Instance.m_NetworkState = value;
 	}
 
-	public static int MaxPlayer {
-		get         => Instance.m_MaxPlayer;
-		private set => Instance.m_MaxPlayer = value;
+	public static int MaxPlayers {
+		get         => Instance.m_MaxPlayers;
+		private set => Instance.m_MaxPlayers = value;
 	}
 	public static List<Entity> Players => Instance.m_Players;
 
@@ -183,17 +183,17 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	public static void CreateRelayHost(int maxPlayers) {
 		_ = CreateRelayHostAsync(maxPlayers);
 	}
-	public static async Task CreateRelayHostAsync(int maxPlayer) {
+	public static async Task CreateRelayHostAsync(int maxPlayers) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
 
 			NetworkState = NetworkState.Allocating;
-			MaxPlayer = Mathf.Max(maxPlayer, RelayMaxPlayer);
+			MaxPlayers = Mathf.Max(maxPlayers, RelayMaxPlayers);
 			RelayServerData relayServerData;
 			RelayServerData relayClientData;
 			try {
-				var data     = await RelayService.Instance.CreateAllocationAsync(MaxPlayer);
+				var data     = await RelayService.Instance.CreateAllocationAsync(MaxPlayers);
 				var joinCode = await RelayService.Instance.GetJoinCodeAsync(data.AllocationId);
 				var joinData = await RelayService.Instance.JoinAllocationAsync(joinCode);
 				GUIUtility.systemCopyBuffer = joinCode;
@@ -279,7 +279,7 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 		if (NetworkState == NetworkState.Ready) {
 
 			NetworkState = NetworkState.SceneLoading;
-			MaxPlayer = Mathf.Max(maxPlayers, LocalMaxPlayer);
+			MaxPlayers = Mathf.Max(maxPlayers, LocalMaxPlayers);
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
 			DestroyLocalSimulationWorld();
@@ -491,7 +491,7 @@ public partial class NetworkManagerServerSystem : SystemBase {
 			var connectionEntity = rpc.ValueRO.SourceConnection;
 			var match = true;
 			match &= approval.ValueRO.payload.Equals("0000");
-			match &= numApproved < NetworkManager.MaxPlayer;
+			match &= numApproved < NetworkManager.MaxPlayers;
 			if (match) {
 				numApproved++;
 				buffer.AddComponent(connectionEntity, new ConnectionApproved());

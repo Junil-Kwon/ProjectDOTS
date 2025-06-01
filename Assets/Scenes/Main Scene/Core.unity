@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 71377513}
   - component: {fileID: 71377510}
   m_Layer: 0
-  m_Name: Singleton Bridge
+  m_Name: Manager Bridge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

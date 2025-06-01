@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
 
@@ -25,16 +24,14 @@ public class SettingsCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Settings Canvas");
 
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
+
 				End();
 			}
 		}
 	#endif
-
-
-
-	// Constants
-
-	const string RestoreButtonName = "RestoreButton";
 
 
 
@@ -139,8 +136,8 @@ public class SettingsCanvas : BaseCanvas {
 		while (0 < stack.Count) {
 			var current = stack.Pop();
 			for (int i = 0; i < current.childCount; i++) stack.Push(current.GetChild(i));
-			if (current.gameObject.activeSelf && current.TryGetComponent(out CustomButton button)) {
-				if (button.name.Equals(RestoreButtonName)) button.OnClick.Invoke();
+			if (current.gameObject.activeSelf && current.TryGetComponent(out IBaseWidget widget)) {
+				widget.Restore();
 			}
 		}
 	}

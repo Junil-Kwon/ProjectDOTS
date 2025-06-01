@@ -24,6 +24,9 @@ public class AlertCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Alert Canvas");
 
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
 				LabelField("Localize Event", EditorStyles.boldLabel);
 				I.ContentText = ObjectField("Content Text", I.ContentText);
 				I.CloseButton = ObjectField("Close Button", I.CloseButton);

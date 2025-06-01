@@ -22,6 +22,10 @@ public class MenuCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Menu Canvas");
 
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
+
 				End();
 			}
 		}

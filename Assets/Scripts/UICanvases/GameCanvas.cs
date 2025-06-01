@@ -21,7 +21,10 @@ public class GameCanvas : BaseCanvas {
 			GameCanvas I => target as GameCanvas;
 			public override void OnInspectorGUI() {
 				Begin("Game Canvas");
-				
+
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
 				LabelField("Status", EditorStyles.boldLabel);
 				I.PlayerStatus = ObjectField("Player Status", I.PlayerStatus);
 				I.MemberStatus = ObjectField("Member Status", I.MemberStatus);

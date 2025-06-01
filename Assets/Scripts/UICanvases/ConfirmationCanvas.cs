@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.Localization.Components;
 
@@ -24,6 +25,10 @@ public class ConfirmationCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Confirmation Canvas");
 
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				I.Cancel        = ObjectField("Cancel",         I.Cancel);
+				Space();
 				LabelField("Localize Event", EditorStyles.boldLabel);
 				I.HeaderText    = ObjectField("Header Text",    I.HeaderText);
 				I.ContentText   = ObjectField("Content Text",   I.ContentText);
@@ -40,6 +45,8 @@ public class ConfirmationCanvas : BaseCanvas {
 
 	// Fields
 
+	[SerializeField] Selectable m_Cancel;
+
 	[SerializeField] LocalizeStringEvent m_HeaderText;
 	[SerializeField] LocalizeStringEvent m_ContentText;
 	[SerializeField] LocalizeStringEvent m_ConfirmButton;
@@ -51,6 +58,11 @@ public class ConfirmationCanvas : BaseCanvas {
 
 
 	// Properties
+
+	Selectable Cancel {
+		get => m_Cancel;
+		set => m_Cancel = value;
+	}
 
 	LocalizeStringEvent HeaderText {
 		get => m_HeaderText;
@@ -94,7 +106,7 @@ public class ConfirmationCanvas : BaseCanvas {
 	// Methods
 
 	public override void Hide(bool keepState = false) {
-		base.Hide(keepState);
+		gameObject.SetActive(false);
 		if (!keepState) {
 			ConfirmEvent.RemoveAllListeners();
 			CancelEvent .RemoveAllListeners();
@@ -108,5 +120,9 @@ public class ConfirmationCanvas : BaseCanvas {
 	public void OnCancelButtonClick() {
 		CancelEvent.Invoke();
 		UIManager.Back();
+	}
+
+	public void SetSelectedCancel() {
+		UIManager.Selected = Cancel;
 	}
 }

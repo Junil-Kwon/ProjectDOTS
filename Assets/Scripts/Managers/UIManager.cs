@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
@@ -38,16 +39,6 @@ public class UIManager : MonoSingleton<UIManager> {
 				if (!ConfirmationCanvas) HelpBox("No confirmation canvas found.");
 				if (!AlertCanvas	   ) HelpBox("No alert canvas found.");
 				if (!FadeCanvas        ) HelpBox("No fade canvas found.");
-				PropertyField("m_FirstTitleSelected");
-				PropertyField("m_FirstGameSelected");
-				PropertyField("m_FirstMultiplayerSelected");
-				PropertyField("m_FirstDialogueSelected");
-				PropertyField("m_FirstMenuSelected");
-				PropertyField("m_FirstAchievementSelected");
-				PropertyField("m_FirstSettingsSelected");
-				PropertyField("m_FirstConfirmationSelected");
-				PropertyField("m_FirstAlertSelected");
-				PropertyField("m_FirstFadeSelected");
 				Space();
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
@@ -99,27 +90,7 @@ public class UIManager : MonoSingleton<UIManager> {
 	BaseCanvas m_MainCanvas;
 	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
 
-	[SerializeField] Selectable m_FirstTitleSelected;
-	[SerializeField] Selectable m_FirstGameSelected;
-	[SerializeField] Selectable m_FirstMultiplayerSelected;
-	[SerializeField] Selectable m_FirstDialogueSelected;
-	[SerializeField] Selectable m_FirstMenuSelected;
-	[SerializeField] Selectable m_FirstAchievementSelected;
-	[SerializeField] Selectable m_FirstSettingsSelected;
-	[SerializeField] Selectable m_FirstConfirmationSelected;
-	[SerializeField] Selectable m_FirstAlertSelected;
-	[SerializeField] Selectable m_FirstFadeSelected;
-
-	Selectable m_LastTitleSelected;
-	Selectable m_LastGameSelected;
-	Selectable m_LastMultiplayerSelected;
-	Selectable m_LastDialogueSelected;
-	Selectable m_LastMenuSelected;
-	Selectable m_LastAchievementSelected;
-	Selectable m_LastSettingsSelected;
-	Selectable m_LastConfirmationSelected;
-	Selectable m_LastAlertSelected;
-	Selectable m_LastFadeSelected;
+	bool m_IsPointerClicked;
 
 	readonly UnityEvent m_BackEvent = new();
 
@@ -248,92 +219,27 @@ public class UIManager : MonoSingleton<UIManager> {
 	}
 	static Stack<BaseCanvas> OverlayCanvas => Instance.m_OverlayCanvas;
 
-	public static bool IsUIActive => MainCanvas != GameCanvas || 0 < OverlayCanvas.Count;
+	public static BaseCanvas CurrentCanvas {
+		get => OverlayCanvas.TryPeek(out var overlayCanvas) ? overlayCanvas : MainCanvas;
+	}
+	public static bool IsUIActive => CurrentCanvas != GameCanvas;
+
+	public static bool IsPointerClicked {
+		get => Instance.m_IsPointerClicked;
+		set => Instance.m_IsPointerClicked = value;
+	}
 
 	public static UnityEvent BackEvent => Instance.m_BackEvent;
 
 
 
-	Selectable FirstTitleSelected {
-		get => Instance.m_FirstTitleSelected;
-		set => Instance.m_FirstTitleSelected = value;
+	static GameObject Temp {
+		get => EventSystem.current.currentSelectedGameObject;
+		set => EventSystem.current.SetSelectedGameObject(value);
 	}
-	Selectable FirstGameSelected {
-		get => Instance.m_FirstGameSelected;
-		set => Instance.m_FirstGameSelected = value;
-	}
-	Selectable FirstMultiplayerSelected {
-		get => Instance.m_FirstMultiplayerSelected;
-		set => Instance.m_FirstMultiplayerSelected = value;
-	}
-	Selectable FirstDialogueSelected {
-		get => Instance.m_FirstDialogueSelected;
-		set => Instance.m_FirstDialogueSelected = value;
-	}
-	Selectable FirstMenuSelected {
-		get => Instance.m_FirstMenuSelected;
-		set => Instance.m_FirstMenuSelected = value;
-	}
-	Selectable FirstAchievementSelected {
-		get => Instance.m_FirstAchievementSelected;
-		set => Instance.m_FirstAchievementSelected = value;
-	}
-	Selectable FirstSettingsSelected {
-		get => Instance.m_FirstSettingsSelected;
-		set => Instance.m_FirstSettingsSelected = value;
-	}
-	Selectable FirstConfirmationSelected {
-		get => Instance.m_FirstConfirmationSelected;
-		set => Instance.m_FirstConfirmationSelected = value;
-	}
-	Selectable FirstAlertSelected {
-		get => Instance.m_FirstAlertSelected;
-		set => Instance.m_FirstAlertSelected = value;
-	}
-	Selectable FirstFadeSelected {
-		get => Instance.m_FirstFadeSelected;
-		set => Instance.m_FirstFadeSelected = value;
-	}
-
-	Selectable LastTitleSelected {
-		get => Instance.m_LastTitleSelected;
-		set => Instance.m_LastTitleSelected = value;
-	}
-	Selectable LastGameSelected {
-		get => Instance.m_LastGameSelected;
-		set => Instance.m_LastGameSelected = value;
-	}
-	Selectable LastMultiplayerSelected {
-		get => Instance.m_LastMultiplayerSelected;
-		set => Instance.m_LastMultiplayerSelected = value;
-	}
-	Selectable LastDialogueSelected {
-		get => Instance.m_LastDialogueSelected;
-		set => Instance.m_LastDialogueSelected = value;
-	}
-	Selectable LastMenuSelected {
-		get => Instance.m_LastMenuSelected;
-		set => Instance.m_LastMenuSelected = value;
-	}
-	Selectable LastAchievementSelected {
-		get => Instance.m_LastAchievementSelected;
-		set => Instance.m_LastAchievementSelected = value;
-	}
-	Selectable LastSettingsSelected {
-		get => Instance.m_LastSettingsSelected;
-		set => Instance.m_LastSettingsSelected = value;
-	}
-	Selectable LastConfirmationSelected {
-		get => Instance.m_LastConfirmationSelected;
-		set => Instance.m_LastConfirmationSelected = value;
-	}
-	Selectable LastAlertSelected {
-		get => Instance.m_LastAlertSelected;
-		set => Instance.m_LastAlertSelected = value;
-	}
-	Selectable LastFadeSelected {
-		get => Instance.m_LastFadeSelected;
-		set => Instance.m_LastFadeSelected = value;
+	public static Selectable Selected {
+		get => Temp && Temp.TryGetComponent(out Selectable selectable) ? selectable : null;
+		set => Temp = value ? value.gameObject : null;
 	}
 
 
@@ -449,6 +355,7 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	public static void ConfirmResetAllData() {
 		ShowConfirmation();
+		ConfirmationCanvas.SetSelectedCancel();
 		ConfirmationCanvas.HeaderKey  = "Confirmation_ResetAllDataHeader";
 		ConfirmationCanvas.ContentKey = "Confirmation_ResetAllDataContent";
 		ConfirmationCanvas.ConfirmKey = "Confirmation_ResetAllDataConfirm";
@@ -482,7 +389,7 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	// Lifecycle
 
-	void Awake() {
+	void Start() {
 		foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
 			if (locale.Identifier.CultureInfo.NativeName.Equals(Language)) {
 				LocalizationSettings.SelectedLocale = locale;
@@ -492,6 +399,11 @@ public class UIManager : MonoSingleton<UIManager> {
 	}
 
 	void Update() {
-		if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
+		if (IsUIActive) {
+			if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
+			if (InputManager.Navigate != Vector2.zero && !Selected) {
+				Selected = CurrentCanvas.FirstSelected;
+			}
+		} else IsPointerClicked = true;
 	}
 }

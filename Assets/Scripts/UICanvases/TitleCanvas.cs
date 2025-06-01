@@ -22,6 +22,10 @@ public class TitleCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Title Canvas");
 
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
+
 				End();
 			}
 		}

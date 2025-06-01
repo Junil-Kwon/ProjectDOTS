@@ -105,6 +105,7 @@ public class InputManager : MonoSingleton<InputManager> {
 	Vector2 m_MoveDirection;
 	Vector2 m_PointPosition;
 	Vector2 m_ScrollWheel;
+	Vector2 m_Navigate;
 
 	string m_KeyPressed;
 
@@ -161,6 +162,10 @@ public class InputManager : MonoSingleton<InputManager> {
 		get         => Instance.m_ScrollWheel;
 		private set => Instance.m_ScrollWheel = value;
 	}
+	public static Vector2 Navigate {
+		get         => Instance.m_Navigate;
+		private set => Instance.m_Navigate = value;
+	}
 	public static string KeyPressed {
 		get         => Instance.m_KeyPressed;
 		private set => Instance.m_KeyPressed = value;
@@ -183,6 +188,7 @@ public class InputManager : MonoSingleton<InputManager> {
 					KeyAction.Move        => callback => MoveDirection = callback.ReadValue<Vector2>(),
 					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
 					KeyAction.ScrollWheel => callback => ScrollWheel   = callback.ReadValue<Vector2>(),
+					KeyAction.Navigate    => callback => Navigate      = callback.ReadValue<Vector2>(),
 					_ => callback => {
 						bool flag = callback.action.IsPressed();
 						KeyNext = flag ? (KeyNext | (1u << index)) : (KeyNext & ~(1u << index));
@@ -212,6 +218,7 @@ public class InputManager : MonoSingleton<InputManager> {
 		MoveDirection = Vector2.zero;
 		PointPosition = Vector2.zero;
 		ScrollWheel   = Vector2.zero;
+		Navigate      = Vector2.zero;
 		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
 		Cursor.visible = !hideCursor;
 	}
