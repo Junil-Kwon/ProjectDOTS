@@ -42,7 +42,7 @@ public class MultiplayerCanvas : BaseCanvas {
 					I.SelectOnUp[i] = ObjectField($"m_SelectOnUp[{i}]", I.SelectOnUp[i]);
 				}
 				Space();
-				LabelField("Parameter", EditorStyles.boldLabel);
+				LabelField("Arguments", EditorStyles.boldLabel);
 				PropertyField("m_CreateRelayHostMaxPlayersSlider");
 				PropertyField("m_CreateLocalHostMaxPlayersSlider");
 				PropertyField("m_JoinRelayServerJoinCodeInputfield");

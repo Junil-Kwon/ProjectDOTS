@@ -223,6 +223,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
+		UIManager.IsPointerClicked = true;
 		if (interactable && !eventData.dragging) {
 			var point = HandleRect.InverseTransformPoint(eventData.position);
 			point.x -= HandleRect.rect.width * 0.5f;
@@ -232,6 +233,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	}
 
 	public void OnDrag(PointerEventData eventData) {
+		UIManager.IsPointerClicked = true;
 		if (interactable) {
 			var point = BodyRect.InverseTransformPoint(eventData.position);
 			var a =                  0f + HandleRect.rect.width * 0.5f;
@@ -242,8 +244,8 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 
 	public override void OnMove(AxisEventData eventData) {
 		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:  Value -= Step; return;
-			case MoveDirection.Right: Value += Step; return;
+			case MoveDirection.Left:  Value -= Step; UIManager.IsPointerClicked = false; return;
+			case MoveDirection.Right: Value += Step; UIManager.IsPointerClicked = false; return;
 		}
 		base.OnMove(eventData);
 	}

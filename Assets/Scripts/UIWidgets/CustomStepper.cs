@@ -179,6 +179,7 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
+		UIManager.IsPointerClicked = true;
 		if (interactable) {
 			var point = BodyRect.InverseTransformPoint(eventData.position);
 			Value += (0f < point.x && point.x < BodyRect.rect.width * 0.5f) ? 1 : -1;
@@ -186,13 +187,14 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	}
 
 	public void OnSubmit(BaseEventData eventData) {
+		UIManager.IsPointerClicked = false;
 		if (interactable) Value++;
 	}
 
 	public override void OnMove(AxisEventData eventData) {
 		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:  Value--; return;
-			case MoveDirection.Right: Value++; return;
+			case MoveDirection.Left:  Value--; UIManager.IsPointerClicked = false; return;
+			case MoveDirection.Right: Value++; UIManager.IsPointerClicked = false; return;
 		}
 		base.OnMove(eventData);
 	}

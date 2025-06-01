@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Localization-Assets-Korean (ko)
+  m_EditorClassIdentifier: 
+  m_GroupName: Localization-Assets-Korean (ko)
+  m_GUID: 1757958ee74db9045b3b5796c00e56e3
+  m_SerializeEntries:
+  - m_GUID: 0329be129b2932147a0dd8f1c78be056
+    m_Address: FusionPixel12-ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6577084094a05504bbf660dea571ac0e
+    m_Address: FusionPixel10-ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f416d6892ef6f64f919fcc20609a52c
+    m_Address: FusionPixel8-ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 824407d57af2107498de8c4b3882f369, type: 2}
+    - {fileID: 11400000, guid: 06da6ed2d50242647b7ab50a0b5e2368, type: 2}

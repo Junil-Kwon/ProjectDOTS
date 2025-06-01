@@ -138,10 +138,12 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
+		UIManager.IsPointerClicked = true;
 		if (interactable) Value = !Value;
 	}
 
 	public void OnSubmit(BaseEventData eventData) {
+		UIManager.IsPointerClicked = false;
 		if (interactable) Value = !Value;
 	}
 

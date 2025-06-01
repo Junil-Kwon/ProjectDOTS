@@ -175,7 +175,7 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 						int index = i;
 						toggle.OnValueChanged.RemoveAllListeners();
 						toggle.OnValueChanged.AddListener(_ => {
-							if (!MultiSelect) UIManager.Selected = this;
+							if (!MultiSelect && !UIManager.IsPointerClicked) UIManager.Selected = this;
 						});
 						toggle.OnValueChanged.AddListener(MultiSelect switch {
 							true => value => Value = value switch {

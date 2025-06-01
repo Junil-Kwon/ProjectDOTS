@@ -92,7 +92,7 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
-		UIManager.IsPointerClicked =  true;
+		UIManager.IsPointerClicked = true;
 		if (interactable) OnClick.Invoke();
 	}
 
