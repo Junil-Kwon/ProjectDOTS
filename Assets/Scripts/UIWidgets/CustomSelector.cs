@@ -30,15 +30,14 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Selector", EditorStyles.boldLabel);
 				I.Template      = ObjectField("Template",       I.Template);
 				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 				Space();
-				LabelField("Selector", EditorStyles.boldLabel);
 				PropertyField("m_Elements");
-				I.MultiSelect = Toggle  ("Multi Select", I.MultiSelect);
 				I.Default     = IntField("Default",      I.Default);
 				I.Value       = IntField("Value",        I.Value);
+				I.MultiSelect = Toggle  ("Multi Select", I.MultiSelect);
 				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
@@ -88,17 +87,6 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			Refresh();
 		}
 	}
-	public bool MultiSelect {
-		get => m_MultiSelect;
-		set {
-			if (m_MultiSelect != value) {
-				m_MultiSelect = value;
-				Default = 0;
-				Value = 0;
-				Refresh();
-			}
-		}
-	}
 	public int Default {
 		get => m_Default;
 		set {
@@ -122,6 +110,17 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			if (m_Value != value) {
 				m_Value = value;
 				OnValueChanged.Invoke(value);
+				Refresh();
+			}
+		}
+	}
+	public bool MultiSelect {
+		get => m_MultiSelect;
+		set {
+			if (m_MultiSelect != value) {
+				m_MultiSelect = value;
+				Default = 0;
+				Value = 0;
 				Refresh();
 			}
 		}

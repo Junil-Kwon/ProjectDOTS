@@ -27,7 +27,6 @@ public class ConfirmationCanvas : BaseCanvas {
 
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
-				I.Cancel        = ObjectField("Cancel",         I.Cancel);
 				Space();
 				LabelField("Localize Event", EditorStyles.boldLabel);
 				I.HeaderText    = ObjectField("Header Text",    I.HeaderText);
@@ -45,8 +44,6 @@ public class ConfirmationCanvas : BaseCanvas {
 
 	// Fields
 
-	[SerializeField] Selectable m_Cancel;
-
 	[SerializeField] LocalizeStringEvent m_HeaderText;
 	[SerializeField] LocalizeStringEvent m_ContentText;
 	[SerializeField] LocalizeStringEvent m_ConfirmButton;
@@ -58,11 +55,6 @@ public class ConfirmationCanvas : BaseCanvas {
 
 
 	// Properties
-
-	Selectable Cancel {
-		get => m_Cancel;
-		set => m_Cancel = value;
-	}
 
 	LocalizeStringEvent HeaderText {
 		get => m_HeaderText;
@@ -123,6 +115,8 @@ public class ConfirmationCanvas : BaseCanvas {
 	}
 
 	public void SetSelectedCancel() {
-		UIManager.Selected = Cancel;
+		if (CancelButton.TryGetComponent(out Selectable cancel)) {
+			if (!UIManager.IsPointerClicked) UIManager.Selected = cancel;
+		}
 	}
 }

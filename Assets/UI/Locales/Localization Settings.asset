@@ -14,12 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_StartupSelectors:
   - rid: 114364701927538691
-  - rid: 114364701927538692
-  - rid: 114364701927538718
-  - rid: 114364701927538693
-  - rid: 114364701927538715
-  - rid: 114364701927538716
-  - rid: 114364701927538717
+  - rid: 2276155170887827456
+  - rid: 2276155170887827457
+  - rid: 2276155170887827539
   m_AvailableLocales:
     rid: 114364701927538694
   m_AssetDatabase:
@@ -41,14 +38,6 @@ MonoBehaviour:
       type: {class: CommandLineLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:
         m_CommandLineArgument: -language=
-    - rid: 114364701927538692
-      type: {class: SystemLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
-      data: 
-    - rid: 114364701927538693
-      type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
-      data:
-        m_LocaleId:
-          m_Code: ko
     - rid: 114364701927538694
       type: {class: LocalesProvider, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data: 
@@ -74,7 +63,7 @@ MonoBehaviour:
           rid: -2
         m_AsynchronousBehaviour: 0
         m_UseFallback: 0
-        m_MissingTranslationState: 1
+        m_MissingTranslationState: 0
         m_NoTranslationFoundMessage: No translation found for '{key}' in {table.TableCollectionName}
         m_SmartFormat:
           rid: 114364701927538697
@@ -209,22 +198,14 @@ MonoBehaviour:
         - default
         - d
         - 
-    - rid: 114364701927538715
-      type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
+    - rid: 2276155170887827456
+      type: {class: PlayerPrefLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:
-        m_LocaleId:
-          m_Code: ja
-    - rid: 114364701927538716
-      type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
-      data:
-        m_LocaleId:
-          m_Code: zh-Hans
-    - rid: 114364701927538717
-      type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
-      data:
-        m_LocaleId:
-          m_Code: ru
-    - rid: 114364701927538718
+        m_PlayerPreferenceKey: selected-locale
+    - rid: 2276155170887827457
+      type: {class: SystemLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
+      data: 
+    - rid: 2276155170887827539
       type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:
         m_LocaleId:

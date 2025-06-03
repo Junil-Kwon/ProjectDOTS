@@ -7,6 +7,7 @@ using UnityEngine.UI;
 // Base Canvas
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+[RequireComponent(typeof(Canvas))]
 public abstract class BaseCanvas : MonoBehaviour {
 
 	// Fields

@@ -42,20 +42,25 @@ public class SettingsCanvas : BaseCanvas {
 			var elements = new string[LocalizationSettings.AvailableLocales.Locales.Count];
 			for (int i = 0; i < elements.Length; i++) {
 				var locale = LocalizationSettings.AvailableLocales.Locales[i];
-				elements[i] = locale.Identifier.CultureInfo.NativeName;
+				var nativeName = locale.Identifier.CultureInfo.NativeName;
+				if (nativeName.Equals("中文")) {
+					if (locale.Identifier.Code.Equals("zh-Hans")) nativeName = "简体中文";
+					if (locale.Identifier.Code.Equals("zh-Hant")) nativeName = "繁體中文";
+				}
+				elements[i] = nativeName;
 			}
 			dropdown.Elements = elements;
 		}
 		for (int i = 0; i < dropdown.Elements.Length; i++) {
-			if (dropdown.Elements[i].Equals(UIManager.Language)) {
+			var locale = LocalizationSettings.AvailableLocales.Locales[i];
+			if (locale == LocalizationSettings.SelectedLocale) {
 				dropdown.Value = i;
 				break;
 			}
 		}
 	}
 	public void SetLanguageValue(int value) {
-		var locale = LocalizationSettings.AvailableLocales.Locales[value];
-		UIManager.Language = locale.Identifier.CultureInfo.NativeName;
+		LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[value];
 	}
 
 	public void UpdateFullScreenToggle(CustomToggle toggle) {

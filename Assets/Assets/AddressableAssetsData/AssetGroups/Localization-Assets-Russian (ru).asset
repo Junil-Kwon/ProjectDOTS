@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Localization-Assets-Russian (ru)
+  m_EditorClassIdentifier: 
+  m_GroupName: Localization-Assets-Russian (ru)
+  m_GUID: 3ecc1dd0d8a4edb408938cb0b8c30b96
+  m_SerializeEntries:
+  - m_GUID: 0a95b66b2d0f72b4ba2c00faa0c46b89
+    m_Address: FusionPixel12-latin
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4875edbd3efe903428bb51ee436184d0
+    m_Address: FusionPixel8-latin
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f10f603b1d70d7a42a0e04bfc914c36a
+    m_Address: FusionPixel10-latin
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 348ea928286e8d648965b8327b8d970d, type: 2}
+    - {fileID: 11400000, guid: 7ef7962bc850a694eb3c6215d058407d, type: 2}

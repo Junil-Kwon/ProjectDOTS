@@ -30,7 +30,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Slider", EditorStyles.boldLabel);
 				I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
 				I.FillRect      = ObjectField("Fill Rect",      I.FillRect);
 				I.HandleRect    = ObjectField("Handle Rect",    I.HandleRect);
@@ -38,17 +38,16 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 				Space();
 				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
 				if (I.TextUGUI) {
-					I.Format = TextField("Format", I.Format);
+					I.TextFormat = TextField("Text Format", I.TextFormat);
 					LabelField(" ", "{0} = Value, {1} = Min Value, {2} = Max Value");
 					BeginHorizontal();
-					PrefixLabel("Alignment");
+					PrefixLabel("Text Alignment");
 					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
 					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
 					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
-				LabelField("Slider", EditorStyles.boldLabel);
 				I.MinValue = FloatField("Min Value", I.MinValue);
 				I.MaxValue = FloatField("Max Value", I.MaxValue);
 				I.Step     = Slider("Step",    I.Step,    0f,         I.MaxValue - I.MinValue);
@@ -75,7 +74,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	[SerializeField] GameObject    m_RestoreButton;
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
-	[SerializeField] string m_Format = "{0:P0}";
+	[SerializeField] string m_TextFormat = "{0:P0}";
 
 	[SerializeField] float m_MinValue = 0.00f;
 	[SerializeField] float m_MaxValue = 1.00f;
@@ -115,14 +114,14 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_TextUGUI;
 		set => m_TextUGUI = value;
 	}
-	public string Format {
-		get => m_Format;
+	public string TextFormat {
+		get => m_TextFormat;
 		set {
-			m_Format = value;
-			if (TextUGUI) {
-				var text = string.Format(Format, Value, MinValue, MaxValue);
+			m_TextFormat = value;
+			try {
+				var text = string.Format(TextFormat, Value, MinValue, MaxValue);
 				if (TextUGUI.text != text) TextUGUI.text = text;
-			}
+			} catch(System.FormatException) { }
 		}
 	}
 
@@ -209,7 +208,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 			anchoredPosition.x = BodyRect.anchoredPosition.x + Width;
 			HandleRect.anchoredPosition = anchoredPosition;
 		}
-		Format = Format;
+		if (TextUGUI) TextFormat = TextFormat;
 		if (RestoreButton) RestoreButton.SetActive(Value != Default);
 		OnStateUpdated.Invoke(this);
 	}

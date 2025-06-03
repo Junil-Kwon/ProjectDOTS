@@ -30,7 +30,7 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Stepper", EditorStyles.boldLabel);
 				I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
 				I.LeftArrow     = ObjectField("Left Arrow ",    I.LeftArrow);
 				I.RightArrow    = ObjectField("Right Arrow",    I.RightArrow);
@@ -39,18 +39,17 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
 				if (I.TextUGUI) {
 					BeginHorizontal();
-					PrefixLabel("Alignment");
+					PrefixLabel("Text Alignment");
 					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
 					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
 					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
-				LabelField("Stepper", EditorStyles.boldLabel);
 				PropertyField("m_Elements");
-				I.Loop    = Toggle  ("Loop",    I.Loop);
 				I.Default = IntField("Default", I.Default);
 				I.Value   = IntField("Value",   I.Value);
+				I.Loop    = Toggle  ("Loop",    I.Loop);
 				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
@@ -117,13 +116,6 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 			Refresh();
 		}
 	}
-	public bool Loop {
-		get => m_Loop;
-		set {
-			m_Loop = value;
-			Refresh();
-		}
-	}
 	public int Default {
 		get => m_Default;
 		set {
@@ -149,6 +141,13 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 				OnValueChanged.Invoke(value);
 				Refresh();
 			}
+		}
+	}
+	public bool Loop {
+		get => m_Loop;
+		set {
+			m_Loop = value;
+			Refresh();
 		}
 	}
 

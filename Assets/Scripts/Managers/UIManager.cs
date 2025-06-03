@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -60,8 +59,6 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	public const string LocalizationTable = "UITable";
 
-	const string LanguageKey = "Language";
-
 	public static readonly Vector2Int[] ScreenResolution = new Vector2Int[] {
 		new( 640,  360),
 		new(1280,  720),
@@ -73,8 +70,6 @@ public class UIManager : MonoSingleton<UIManager> {
 
 
 	// Fields
-
-	string m_Language;
 
 	TitleCanvas        m_TitleCanvas;
 	GameCanvas         m_GameCanvas;
@@ -89,44 +84,12 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	BaseCanvas m_MainCanvas;
 	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
-
+	readonly UnityEvent        m_BackEvent     = new();
 	bool m_IsPointerClicked;
-
-	readonly UnityEvent m_BackEvent = new();
 
 
 
 	// Properties
-
-	public static string Language {
-		get {
-			if (string.IsNullOrEmpty(Instance.m_Language)) {
-				Instance.m_Language = PlayerPrefs.GetString(LanguageKey, null);
-			}
-			if (string.IsNullOrEmpty(Instance.m_Language)) {
-				string systemLanguage = Application.systemLanguage.ToString();
-				foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
-					var englishName = locale.Identifier.CultureInfo.EnglishName;
-					if (Regex.Replace(englishName, "[ \\(\\)]", "").Equals(systemLanguage)) {
-						Instance.m_Language = locale.Identifier.CultureInfo.NativeName;
-						break;
-					}
-				}
-			}
-			return Instance.m_Language;
-		}
-		set {
-			foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
-				if (locale.Identifier.CultureInfo.NativeName.Equals(value)) {
-					PlayerPrefs.SetString(LanguageKey, Instance.m_Language = value);
-					LocalizationSettings.SelectedLocale = locale;
-					break;
-				}
-			}
-		}
-	}
-
-
 
 	static RectTransform Transform => Instance.transform as RectTransform;
 
@@ -224,12 +187,12 @@ public class UIManager : MonoSingleton<UIManager> {
 	}
 	public static bool IsUIActive => CurrentCanvas != GameCanvas;
 
+	public static UnityEvent BackEvent => Instance.m_BackEvent;
+
 	public static bool IsPointerClicked {
 		get => Instance.m_IsPointerClicked;
 		set => Instance.m_IsPointerClicked = value;
 	}
-
-	public static UnityEvent BackEvent => Instance.m_BackEvent;
 
 
 
@@ -388,15 +351,6 @@ public class UIManager : MonoSingleton<UIManager> {
 
 
 	// Lifecycle
-
-	void Start() {
-		foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
-			if (locale.Identifier.CultureInfo.NativeName.Equals(Language)) {
-				LocalizationSettings.SelectedLocale = locale;
-				break;
-			}
-		}
-	}
 
 	void Update() {
 		if (IsUIActive) {

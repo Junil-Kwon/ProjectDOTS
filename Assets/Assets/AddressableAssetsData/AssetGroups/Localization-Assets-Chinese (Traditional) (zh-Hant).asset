@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Localization-Assets-Chinese (Traditional) (zh-Hant)
+  m_EditorClassIdentifier: 
+  m_GroupName: Localization-Assets-Chinese (Traditional) (zh-Hant)
+  m_GUID: 211dc59f2418fdb408997b395631572e
+  m_SerializeEntries:
+  - m_GUID: 034e9612eba5338429e7bcc4c121dafc
+    m_Address: FusionPixel12-zh_Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c5f6eed196fbaa499ad54207df88fba
+    m_Address: FusionPixel8-zh_Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5d8fa0df8d082354c975849d5aa1660e
+    m_Address: FusionPixel10-zh_Hant
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-zh-Hant
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 297ad11b69e35924a99d53c423730eeb, type: 2}
+    - {fileID: 11400000, guid: 6caaf0230268b3d4c84161ebca0eb556, type: 2}

@@ -26,29 +26,29 @@ public class MultiplayerCanvas : BaseCanvas {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-				LabelField("Layouts", EditorStyles.boldLabel);
-				PropertyField("m_CreateRelayHostLayout");
+				LabelField("Layout", EditorStyles.boldLabel);
 				PropertyField("m_JoinRelayServerLayout");
-				PropertyField("m_CreateLocalHostLayout");
+				PropertyField("m_CreateRelayHostLayout");
 				PropertyField("m_JoinLocalServerLayout");
+				PropertyField("m_CreateLocalHostLayout");
 				Space();
-				LabelField("Navigation", EditorStyles.boldLabel);
+				LabelField("Switch Navigation", EditorStyles.boldLabel);
 				PropertyField("m_TopSelectables");
 				for (int i = 0; i < I.SelectOnDown.Length; i++) {
-					I.SelectOnDown[i] = ObjectField($"m_SelectOnDown[{i}]", I.SelectOnDown[i]);
+					I.SelectOnDown[i] = ObjectField($"Select On Down [{i}]", I.SelectOnDown[i]);
 				}
 				PropertyField("m_BottomSelectables");
 				for (int i = 0; i < I.SelectOnUp.Length; i++) {
-					I.SelectOnUp[i] = ObjectField($"m_SelectOnUp[{i}]", I.SelectOnUp[i]);
+					I.SelectOnUp[i] = ObjectField($"Select On Up [{i}]", I.SelectOnUp[i]);
 				}
 				Space();
-				LabelField("Arguments", EditorStyles.boldLabel);
-				PropertyField("m_CreateRelayHostMaxPlayersSlider");
-				PropertyField("m_CreateLocalHostMaxPlayersSlider");
+				LabelField("Connection", EditorStyles.boldLabel);
 				PropertyField("m_JoinRelayServerJoinCodeInputfield");
-				PropertyField("m_CreateLocalHostPortInputfield");
+				PropertyField("m_CreateRelayHostMaxPlayersSlider");
 				PropertyField("m_JoinLocalServerIPAddressInputfield");
 				PropertyField("m_JoinLocalServerPortInputfield");
+				PropertyField("m_CreateLocalHostMaxPlayersSlider");
+				PropertyField("m_CreateLocalHostPortInputfield");
 				Space();
 
 				End();
@@ -67,10 +67,10 @@ public class MultiplayerCanvas : BaseCanvas {
 
 	// Fields
 
-	[SerializeField] GameObject m_CreateRelayHostLayout;
 	[SerializeField] GameObject m_JoinRelayServerLayout;
-	[SerializeField] GameObject m_CreateLocalHostLayout;
+	[SerializeField] GameObject m_CreateRelayHostLayout;
 	[SerializeField] GameObject m_JoinLocalServerLayout;
+	[SerializeField] GameObject m_CreateLocalHostLayout;
 
 	[SerializeField] Selectable[] m_TopSelectables;
 	[SerializeField] Selectable[] m_SelectOnDown = new Selectable[4];
@@ -80,9 +80,9 @@ public class MultiplayerCanvas : BaseCanvas {
 	[SerializeField] CustomSlider m_CreateRelayHostMaxPlayersSlider;
 	[SerializeField] CustomSlider m_CreateLocalHostMaxPlayersSlider;
 	[SerializeField] CustomInputfield m_JoinRelayServerJoinCodeInputfield;
-	[SerializeField] CustomInputfield m_CreateLocalHostPortInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerIPAddressInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerPortInputfield;
+	[SerializeField] CustomInputfield m_CreateLocalHostPortInputfield;
 
 
 
@@ -95,10 +95,10 @@ public class MultiplayerCanvas : BaseCanvas {
 
 	int LayoutIndex {
 		get {
-			if (m_CreateRelayHostLayout.activeSelf) return 0;
-			if (m_JoinRelayServerLayout.activeSelf) return 1;
-			if (m_CreateLocalHostLayout.activeSelf) return 2;
-			if (m_JoinLocalServerLayout.activeSelf) return 3;
+			if (m_JoinRelayServerLayout.activeSelf) return 0;
+			if (m_CreateRelayHostLayout.activeSelf) return 1;
+			if (m_JoinLocalServerLayout.activeSelf) return 2;
+			if (m_CreateLocalHostLayout.activeSelf) return 3;
 			return -1;
 		}
 		set {
@@ -112,10 +112,10 @@ public class MultiplayerCanvas : BaseCanvas {
 				navigation.selectOnUp = SelectOnUp[value];
 				selectable.navigation = navigation;
 			}
-			m_CreateRelayHostLayout.SetActive(value == 0);
-			m_JoinRelayServerLayout.SetActive(value == 1);
-			m_CreateLocalHostLayout.SetActive(value == 2);
-			m_JoinLocalServerLayout.SetActive(value == 3);
+			m_JoinRelayServerLayout.SetActive(value == 0);
+			m_CreateRelayHostLayout.SetActive(value == 1);
+			m_JoinLocalServerLayout.SetActive(value == 2);
+			m_CreateLocalHostLayout.SetActive(value == 3);
 		}
 	}
 

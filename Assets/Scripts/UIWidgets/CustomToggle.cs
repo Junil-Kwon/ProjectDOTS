@@ -30,14 +30,13 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Toggle", EditorStyles.boldLabel);
 				I.PositiveImage    = ObjectField("Positive Image",     I.PositiveImage);
 				I.NegativeImage    = ObjectField("Negative Image",     I.NegativeImage);
 				I.PositiveTextUGUI = ObjectField("Positive Text UGUI", I.PositiveTextUGUI);
 				I.NegativeTextUGUI = ObjectField("Negative Text UGUI", I.NegativeTextUGUI);
 				I.RestoreButton    = ObjectField("Restore Button",     I.RestoreButton);
 				Space();
-				LabelField("Toggle", EditorStyles.boldLabel);
 				I.Default = Toggle("Default", I.Default);
 				I.Value   = Toggle("Value",   I.Value);
 				Space();

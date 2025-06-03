@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: eca78b3353119b744a81527b49c7f97b
   m_currentHash:
     serializedVersion: 2
-    Hash: e40db085fb89d885d606dac7d96b78bb
+    Hash: 298d73a8df83656895014629839d6c41
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -61,14 +61,22 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: 71c026afd59d87e4494cd562a0a86b2c, type: 2}
   - {fileID: 11400000, guid: e6a8f70cfc1a0cf43a89d77c8892a771, type: 2}
+  - {fileID: 11400000, guid: fb957326eaad4a548b2561725782d88b, type: 2}
   - {fileID: 11400000, guid: 1a5e1454260698f488570b79f0481452, type: 2}
+  - {fileID: 11400000, guid: 85405bf2e58c2c94da2c1b5117939772, type: 2}
+  - {fileID: 11400000, guid: 45b07a53581bfea42924906cf5d3b02d, type: 2}
   - {fileID: 11400000, guid: e5771c51919161e44a19eb0f0d36bec6, type: 2}
+  - {fileID: 11400000, guid: 99e1be46423a4144bb5bfe7220a4048b, type: 2}
+  - {fileID: 11400000, guid: 6e11353e1f25769439bbf3123b6570ed, type: 2}
   - {fileID: 11400000, guid: e2a1a79ac27e65e42aecd5bdf8f6ed40, type: 2}
   - {fileID: 11400000, guid: 29adeacc52f076d4481e6d4bbc3c8a35, type: 2}
   - {fileID: 11400000, guid: 540eedb3fa29dce4d9799e1cd55f2d4f, type: 2}
+  - {fileID: 11400000, guid: 83768192f302c124bb8ad15852cdcea5, type: 2}
   - {fileID: 11400000, guid: 5db1bfe439894504b918a0beba88b700, type: 2}
   - {fileID: 11400000, guid: 187e1ffae6f7a2843bce37883b47527b, type: 2}
   - {fileID: 11400000, guid: 17596402674d0314e8a69ddbdaf60a7a, type: 2}
+  - {fileID: 11400000, guid: 041827d660f518d4b852f76a35d26be6, type: 2}
+  - {fileID: 11400000, guid: 04f5aa22e19858f49bf9046e685f6dca, type: 2}
   - {fileID: 11400000, guid: 25a8c51e3c4e2104bb3904e21a06ebf9, type: 2}
   - {fileID: 11400000, guid: 3bbda6b59eb84524c84ba38cf5b4afa2, type: 2}
   - {fileID: 11400000, guid: 9851dc4fc09da1440b8d36efbef2ccb7, type: 2}
@@ -121,6 +129,9 @@ MonoBehaviour:
     - Locale-ja
     - Locale-zh-Hans
     - Locale-ru
+    - Locale-de
+    - Locale-es
+    - Locale-zh-Hant
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b7c5af6ca54c7464f9b74bbf5539f188, type: 2}

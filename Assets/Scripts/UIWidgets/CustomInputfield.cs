@@ -30,39 +30,39 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Inputfield", EditorStyles.boldLabel);
 				I.AreaRect      = ObjectField("Area Rect",      I.AreaRect);
 				I.HideToggle    = ObjectField("Hide Toggle",    I.HideToggle);
 				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 				Space();
-				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-				if (I.TextUGUI) {
-					BeginHorizontal();
-					PrefixLabel("Alignment");
-					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
 				I.PlaceHolderUGUI = ObjectField("Place Holder UGUI", I.PlaceHolderUGUI);
 				if (I.PlaceHolderUGUI) {
+					I.PlaceHolder = TextField("Place Holder", I.PlaceHolder);
 					BeginHorizontal();
-					PrefixLabel("Alignment");
+					PrefixLabel("Place Holder Alignment");
 					if (Button("Left"  )) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Left;
 					if (Button("Center")) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Center;
 					if (Button("Right" )) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
+				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
+				if (I.TextUGUI) {
+					I.TextSelectionColor = ColorField("Text Selection Color", I.TextSelectionColor);
+					BeginHorizontal();
+					PrefixLabel("Text Alignment");
+					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
+					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
+					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
+					EndHorizontal();
+				}
 				Space();
-				LabelField("Inputfield", EditorStyles.boldLabel);
+				I.Default = TextField ("Default", I.Default);
+				I.Value   = TextField ("Value",   I.Value);
 				I.contentType = ContentType.Custom;
-				I.SelectionColor = ColorField("Selection Color", I.SelectionColor);
-				I.CharValidation = EnumField ("Char Validation", I.CharValidation);
-				if (I.CharValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
-				I.CharLimit = IntField  ("Char Limit", I.CharLimit);
-				I.MaskValue = Toggle    ("Mask Value", I.MaskValue);
-				I.Default   = TextField ("Default",    I.Default);
-				I.Value     = TextField ("Value",      I.Value);
+				I.ValueLimit      = IntField ("Value Limit",      I.ValueLimit);
+				I.ValueValidation = EnumField("Value Validation", I.ValueValidation);
+				if (I.ValueValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
+				I.MaskValue = Toggle("Mask Value", I.MaskValue);
 				Space();
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnValueChanged");
@@ -102,34 +102,25 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 		set => m_RestoreButton = value;
 	}
 
-	TextMeshProUGUI TextUGUI {
-		get => m_TextComponent as TextMeshProUGUI;
-		set => m_TextComponent = value;
-	}
 	TextMeshProUGUI PlaceHolderUGUI {
 		get => m_Placeholder as TextMeshProUGUI;
 		set => m_Placeholder = value;
 	}
+	public string PlaceHolder {
+		get => PlaceHolderUGUI.text;
+		set => PlaceHolderUGUI.text = value;
+	}
+
+	TextMeshProUGUI TextUGUI {
+		get => m_TextComponent as TextMeshProUGUI;
+		set => m_TextComponent = value;
+	}
+	Color TextSelectionColor {
+		get => selectionColor;
+		set => selectionColor = value;
+	}
 
 
-
-	public CharacterValidation CharValidation {
-		get => characterValidation;
-		set => characterValidation = value;
-	}
-	public int CharLimit {
-		get => characterLimit;
-		set => characterLimit = value;
-	}
-	public bool MaskValue {
-		get => inputType == InputType.Password;
-		set {
-			if (MaskValue != value) {
-				inputType = value ? InputType.Password : InputType.Standard;
-				UpdateLabel();
-			}
-		}
-	}
 
 	public string Default {
 		get => m_Default;
@@ -149,13 +140,23 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 			}
 		}
 	}
-	Color SelectionColor {
-		get => selectionColor;
-		set => selectionColor = value;
+	public int ValueLimit {
+		get => characterLimit;
+		set => characterLimit = value;
 	}
-	public string PlaceHolder {
-		get => PlaceHolderUGUI.text;
-		set => PlaceHolderUGUI.text = value;
+	public CharacterValidation ValueValidation {
+		get => characterValidation;
+		set => characterValidation = value;
+	}
+
+	public bool MaskValue {
+		get => inputType == InputType.Password;
+		set {
+			if (MaskValue != value) {
+				inputType = value ? InputType.Password : InputType.Standard;
+				UpdateLabel();
+			}
+		}
 	}
 
 	public UnityEvent<CustomInputfield> OnStateUpdated => m_OnStateUpdated;

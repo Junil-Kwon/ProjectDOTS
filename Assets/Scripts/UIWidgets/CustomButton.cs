@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.Localization;
 
 using TMPro;
 
@@ -30,21 +31,21 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
+				LabelField("Button", EditorStyles.boldLabel);
 				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
 				if (I.TextUGUI) {
 					I.Text = TextField("Text", I.Text);
 					BeginHorizontal();
-					PrefixLabel("Alignment");
+					PrefixLabel("Text Alignment");
 					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
 					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
 					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
-				LabelField("Button", EditorStyles.boldLabel);
 				PropertyField("m_OnStateUpdated");
 				PropertyField("m_OnClick");
+				PropertyField("m_TooltipReference");
 				Space();
 
 				End();
@@ -61,6 +62,8 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	[SerializeField] UnityEvent<CustomButton> m_OnStateUpdated = new();
 	[SerializeField] UnityEvent               m_OnClick        = new();
 
+	[SerializeField] LocalizedString m_TooltipReference;
+
 
 
 	// Properties
@@ -74,8 +77,12 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 		set => TextUGUI.text = value;
 	}
 
+
+
 	public UnityEvent<CustomButton> OnStateUpdated => m_OnStateUpdated;
 	public UnityEvent               OnClick        => m_OnClick;
+
+	public string TooltipText => m_TooltipReference?.GetLocalizedString() ?? string.Empty;
 
 
 

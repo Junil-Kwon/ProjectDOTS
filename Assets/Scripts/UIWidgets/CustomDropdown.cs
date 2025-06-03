@@ -30,32 +30,31 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 				LabelField("Selectable", EditorStyles.boldLabel);
 				base.OnInspectorGUI();
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
-				I.FadeDuration  = FloatField ("Fade Duration",  I.FadeDuration);
+				LabelField("Dropdown", EditorStyles.boldLabel);
 				I.Highlight     = ObjectField("Highlight",      I.Highlight);
-				I.Template      = ObjectField("Template",       I.Template);
 				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
+				I.Template      = ObjectField("Template",       I.Template);
+				I.FadeDuration  = FloatField ("Fade Duration",  I.FadeDuration);
 				Space();
-				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-				if (I.TextUGUI) {
+				I.CaptionUGUI = ObjectField("Caption UGUI", I.CaptionUGUI);
+				if (I.CaptionUGUI) {
 					BeginHorizontal();
-					PrefixLabel("Alignment");
-					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
+					PrefixLabel("Caption Alignment");
+					if (Button("Left"  )) I.CaptionUGUI.alignment = TextAlignmentOptions.Left;
+					if (Button("Center")) I.CaptionUGUI.alignment = TextAlignmentOptions.Center;
+					if (Button("Right" )) I.CaptionUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				I.ItemUGUI = ObjectField("Item UGUI", I.ItemUGUI);
 				if (I.ItemUGUI) {
 					BeginHorizontal();
-					PrefixLabel("Alignment");
+					PrefixLabel("Item Alignment");
 					if (Button("Left"  )) I.ItemUGUI.alignment = TextAlignmentOptions.Left;
 					if (Button("Center")) I.ItemUGUI.alignment = TextAlignmentOptions.Center;
 					if (Button("Right" )) I.ItemUGUI.alignment = TextAlignmentOptions.Right;
 					EndHorizontal();
 				}
 				Space();
-				LabelField("Dropdown", EditorStyles.boldLabel);
 				PropertyField("m_Elements");
 				I.Default = IntField("Default", I.Default);
 				I.Value   = IntField("Value",   I.Value);
@@ -89,6 +88,10 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 		get => m_Highlight;
 		set => m_Highlight = value;
 	}
+	GameObject RestoreButton {
+		get => m_RestoreButton;
+		set => m_RestoreButton = value;
+	}
 	RectTransform Template {
 		get => template;
 		set => template = value;
@@ -97,12 +100,8 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 		get => alphaFadeSpeed;
 		set => alphaFadeSpeed = value;
 	}
-	GameObject RestoreButton {
-		get => m_RestoreButton;
-		set => m_RestoreButton = value;
-	}
 
-	TextMeshProUGUI TextUGUI {
+	TextMeshProUGUI CaptionUGUI {
 		get => captionText as TextMeshProUGUI;
 		set => captionText = value;
 	}
