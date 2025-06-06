@@ -22,7 +22,7 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomDropdown))]
-		class CustomDropdownEditor : SelectableEditorExtensions {
+		class CustomDropdownEditor : EditorExtensionsSelectable {
 			CustomDropdown I => target as CustomDropdown;
 			public override void OnInspectorGUI() {
 				Begin("Custom Dropdown");

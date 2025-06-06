@@ -20,7 +20,7 @@ using Unity.NetCode;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/Camera Manager")]
-public class CameraManager : MonoSingleton<CameraManager> {
+public sealed class CameraManager : MonoSingleton<CameraManager> {
 
 	// Editor
 
@@ -32,7 +32,9 @@ public class CameraManager : MonoSingleton<CameraManager> {
 				Begin("Camera Manager");
 
 				if (!MainCamera) {
-					HelpBox("No camera found. Please add a camera to child object.");
+					var t0 = "No camera found.";
+					var t1 = "Please add a camera to child object.";
+					HelpBox($"{t0}\n{t1}", MessageType.Warning);
 					Space();
 				} else {
 					LabelField("Camera", EditorStyles.boldLabel);
@@ -91,7 +93,7 @@ public class CameraManager : MonoSingleton<CameraManager> {
 
 	// Properties
 
-	static Transform Transform => Instance.transform;
+	public static Transform Transform => Instance.transform;
 
 	public static Vector3 Position {
 		get => Transform.position;
@@ -128,22 +130,13 @@ public class CameraManager : MonoSingleton<CameraManager> {
 
 
 
-	static Camera MainCamera {
-		get {
-			if (!Instance.m_MainCamera) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_MainCamera)) break;
-			}
-			return Instance.m_MainCamera;
-		}
-	}
-	static UniversalAdditionalCameraData CameraData {
-		get {
-			if (!Instance.m_CameraData) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_CameraData)) break;
-			}
-			return Instance.m_CameraData;
-		}
-	}
+	static Camera MainCamera =>
+		Instance.m_MainCamera || TryGetComponentInChildren(out Instance.m_MainCamera) ?
+		Instance.m_MainCamera : null;
+
+	static UniversalAdditionalCameraData CameraData =>
+		Instance.m_CameraData || TryGetComponentInChildren(out Instance.m_CameraData) ?
+		Instance.m_CameraData : null;
 
 	public static Vector2 RenderTextureSize {
 		get {

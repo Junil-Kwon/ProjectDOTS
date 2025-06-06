@@ -16,7 +16,7 @@ using Unity.AI.Navigation;
 
 [AddComponentMenu("Manager/Navigation Manager")]
 [RequireComponent(typeof(NavMeshSurface))]
-public class NavigationManager : MonoSingleton<NavigationManager> {
+public sealed class NavigationManager : MonoSingleton<NavigationManager> {
 
 	// Editor
 
@@ -51,33 +51,35 @@ public class NavigationManager : MonoSingleton<NavigationManager> {
 	// Fields
 
 	NavMeshPath m_Path;
-	readonly List<Vector3> m_List = new();
+	readonly List<Vector3> m_TempList = new();
 
 
 
 	// Properties
 
+	static NavMeshSurface[] Surfaces => Instance.GetComponents<NavMeshSurface>();
+
 	static NavMeshPath Path {
 		get => Instance.m_Path ??= new NavMeshPath();
 		set => Instance.m_Path = value;
 	}
-	static List<Vector3> List => Instance.m_List;
+	static List<Vector3> TempList => Instance.m_TempList;
 
 
 
 	// Methods
 
 	public static void ClearAll() {
-		foreach (var surface in Instance.GetComponents<NavMeshSurface>()) surface.RemoveData();
+		foreach (var surface in Surfaces) surface.RemoveData();
 	}
 
 	public static void BakeAll() {
-		foreach (var surface in Instance.GetComponents<NavMeshSurface>()) surface.BuildNavMesh();
+		foreach (var surface in Surfaces) surface.BuildNavMesh();
 	}
 
 	public static List<Vector3> GetPath(Vector3 source, Vector3 target) {
-		List.Clear();
-		if (TryGetPath(source, target, List)) return List;
+		TempList.Clear();
+		if (TryGetPath(source, target, TempList)) return TempList;
 		return null;
 	}
 

@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
@@ -16,7 +15,7 @@ using System.Collections.Generic;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/UI Manager")]
-public class UIManager : MonoSingleton<UIManager> {
+public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Editor
 
@@ -27,24 +26,9 @@ public class UIManager : MonoSingleton<UIManager> {
 			public override void OnInspectorGUI() {
 				Begin("UI Manager");
 
-				LabelField("Canvas", EditorStyles.boldLabel);
-				if (!TitleCanvas       ) HelpBox("No title canvas found.");
-				if (!GameCanvas        ) HelpBox("No game canvas found.");
-				if (!MultiplayerCanvas ) HelpBox("No multiplayer canvas found.");
-				if (!DialogueCanvas    ) HelpBox("No dialogue canvas found.");
-				if (!MenuCanvas        ) HelpBox("No menu canvas found.");
-				if (!AchievementCanvas ) HelpBox("No achievement canvas found.");
-				if (!SettingsCanvas    ) HelpBox("No settings canvas found.");
-				if (!ConfirmationCanvas) HelpBox("No confirmation canvas found.");
-				if (!AlertCanvas	   ) HelpBox("No alert canvas found.");
-				if (!FadeCanvas        ) HelpBox("No fade canvas found.");
-				Space();
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
-				TextField("Main Canvas", MainCanvas ? MainCanvas.name : string.Empty);
-				string overlayCanvas = string.Empty;
-				foreach (var canvas in OverlayCanvas) overlayCanvas += $"{canvas.name} ";
-				TextField("Overlay Canvas", overlayCanvas);
+				TextField("Current Canvas", $"{(Application.isPlaying ? CurrentCanvas : "None")}");
 				EndDisabledGroup();
 				Space();
 
@@ -84,95 +68,52 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	BaseCanvas m_MainCanvas;
 	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
-	readonly UnityEvent        m_BackEvent     = new();
+	readonly UnityEvent m_BackEvent = new();
 	bool m_IsPointerClicked;
 
 
 
 	// Properties
 
-	static RectTransform Transform => Instance.transform as RectTransform;
+	static TitleCanvas TitleCanvas =>
+		Instance.m_TitleCanvas || TryGetComponentInChildren(out Instance.m_TitleCanvas) ?
+		Instance.m_TitleCanvas : null;
 
-	static TitleCanvas TitleCanvas {
-		get {
-			if (!Instance.m_TitleCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_TitleCanvas)) break;
-			}
-			return Instance.m_TitleCanvas;
-		}
-	}
-	static GameCanvas GameCanvas {
-		get {
-			if (!Instance.m_GameCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_GameCanvas)) break;
-			}
-			return Instance.m_GameCanvas;
-		}
-	}
-	static MultiplayerCanvas MultiplayerCanvas {
-		get {
-			if (!Instance.m_MultiplayerCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_MultiplayerCanvas)) break;
-			}
-			return Instance.m_MultiplayerCanvas;
-		}
-	}
-	static DialogueCanvas DialogueCanvas {
-		get {
-			if (!Instance.m_DialogueCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_DialogueCanvas)) break;
-			}
-			return Instance.m_DialogueCanvas;
-		}
-	}
-	static MenuCanvas MenuCanvas {
-		get {
-			if (!Instance.m_MenuCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_MenuCanvas)) break;
-			}
-			return Instance.m_MenuCanvas;
-		}
-	}
-	static AchievementCanvas AchievementCanvas {
-		get {
-			if (!Instance.m_AchievementCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_AchievementCanvas)) break;
-			}
-			return Instance.m_AchievementCanvas;
-		}
-	}
-	static SettingsCanvas SettingsCanvas {
-		get {
-			if (!Instance.m_SettingsCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_SettingsCanvas)) break;
-			}
-			return Instance.m_SettingsCanvas;
-		}
-	}
-	static ConfirmationCanvas ConfirmationCanvas {
-		get {
-			if (!Instance.m_ConfirmationCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_ConfirmationCanvas)) break;
-			}
-			return Instance.m_ConfirmationCanvas;
-		}
-	}
-	static AlertCanvas AlertCanvas {
-		get {
-			if (!Instance.m_AlertCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_AlertCanvas)) break;
-			}
-			return Instance.m_AlertCanvas;
-		}
-	}
-	static FadeCanvas FadeCanvas {
-		get {
-			if (!Instance.m_FadeCanvas) for (int i = 0; i < Transform.childCount; i++) {
-				if (Transform.GetChild(i).TryGetComponent(out Instance.m_FadeCanvas)) break;
-			}
-			return Instance.m_FadeCanvas;
-		}
-	}
+	static GameCanvas GameCanvas =>
+		Instance.m_GameCanvas || TryGetComponentInChildren(out Instance.m_GameCanvas) ?
+		Instance.m_GameCanvas : null;
+
+	static MultiplayerCanvas MultiplayerCanvas =>
+		Instance.m_MultiplayerCanvas || TryGetComponentInChildren(out Instance.m_MultiplayerCanvas) ?
+		Instance.m_MultiplayerCanvas : null;
+
+	static DialogueCanvas DialogueCanvas =>
+		Instance.m_DialogueCanvas || TryGetComponentInChildren(out Instance.m_DialogueCanvas) ?
+		Instance.m_DialogueCanvas : null;
+
+	static MenuCanvas MenuCanvas =>
+		Instance.m_MenuCanvas || TryGetComponentInChildren(out Instance.m_MenuCanvas) ?
+		Instance.m_MenuCanvas : null;
+
+	static AchievementCanvas AchievementCanvas =>
+		Instance.m_AchievementCanvas || TryGetComponentInChildren(out Instance.m_AchievementCanvas) ?
+		Instance.m_AchievementCanvas : null;
+
+	static SettingsCanvas SettingsCanvas =>
+		Instance.m_SettingsCanvas || TryGetComponentInChildren(out Instance.m_SettingsCanvas) ?
+		Instance.m_SettingsCanvas : null;
+
+	static ConfirmationCanvas ConfirmationCanvas =>
+		Instance.m_ConfirmationCanvas || TryGetComponentInChildren(out Instance.m_ConfirmationCanvas) ?
+		Instance.m_ConfirmationCanvas : null;
+
+	static AlertCanvas AlertCanvas =>
+		Instance.m_AlertCanvas || TryGetComponentInChildren(out Instance.m_AlertCanvas) ?
+		Instance.m_AlertCanvas : null;
+
+	static FadeCanvas FadeCanvas =>
+		Instance.m_FadeCanvas || TryGetComponentInChildren(out Instance.m_FadeCanvas) ?
+		Instance.m_FadeCanvas : null;
 
 
 
@@ -187,7 +128,7 @@ public class UIManager : MonoSingleton<UIManager> {
 	}
 	public static bool IsUIActive => CurrentCanvas != GameCanvas;
 
-	public static UnityEvent BackEvent => Instance.m_BackEvent;
+	public static UnityEvent OnBackPressed => Instance.m_BackEvent;
 
 	public static bool IsPointerClicked {
 		get => Instance.m_IsPointerClicked;
@@ -209,47 +150,45 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	// Methods
 
-	public static void Initialize() {
-		TitleCanvas.Hide();
-		GameCanvas.Hide();
-		MultiplayerCanvas.Hide();
-		DialogueCanvas.Hide();
-		MenuCanvas.Hide();
-		AchievementCanvas.Hide();
-		SettingsCanvas.Hide();
-		ConfirmationCanvas.Hide();
-		AlertCanvas.Hide();
-		FadeCanvas.Hide();
+	static void Initialize() {
+		var transform = Instance.transform;
+		for (int i = 0; i < transform.childCount; i++) {
+			if (transform.GetChild(i).TryGetComponent(out BaseCanvas canvas)) canvas.Hide();
+		}
+		MainCanvas = null;
+		OverlayCanvas.Clear();
+		OnBackPressed.RemoveAllListeners();
+		Selected = null;
 	}
 
 	public static void Back() {
-		if (!OverlayCanvas.TryPeek(out var canvas)) {
-			switch (MainCanvas) {
-				case global::TitleCanvas:
-					ConfirmQuitGame();
-					break;
-				case global::GameCanvas:
-					ShowMenu();
-					break;
-			}
-		} else {
-			bool flag = true;
-			switch (canvas) {
-				case global::ConfirmationCanvas:
-					ConfirmationCanvas.CancelEvent.Invoke();
-					break;
-				case global::AlertCanvas:
-					AlertCanvas.CloseEvent.Invoke();
-					break;
-			}
-			if (flag) {
-				OverlayCanvas.Pop();
-				canvas.Hide();
-				if (OverlayCanvas.TryPeek(out canvas)) canvas.Show();
-			}
+		bool popOverlay = false;
+		switch (CurrentCanvas) {
+			case global::TitleCanvas:
+				ConfirmQuitGame();
+				break;
+			case global::GameCanvas:
+				ShowMenu();
+				break;
+			case global::ConfirmationCanvas:
+				ConfirmationCanvas.CancelEvent.Invoke();
+				popOverlay = true;
+				break;
+			case global::AlertCanvas:
+				AlertCanvas.CloseEvent.Invoke();
+				popOverlay = true;
+				break;
+			default:
+				popOverlay = true;
+				break;
 		}
-		BackEvent.Invoke();
-		BackEvent.RemoveAllListeners();
+		if (popOverlay) {
+			if (OverlayCanvas.TryPop (out var next)) next.Hide();
+			if (OverlayCanvas.TryPeek(out var prev)) prev.Show();
+			OnCanvasChanged();
+		}
+		OnBackPressed.Invoke();
+		OnBackPressed.RemoveAllListeners();
 	}
 
 
@@ -267,6 +206,7 @@ public class UIManager : MonoSingleton<UIManager> {
 		while (OverlayCanvas.TryPop(out var canvas)) canvas.Hide();
 		MainCanvas = mainCanvas;
 		mainCanvas.Show();
+		OnCanvasChanged();
 	}
 
 	public static void ShowMultiplayer () => ShowOverlayCanvas(MultiplayerCanvas);
@@ -280,11 +220,23 @@ public class UIManager : MonoSingleton<UIManager> {
 	static void ShowOverlayCanvas(BaseCanvas overlayCanvas) {
 		if (OverlayCanvas.TryPeek(out var canvas)) {
 			if (canvas == overlayCanvas) return;
-			if (canvas is MenuCanvas     menuCanvas    ) menuCanvas    .Hide(true);
-			if (canvas is SettingsCanvas settingsCanvas) settingsCanvas.Hide(true);
+			canvas.Hide(true);
 		}
 		OverlayCanvas.Push(overlayCanvas);
 		overlayCanvas.Show();
+		OnCanvasChanged();
+	}
+
+	static void OnCanvasChanged() {
+		if (IsUIActive) {
+			if (GameManager.GameState == GameState.Gameplay) {
+				GameManager.GameState = GameState.Paused;
+			}
+		} else {
+			if (GameManager.GameState == GameState.Paused) {
+				GameManager.GameState = GameState.Gameplay;
+			}
+		}
 	}
 
 
@@ -352,12 +304,20 @@ public class UIManager : MonoSingleton<UIManager> {
 
 	// Lifecycle
 
+	void OnEnable() {
+		Initialize();
+		ShowTitle();
+	}
+
 	void Update() {
 		if (IsUIActive) {
 			if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
 			if (InputManager.Navigate != Vector2.zero && !Selected) {
 				Selected = CurrentCanvas.FirstSelected;
 			}
-		} else IsPointerClicked = true;
+		} else {
+			if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
+			IsPointerClicked = true;
+		}
 	}
 }

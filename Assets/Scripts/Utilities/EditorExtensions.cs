@@ -172,6 +172,9 @@ using Unity.Mathematics;
 		public T EnumField<T>(string label, T value) where T : Enum {
 			return (T)EditorGUILayout.EnumPopup(label, value);
 		}
+		public uint FlagField<T>(uint value, uint mask = ~0u) where T : Enum {
+			return FlagField<T>(string.Empty, value, mask);
+		}
 		public uint FlagField<T>(string label, uint value, uint mask = ~0u) where T : Enum {
 			int temp = 0;
 			var strings = new List<string>();
@@ -191,9 +194,7 @@ using Unity.Mathematics;
 		}
 
 		public int LayerField(int layer) {
-			var layers = new string[32];
-			for (int i = 0; i < layers.Length; i++) layers[i] = LayerMask.LayerToName(i);
-			return EditorGUILayout.MaskField(layer, layers);
+			return LayerField(string.Empty, layer);
 		}
 		public int LayerField(string label, int layer) {
 			var layers = new string[32];
@@ -201,12 +202,15 @@ using Unity.Mathematics;
 			return EditorGUILayout.MaskField(label, layer, layers);
 		}
 
+		public int SceneField(int value) {
+			return SceneField(string.Empty, value);
+		}
 		public int SceneField(string label, int value) {
 			var scenes = EditorBuildSettings.scenes;
 			var popups = new string[EditorBuildSettings.scenes.Length];
 			for (int i = 0; i < scenes.Length; i++) popups[i] = scenes[i].path.Split('/')[^1][..^6];
 			EditorGUILayout.BeginHorizontal();
-			PrefixLabel(label);
+			if (label != string.Empty) PrefixLabel(label);
 			value = EditorGUILayout.Popup(value, popups);
 			EditorGUILayout.EndHorizontal();
 			return value;
@@ -245,9 +249,7 @@ using Unity.Mathematics;
 			return EditorGUILayout.Vector4Field(label, value);
 		}
 		public Quaternion QuaternionField(Quaternion value) {
-			Vector4 vector = new(value.x, value.y, value.z, value.w);
-			vector = EditorGUILayout.Vector4Field(string.Empty, vector);
-			return new Quaternion(vector.x, vector.y, vector.z, vector.w);
+			return QuaternionField(string.Empty, value);
 		}
 		public Quaternion QuaternionField(string label, Quaternion value) {
 			Vector4 vector = new(value.x, value.y, value.z, value.w);
@@ -255,9 +257,7 @@ using Unity.Mathematics;
 			return new Quaternion(vector.x, vector.y, vector.z, vector.w);
 		}
 		public Quaternion EulerField(Quaternion value) {
-			Vector3 vector = value.eulerAngles;
-			vector = EditorGUILayout.Vector3Field(string.Empty, vector);
-			return Quaternion.Euler(vector);
+			return EulerField(string.Empty, value);
 		}
 		public Quaternion EulerField(string label, Quaternion value) {
 			Vector3 vector = value.eulerAngles;
@@ -277,6 +277,17 @@ using Unity.Mathematics;
 		}
 		public string TextField(string label, string value) {
 			return EditorGUILayout.TextField(label, value);
+		}
+		public string TextArea(string value) {
+			return TextField(string.Empty, value);
+		}
+		public string TextArea(string label, string value) {
+			BeginHorizontal();
+			if (label != string.Empty) PrefixLabel(label);
+			var style = new GUIStyle(EditorStyles.textArea) { wordWrap = true, stretchHeight = true };
+			value = EditorGUILayout.TextArea(value, style, GUILayout.ExpandHeight(true));
+			EndHorizontal();
+			return value;
 		}
 
 		public AnimationCurve CurveField(AnimationCurve curve) {

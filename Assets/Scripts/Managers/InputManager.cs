@@ -52,7 +52,7 @@ public enum KeyAction : byte {
 
 [AddComponentMenu("Manager/Input Manager")]
 [RequireComponent(typeof(PlayerInput))]
-public class InputManager : MonoSingleton<InputManager> {
+public sealed class InputManager : MonoSingleton<InputManager> {
 
 	// Editor
 
@@ -64,12 +64,9 @@ public class InputManager : MonoSingleton<InputManager> {
 				Begin("Input Manager");
 
 				if (!InputActionAsset) {
-					HelpBox("No input action asset found.");
-					Space();
-				} else {
-					LabelField("Key Bindings", EditorStyles.boldLabel);
-					const string label = "Mouse Sensitivity";
-					DefaultMouseSensitivity = Slider(label, DefaultMouseSensitivity, 0.1f, 5.0f);
+					var t0 = "No input action asset found.";
+					var t1 = "Please assign an Input Action Asset to the Player Input component.";
+					HelpBox($"{t0}\n{t1}", MessageType.Warning);
 					Space();
 				}
 				LabelField("Debug", EditorStyles.boldLabel);
@@ -88,15 +85,14 @@ public class InputManager : MonoSingleton<InputManager> {
 
 	// Constants
 
-	const string MouseSensitivityKey = "MouseSensitivity";
+	const string SensitivityKey = "MouseSensitivity";
+	const float SensitivityValue = 0.2f;
 
 
 
 	// Fields
 
 	PlayerInput m_PlayerInput;
-
-	[SerializeField] float m_DefaultMouseSensitivity = 0.2f;
 
 	float m_MouseSensitivity;
 	uint m_KeyNext;
@@ -113,29 +109,19 @@ public class InputManager : MonoSingleton<InputManager> {
 
 	// Properties
 
-	static PlayerInput PlayerInput {
-		get {
-			if (!Instance.m_PlayerInput) Instance.TryGetComponent(out Instance.m_PlayerInput);
-			return Instance.m_PlayerInput;
-		}
-	}
+	static PlayerInput PlayerInput =>
+		Instance.m_PlayerInput || Instance.TryGetComponent(out Instance.m_PlayerInput) ?
+		Instance.m_PlayerInput : null;
+
 	static InputActionAsset InputActionAsset => PlayerInput.actions;
 
 
 
-	static float DefaultMouseSensitivity {
-		get => Instance.m_DefaultMouseSensitivity;
-		set => Instance.m_DefaultMouseSensitivity = value;
-	}
 	public static float MouseSensitivity {
-		get {
-			if (Instance.m_MouseSensitivity == default) {
-				float defaultValue = DefaultMouseSensitivity;
-				Instance.m_MouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityKey, defaultValue);
-			}
-			return Instance.m_MouseSensitivity;
-		}
-		set => PlayerPrefs.SetFloat(MouseSensitivityKey, Instance.m_MouseSensitivity = value);
+		get => Instance.m_MouseSensitivity == default ?
+			Instance.m_MouseSensitivity = PlayerPrefs.GetFloat(SensitivityKey, SensitivityValue) :
+			Instance.m_MouseSensitivity;
+		set => PlayerPrefs.SetFloat(SensitivityKey, Instance.m_MouseSensitivity = value);
 	}
 
 	public static uint KeyNext {
@@ -166,6 +152,7 @@ public class InputManager : MonoSingleton<InputManager> {
 		get         => Instance.m_Navigate;
 		private set => Instance.m_Navigate = value;
 	}
+
 	public static string KeyPressed {
 		get         => Instance.m_KeyPressed;
 		private set => Instance.m_KeyPressed = value;
@@ -189,18 +176,16 @@ public class InputManager : MonoSingleton<InputManager> {
 					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
 					KeyAction.ScrollWheel => callback => ScrollWheel   = callback.ReadValue<Vector2>(),
 					KeyAction.Navigate    => callback => Navigate      = callback.ReadValue<Vector2>(),
-					_ => callback => {
-						bool flag = callback.action.IsPressed();
-						KeyNext = flag ? (KeyNext | (1u << index)) : (KeyNext & ~(1u << index));
-					},
+					_ => callback => _ = callback.action.IsPressed() ?
+						KeyNext |=  (1u << index) :
+						KeyNext &= ~(1u << index),
 				};
 				inputAction.started  += callback => KeyNext |=  (1u << index);
 				inputAction.canceled += callback => KeyNext &= ~(1u << index);
 			}
 		}
+		InputSystem.onBeforeUpdate += () => KeyPrev = KeyNext;
 	}
-
-	static void UpdateKey() => KeyPrev = KeyNext;
 
 	static bool GetKeyNext(KeyAction key) => (KeyNext & (1u << (int)key)) != 0u;
 	static bool GetKeyPrev(KeyAction key) => (KeyPrev & (1u << (int)key)) != 0u;
@@ -300,9 +285,5 @@ public class InputManager : MonoSingleton<InputManager> {
 	void Start() {
 		RegisterActionMap();
 		RegisterKeyRecord();
-	}
-
-	void LateUpdate() {
-		UpdateKey();
 	}
 }

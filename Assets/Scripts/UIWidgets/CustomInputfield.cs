@@ -22,7 +22,7 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomInputfield))]
-		class CustomInputfieldEditor : SelectableEditorExtensions {
+		class CustomInputfieldEditor : EditorExtensionsSelectable {
 			CustomInputfield I => target as CustomInputfield;
 			public override void OnInspectorGUI() {
 				Begin("Custom Inputfield");
@@ -79,7 +79,7 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	// Fields
 
 	[SerializeField] CustomToggle m_HideToggle;
-	[SerializeField] GameObject   m_RestoreButton;
+	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string m_Default = string.Empty;
 

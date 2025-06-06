@@ -22,7 +22,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomSlider))]
-		class CustomSliderEditor : SelectableEditorExtensions {
+		class CustomSliderEditor : EditorExtensionsSelectable {
 			CustomSlider I => target as CustomSlider;
 			public override void OnInspectorGUI() {
 				Begin("Custom Slider");
@@ -71,7 +71,7 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	[SerializeField] RectTransform m_BodyRect;
 	[SerializeField] RectTransform m_FillRect;
 	[SerializeField] RectTransform m_HandleRect;
-	[SerializeField] GameObject    m_RestoreButton;
+	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 	[SerializeField] string m_TextFormat = "{0:P0}";

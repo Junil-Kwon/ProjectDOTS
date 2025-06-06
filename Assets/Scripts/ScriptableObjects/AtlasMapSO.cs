@@ -43,22 +43,18 @@ public class AtlasMapSO : ScriptableObject {
 				LabelField("Texture", EditorStyles.boldLabel);
 				PropertyField("m_Data");
 				Space();
-
 				LabelField("Atlas Map", EditorStyles.boldLabel);
-				I.MaximumAtlasSize = IntField  ("Maximum Atlas Size", I.MaximumAtlasSize);
-				I.Padding          = IntField  ("Padding",            I.Padding);
-				I.PixelPerUnit     = FloatField("Pixel Per Unit",     I.PixelPerUnit);
-				I.MergeDuplicate   = Toggle    ("Merge Duplicate",    I.MergeDuplicate);
+				I.PixelPerUnit = FloatField("Pixel Per Unit", I.PixelPerUnit);
+				I.Padding      = IntField  ("Padding",        I.Padding);
+				I.MaxSize      = IntField  ("Max Size",       I.MaxSize);
 				BeginHorizontal();
 				PrefixLabel("Generate Atlas Map");
 				if (Button("Clear"   )) I.ClearAtlasMap();
 				if (Button("Generate")) I.GenerateAtlasMap();
 				EndHorizontal();
 				Space();
-
 				LabelField("Atlas Map Data", EditorStyles.boldLabel);
 				LabelField("Count", I.Count.ToString());
-				Space();
 				BeginDisabledGroup(true);
 				int max = Mathf.Min(30, I.Count);
 				for (int i = 0; i < max; i++) {
@@ -93,12 +89,12 @@ public class AtlasMapSO : ScriptableObject {
 
 	// Fields
 
-	[SerializeField] DataSet[] m_Data             = new DataSet[] { new() };
-	[SerializeField] int       m_MaximumAtlasSize = 16384;
-	[SerializeField] int       m_Padding          = 2;
-	[SerializeField] float     m_PixelPerUnit     = 16f;
-	[SerializeField] bool      m_MergeDuplicate   = false;
-	[SerializeField] HashMap   m_AtlasMap         = new();
+	[SerializeField] DataSet[] m_Data = new DataSet[] { new() };
+
+	[SerializeField] float   m_PixelPerUnit = 16f;
+	[SerializeField] int     m_Padding      = 2;
+	[SerializeField] int     m_MaxSize      = 16384;
+	[SerializeField] HashMap m_AtlasMap     = new();
 
 	bool m_IsDirty = false;
 
@@ -106,23 +102,19 @@ public class AtlasMapSO : ScriptableObject {
 
 	// Properties
 
-	public DataSet[] Data => m_Data;
+	DataSet[] Data => m_Data;
 
-	public int MaximumAtlasSize {
-		get => m_MaximumAtlasSize;
-		set => m_MaximumAtlasSize = value;
-	}
-	public int Padding {
-		get => m_Padding;
-		set => m_Padding = value;
-	}
-	public float PixelPerUnit {
+	float PixelPerUnit {
 		get => m_PixelPerUnit;
 		set => m_PixelPerUnit = value;
 	}
-	public bool MergeDuplicate {
-		get => m_MergeDuplicate;
-		set => m_MergeDuplicate = value;
+	int MaxSize {
+		get => m_MaxSize;
+		set => m_MaxSize = value;
+	}
+	int Padding {
+		get => m_Padding;
+		set => m_Padding = value;
 	}
 	HashMap AtlasMap {
 		get => m_AtlasMap;
@@ -281,17 +273,6 @@ public class AtlasMapSO : ScriptableObject {
 				}
 				merged.Apply();
 
-				if (MergeDuplicate) {
-					int hash = GetTextureHash(merged);
-					if (hash2index.TryGetValue(hash, out int index)) {
-						index2list[index].Add(m);
-						continue;
-					} else {
-						hash2index.Add(hash,  m);
-						index2list.Add(m, new());
-					}
-				}
-
 				int xmin = merged.width,  xmax = 0;
 				int ymin = merged.height, ymax = 0;
 				var pixels = merged.GetPixels();
@@ -325,7 +306,7 @@ public class AtlasMapSO : ScriptableObject {
 					path = Path.Combine(path, $"{name}_{n}.png");
 				}
 				var atlas = CreateTexture();
-				var rects = atlas.PackTextures(targetNM[n], Padding, MaximumAtlasSize);
+				var rects = atlas.PackTextures(targetNM[n], Padding, MaxSize);
 				var bytes = atlas.EncodeToPNG();
 				File.WriteAllBytes(path, bytes);
 				AssetDatabase.Refresh();
@@ -340,7 +321,6 @@ public class AtlasMapSO : ScriptableObject {
 					}
 				}
 			}
-
 			AtlasMap.Clear();
 			var inv = 1f / PixelPerUnit;
 			for (int m = 0; m < M; m++) {

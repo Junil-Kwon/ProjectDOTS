@@ -13,7 +13,7 @@ using Unity.Sentis;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/AI Manager")]
-public class AIManager : MonoSingleton<AIManager> {
+public sealed class AIManager : MonoSingleton<AIManager> {
 
 	// Editor
 

@@ -23,7 +23,7 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomButton))]
-		class CustomButtonEditor : SelectableEditorExtensions {
+		class CustomButtonEditor : EditorExtensionsSelectable {
 			CustomButton I => target as CustomButton;
 			public override void OnInspectorGUI() {
 				Begin("Custom Button");
@@ -60,7 +60,7 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
 	[SerializeField] UnityEvent<CustomButton> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent               m_OnClick        = new();
+	[SerializeField] UnityEvent m_OnClick = new();
 
 	[SerializeField] LocalizedString m_TooltipReference;
 
@@ -80,7 +80,7 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 
 	public UnityEvent<CustomButton> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent               OnClick        => m_OnClick;
+	public UnityEvent OnClick => m_OnClick;
 
 	public string TooltipText => m_TooltipReference?.GetLocalizedString() ?? string.Empty;
 

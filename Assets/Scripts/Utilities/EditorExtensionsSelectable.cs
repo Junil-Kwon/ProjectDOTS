@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+using Unity.Mathematics;
+
 #if UNITY_EDITOR
 	using UnityEditor;
 	using UnityEditor.UI;
@@ -10,11 +12,11 @@ using System.Collections.Generic;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Selectable Editor Extensions
+// Editor Extensions Selectable
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #if UNITY_EDITOR
-	public class SelectableEditorExtensions : SelectableEditor {
+	public class EditorExtensionsSelectable : SelectableEditor {
 
 		// Initialization Methods
 
@@ -171,6 +173,9 @@ using System.Collections.Generic;
 		public T EnumField<T>(string label, T value) where T : Enum {
 			return (T)EditorGUILayout.EnumPopup(label, value);
 		}
+		public uint FlagField<T>(uint value, uint mask = ~0u) where T : Enum {
+			return FlagField<T>(string.Empty, value, mask);
+		}
 		public uint FlagField<T>(string label, uint value, uint mask = ~0u) where T : Enum {
 			int temp = 0;
 			var strings = new List<string>();
@@ -190,9 +195,7 @@ using System.Collections.Generic;
 		}
 
 		public int LayerField(int layer) {
-			var layers = new string[32];
-			for (int i = 0; i < layers.Length; i++) layers[i] = LayerMask.LayerToName(i);
-			return EditorGUILayout.MaskField(layer, layers);
+			return LayerField(string.Empty, layer);
 		}
 		public int LayerField(string label, int layer) {
 			var layers = new string[32];
@@ -200,12 +203,15 @@ using System.Collections.Generic;
 			return EditorGUILayout.MaskField(label, layer, layers);
 		}
 
+		public int SceneField(int value) {
+			return SceneField(string.Empty, value);
+		}
 		public int SceneField(string label, int value) {
 			var scenes = EditorBuildSettings.scenes;
 			var popups = new string[EditorBuildSettings.scenes.Length];
 			for (int i = 0; i < scenes.Length; i++) popups[i] = scenes[i].path.Split('/')[^1][..^6];
 			EditorGUILayout.BeginHorizontal();
-			PrefixLabel(label);
+			if (label != string.Empty) PrefixLabel(label);
 			value = EditorGUILayout.Popup(value, popups);
 			EditorGUILayout.EndHorizontal();
 			return value;
@@ -244,9 +250,7 @@ using System.Collections.Generic;
 			return EditorGUILayout.Vector4Field(label, value);
 		}
 		public Quaternion QuaternionField(Quaternion value) {
-			Vector4 vector = new(value.x, value.y, value.z, value.w);
-			vector = EditorGUILayout.Vector4Field(string.Empty, vector);
-			return new Quaternion(vector.x, vector.y, vector.z, vector.w);
+			return QuaternionField(string.Empty, value);
 		}
 		public Quaternion QuaternionField(string label, Quaternion value) {
 			Vector4 vector = new(value.x, value.y, value.z, value.w);
@@ -254,9 +258,7 @@ using System.Collections.Generic;
 			return new Quaternion(vector.x, vector.y, vector.z, vector.w);
 		}
 		public Quaternion EulerField(Quaternion value) {
-			Vector3 vector = value.eulerAngles;
-			vector = EditorGUILayout.Vector3Field(string.Empty, vector);
-			return Quaternion.Euler(vector);
+			return EulerField(string.Empty, value);
 		}
 		public Quaternion EulerField(string label, Quaternion value) {
 			Vector3 vector = value.eulerAngles;
@@ -277,6 +279,17 @@ using System.Collections.Generic;
 		public string TextField(string label, string value) {
 			return EditorGUILayout.TextField(label, value);
 		}
+		public string TextArea(string value) {
+			return TextField(string.Empty, value);
+		}
+		public string TextArea(string label, string value) {
+			BeginHorizontal();
+			if (label != string.Empty) PrefixLabel(label);
+			var style = new GUIStyle(EditorStyles.textArea) { wordWrap = true, stretchHeight = true };
+			value = EditorGUILayout.TextArea(value, style, GUILayout.ExpandHeight(true));
+			EndHorizontal();
+			return value;
+		}
 
 		public AnimationCurve CurveField(AnimationCurve curve) {
 			return EditorGUILayout.CurveField(curve);
@@ -294,6 +307,53 @@ using System.Collections.Generic;
 
 		public void PropertyField(string name) {
 			EditorGUILayout.PropertyField(serializedObject.FindProperty(name));
+		}
+
+
+
+		// Mathematics Field Methods
+
+		public int2 Int2Field(int2 value) {
+			Vector2Int result = Vector2IntField(new Vector2Int(value.x, value.y));
+			return new int2(result.x, result.y);
+		}
+		public int2 Int2Field(string label, int2 value) {
+			Vector2Int result = Vector2IntField(label, new Vector2Int(value.x, value.y));
+			return new int2(result.x, result.y);
+		}
+
+		public bool2 Toggle2(bool2 value) {
+			EditorGUILayout.BeginHorizontal();
+			value.x = EditorGUILayout.ToggleLeft("X", value.x, GUILayout.Width(28));
+			value.y = EditorGUILayout.ToggleLeft("Y", value.y, GUILayout.Width(28));
+			EditorGUILayout.EndHorizontal();
+			return value;
+		}
+		public bool2 Toggle2(string label, bool2 value) {
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PrefixLabel(label);
+			value.x = EditorGUILayout.ToggleLeft("X", value.x, GUILayout.Width(28));
+			value.y = EditorGUILayout.ToggleLeft("Y", value.y, GUILayout.Width(28));
+			EditorGUILayout.EndHorizontal();
+			return value;
+		}
+
+		public bool3 Toggle3(bool3 value) {
+			EditorGUILayout.BeginHorizontal();
+			value.x = EditorGUILayout.ToggleLeft("X", value.x, GUILayout.Width(28));
+			value.y = EditorGUILayout.ToggleLeft("Y", value.y, GUILayout.Width(28));
+			value.z = EditorGUILayout.ToggleLeft("Z", value.z, GUILayout.Width(28));
+			EditorGUILayout.EndHorizontal();
+			return value;
+		}
+		public bool3 Toggle3(string label, bool3 value) {
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PrefixLabel(label);
+			value.x = EditorGUILayout.ToggleLeft("X", value.x, GUILayout.Width(28));
+			value.y = EditorGUILayout.ToggleLeft("Y", value.y, GUILayout.Width(28));
+			value.z = EditorGUILayout.ToggleLeft("Z", value.z, GUILayout.Width(28));
+			EditorGUILayout.EndHorizontal();
+			return value;
 		}
 	}
 #endif

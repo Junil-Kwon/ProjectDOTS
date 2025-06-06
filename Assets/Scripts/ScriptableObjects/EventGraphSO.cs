@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,9 @@ public class EventGraphSO : ScriptableObject {
 
 				if (Button("Open Event Graph")) I.Open();				
 				Space();
+				PropertyField("m_OnEventBegin");
+				PropertyField("m_OnEventEnd");
+				Space();
 
 				End();
 			}
@@ -41,12 +45,16 @@ public class EventGraphSO : ScriptableObject {
 	// Fields
 
 	[SerializeReference] EntryEvent m_Entry = new();
+	[SerializeField] UnityEvent m_OnEventBegin = new();
+	[SerializeField] UnityEvent m_OnEventEnd = new();
 
 
 
 	// Properties
 
 	public EntryEvent Entry => m_Entry;
+	public UnityEvent OnEventBegin => m_OnEventBegin;
+	public UnityEvent OnEventEnd => m_OnEventEnd;
 
 	#if UNITY_EDITOR
 		public EntryEvent Clone { get; set; }

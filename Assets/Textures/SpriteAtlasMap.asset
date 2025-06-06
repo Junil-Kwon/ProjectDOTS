@@ -28,10 +28,9 @@ MonoBehaviour:
     FallbackColor:
       serializedVersion: 2
       rgba: 16744319
-  m_MaximumAtlasSize: 16384
-  m_Padding: 2
   m_PixelPerUnit: 16
-  m_MergeDuplicate: 0
+  m_Padding: 2
+  m_MaxSize: 16384
   m_AtlasMap:
     k:
     - Landing_0_0_0100

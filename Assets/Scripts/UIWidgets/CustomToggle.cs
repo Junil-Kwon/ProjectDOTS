@@ -22,7 +22,7 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomToggle))]
-		class CustomToggleEditor : SelectableEditorExtensions {
+		class CustomToggleEditor : EditorExtensionsSelectable {
 			CustomToggle I => target as CustomToggle;
 			public override void OnInspectorGUI() {
 				Begin("Custom Toggle");
@@ -53,11 +53,11 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	// Fields
 
-	[SerializeField] GameObject      m_PositiveImage;
-	[SerializeField] GameObject      m_NegativeImage;
+	[SerializeField] GameObject m_PositiveImage;
+	[SerializeField] GameObject m_NegativeImage;
 	[SerializeField] TextMeshProUGUI m_PositiveTextUGUI;
 	[SerializeField] TextMeshProUGUI m_NegativeTextUGUI;
-	[SerializeField] GameObject      m_RestoreButton;
+	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] bool m_Default = false;
 	[SerializeField] bool m_Value   = false;

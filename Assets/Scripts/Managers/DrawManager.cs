@@ -72,7 +72,7 @@ public struct UIDrawData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/Draw Manager")]
-public class DrawManager : MonoSingleton<DrawManager> {
+public sealed class DrawManager : MonoSingleton<DrawManager> {
 
 	// Editor
 

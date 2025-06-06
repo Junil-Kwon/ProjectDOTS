@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using Unity.Entities;
-using Unity.Burst;
 using Unity.NetCode;
 
 #if UNITY_EDITOR
@@ -17,7 +15,6 @@ using Unity.NetCode;
 // ━
 
 public enum GameState : byte {
-	None,
 	Gameplay,
 	Cutscene,
 	Paused,
@@ -30,7 +27,7 @@ public enum GameState : byte {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/Game Manager")]
-public class GameManager : MonoSingleton<GameManager> {
+public sealed class GameManager : MonoSingleton<GameManager> {
 
 	// Editor
 
@@ -47,11 +44,9 @@ public class GameManager : MonoSingleton<GameManager> {
 				StartDirectly = Toggle    ("Start Directly", StartDirectly);
 				EndDisabledGroup();
 				Space();
-
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
-				var gameState = Regex.Replace($"{GameState}", "(?<=[a-z])(?=[A-Z])", " ");
-				TextField("Game State", $"{gameState}");
+				TextField("Game State", $"{(Application.isPlaying ? GameState : "None")}");
 				EndDisabledGroup();
 				Space();
 
@@ -66,13 +61,13 @@ public class GameManager : MonoSingleton<GameManager> {
 
 	[SerializeField] int  m_GameScene;
 	[SerializeField] bool m_StartDirectly;
-
 	GameState m_GameState;
 
 	readonly List<CreatureCore> m_Players = new();
 
-	readonly List<BaseEvent> m_ActiveEvents = new();
-	readonly List<float    > m_EventElapsed = new();
+	readonly List<EventGraphSO> m_ActiveGraphs = new();
+	readonly List<BaseEvent   > m_ActiveEvents = new();
+	readonly List<float       > m_EventElapsed = new();
 
 
 
@@ -85,65 +80,77 @@ public class GameManager : MonoSingleton<GameManager> {
 	static bool StartDirectly {
 		get => Instance.m_StartDirectly;
 		set {
-			var flag = StartDirectly != value;
-			Instance.m_StartDirectly  = value;
-			#if UNITY_EDITOR
-				if (flag) CompilationPipeline.RequestScriptCompilation();
-			#endif
+			if (Instance.m_StartDirectly != value) {
+				Instance.m_StartDirectly = value;
+				#if UNITY_EDITOR
+					if (value) CompilationPipeline.RequestScriptCompilation();
+				#endif
+			}
 		}
 	}
 	public static GameState GameState {
 		get => Instance.m_GameState;
-		private set {
-			var flag = GameState != value;
-			Instance.m_GameState  = value;
-			if (flag) InputManager.SwitchActionMap(value switch {
-				GameState.Gameplay => ActionMap.Player,
-				GameState.Cutscene => ActionMap.UI,
-				GameState.Paused   => ActionMap.UI,
-				_ => default,
-			}, value != GameState.Paused);
+		set {
+			if (Instance.m_GameState != value) {
+				Instance.m_GameState = value;
+				InputManager.SwitchActionMap(value switch {
+					GameState.Gameplay => ActionMap.Player,
+					GameState.Cutscene => ActionMap.UI,
+					GameState.Paused   => ActionMap.UI,
+					_ => default,
+				}, value != GameState.Paused);
+			}
 		}
 	}
+
 	public static List<CreatureCore> Players => Instance.m_Players;
 
-	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
-	static List<float    > EventElapsed => Instance.m_EventElapsed;
+
+
+	static List<EventGraphSO> ActiveGraphs => Instance.m_ActiveGraphs;
+	static List<BaseEvent   > ActiveEvents => Instance.m_ActiveEvents;
+	static List<float       > EventElapsed => Instance.m_EventElapsed;
 
 
 
 	// Methods
 
 	public static void PlayEvent(EventGraphSO graph) {
+		graph.OnEventBegin.Invoke();
+		ActiveGraphs.Add(graph);
 		ActiveEvents.Add(graph.Entry);
 		EventElapsed.Add(-1f);
 	}
 
 	static void SimulateEvents() {
-		int i = 0;
-		while (i < ActiveEvents.Count) {
-			while (true) {
-				if (ActiveEvents[i] == null) {
-					ActiveEvents.RemoveAt(i);
-					EventElapsed.RemoveAt(i);
-					break;
-				}
-				if (EventElapsed[i] < 0f) {
-					EventElapsed[i] = 0f;
-					ActiveEvents[i].Start();
-					if (ActiveEvents[i].async) {
-						ActiveEvents.Add(ActiveEvents[i]);
-						EventElapsed.Add(EventElapsed[i]);
+		if (GameState != GameState.Paused) {
+			int i = 0;
+			while (i < ActiveEvents.Count) {
+				while (true) {
+					if (ActiveEvents[i] == null) {
+						ActiveGraphs[i].OnEventEnd.Invoke();
+						ActiveGraphs.RemoveAt(i);
+						ActiveEvents.RemoveAt(i);
+						EventElapsed.RemoveAt(i);
+						break;
 					}
-				}
-				if (ActiveEvents[i].Update() == false && EventElapsed[i] < 20f) {
-					EventElapsed[i] += Time.deltaTime;
-					i++;
-					break;
-				} else {
-					ActiveEvents[i].End();
-					ActiveEvents[i] = ActiveEvents[i].GetNext();
-					EventElapsed[i] = -1f;
+					if (EventElapsed[i] < 0f) {
+						EventElapsed[i] = 0f;
+						ActiveEvents[i].Start();
+						if (ActiveEvents[i].async) {
+							ActiveEvents.Add(ActiveEvents[i]);
+							EventElapsed.Add(EventElapsed[i]);
+						}
+					}
+					if (ActiveEvents[i].Update() == false) {
+						EventElapsed[i] += Time.deltaTime;
+						i++;
+						break;
+					} else {
+						ActiveEvents[i].End();
+						ActiveEvents[i] = ActiveEvents[i].GetNext();
+						EventElapsed[i] = -1f;
+					}
 				}
 			}
 		}
@@ -160,12 +167,7 @@ public class GameManager : MonoSingleton<GameManager> {
 		#endif
 		if (startDirectly == false) {
 			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
-			GameState = GameState.Paused;
-			UIManager.Initialize();
-			UIManager.ShowTitle();
 		} else {
-			GameState = GameState.Gameplay;
-			UIManager.Initialize();
 			UIManager.ShowGame();
 		}
 	}
@@ -186,20 +188,7 @@ public class GameManager : MonoSingleton<GameManager> {
 
 
 	void Update() {
-		switch (GameState) {
-			case GameState.Gameplay:
-				SimulateEvents();
-				if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) {
-					GameState = GameState.Paused;
-					UIManager.Back();
-				}
-				break;
-			case GameState.Paused:
-				if (!UIManager.IsUIActive) {
-					GameState = GameState.Gameplay;
-				}
-				break;
-		}
+		SimulateEvents();
 	}
 }
 

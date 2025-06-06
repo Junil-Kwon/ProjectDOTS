@@ -127,7 +127,7 @@ public class SettingsCanvas : BaseCanvas {
 		UIManager.GetConfirmEvent().AddListener(() => {
 			RestoreDefaults();
 			PlayerPrefs.DeleteAll();
-			UIManager.BackEvent.AddListener(() => UIManager.AlertAllDataReset());
+			UIManager.OnBackPressed.AddListener(() => UIManager.AlertAllDataReset());
 		});
 	}
 

@@ -22,10 +22,6 @@ public class FadeCanvas : BaseCanvas {
 			public override void OnInspectorGUI() {
 				Begin("Fade Canvas");
 
-				LabelField("Selected", EditorStyles.boldLabel);
-				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
-				Space();
-
 				End();
 			}
 		}

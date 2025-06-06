@@ -16,9 +16,9 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 
 	// Constants
 
-	const GraphicsBuffer.Target     Args       = GraphicsBuffer.Target    .IndirectArguments;
-	const GraphicsBuffer.Target     Structured = GraphicsBuffer.Target    .Structured;
-	const GraphicsBuffer.UsageFlags Locked     = GraphicsBuffer.UsageFlags.LockBufferForWrite;
+	const GraphicsBuffer.Target Args = GraphicsBuffer.Target.IndirectArguments;
+	const GraphicsBuffer.Target Structured = GraphicsBuffer.Target.Structured;
+	const GraphicsBuffer.UsageFlags Locked = GraphicsBuffer.UsageFlags.LockBufferForWrite;
 
 	const int MinCapacity = 256;
 
@@ -27,14 +27,14 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 	// Fields
 
 	Mesh meshCached;
-	int  stride;
-	int  propID;
-	int  length;
+	int stride;
+	int propID;
+	int length;
 
 	GraphicsBuffer bufferArgs;
 	GraphicsBuffer bufferStructured;
-	Dictionary<int, (int, int)> hashmap = new();
-	List<int> list = new();
+	readonly Dictionary<int, (int, int)> hashmap = new();
+	readonly List<int> list = new();
 
 	public RenderParams param;
 
@@ -65,9 +65,9 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 
 	public IndirectRenderer(Material material, Mesh mesh, int submesh = 0) {
 		meshCached = mesh;
-		stride     = Marshal.SizeOf<T>();
-		propID     = Shader.PropertyToID($"_{typeof(T).Name}");
-		length     = 0;
+		stride = Marshal.SizeOf<T>();
+		propID = Shader.PropertyToID($"_{typeof(T).Name}");
+		length = 0;
 
 		bufferArgs       = new GraphicsBuffer(Args, Locked, 5, sizeof(int));
 		bufferStructured = new GraphicsBuffer(Structured, Locked, MinCapacity, stride);
@@ -80,7 +80,7 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 		bufferArgs.UnlockBufferAfterWrite<int>(bufferArgs.count);
 
 		param = new RenderParams(material);
-		param.worldBounds	   = new Bounds(Vector3.zero, 1024f * Vector3.one);
+		param.worldBounds       = new Bounds(Vector3.zero, 1024f * Vector3.one);
 		param.shadowCastingMode = ShadowCastingMode.On;
 		param.receiveShadows    = true;
 		param.matProps          = new MaterialPropertyBlock();

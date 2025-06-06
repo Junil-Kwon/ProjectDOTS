@@ -22,7 +22,7 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomSelector))]
-		class CustomSelectorEditor : SelectableEditorExtensions {
+		class CustomSelectorEditor : EditorExtensionsSelectable {
 			CustomSelector I => target as CustomSelector;
 			public override void OnInspectorGUI() {
 				Begin("Custom Selector");
@@ -53,7 +53,7 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	// Fields
 
 	[SerializeField] RectTransform m_Template;
-	[SerializeField] GameObject    m_RestoreButton;
+	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
 	[SerializeField] bool m_MultiSelect = false;

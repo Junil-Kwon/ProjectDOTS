@@ -54,7 +54,7 @@ public enum NetworkState : byte {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Manager/Network Manager")]
-public class NetworkManager : MonoSingleton<NetworkManager> {
+public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 
 	// Editor
 
@@ -89,8 +89,8 @@ public class NetworkManager : MonoSingleton<NetworkManager> {
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
 
-	const int RelayMaxPlayers =  5;
-	const int LocalMaxPlayers = 64;
+	const int RelayMaxPlayers =   5;
+	const int LocalMaxPlayers = 100;
 	const float ConnectionTimeOut = 8f;
 
 

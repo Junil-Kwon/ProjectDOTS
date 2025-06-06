@@ -22,7 +22,7 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	#if UNITY_EDITOR
 		[CustomEditor(typeof(CustomStepper))]
-		class CustomStepperEditor : SelectableEditorExtensions {
+		class CustomStepperEditor : EditorExtensionsSelectable {
 			CustomStepper I => target as CustomStepper;
 			public override void OnInspectorGUI() {
 				Begin("Custom Stepper");
@@ -65,9 +65,9 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	// Fields
 
 	[SerializeField] RectTransform m_BodyRect;
-	[SerializeField] GameObject    m_LeftArrow;
-	[SerializeField] GameObject    m_RightArrow;
-	[SerializeField] GameObject    m_RestoreButton;
+	[SerializeField] GameObject m_LeftArrow;
+	[SerializeField] GameObject m_RightArrow;
+	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
