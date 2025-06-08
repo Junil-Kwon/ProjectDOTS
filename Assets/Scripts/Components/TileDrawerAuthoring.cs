@@ -45,10 +45,9 @@ public class TileDrawerAuthoring : MonoBehaviour {
 			TileDrawerAuthoring I => target as TileDrawerAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Tile Drawer Authoring");
-
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
-				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
-				if (flag) {
+				if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
+
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position      = Vector3Field("Position", I.Position);
 					I.EulerRotation = Vector3Field("Rotation", I.EulerRotation);

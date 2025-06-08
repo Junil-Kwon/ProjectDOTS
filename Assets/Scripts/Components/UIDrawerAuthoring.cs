@@ -39,10 +39,9 @@ public class UIDrawerAuthoring : MonoBehaviour {
 			UIDrawerAuthoring I => target as UIDrawerAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("UI Drawer Authoring");
-
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
-				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
-				if (flag) {
+				if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
+
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position", I.Position);
 					I.Scale    = Vector2Field("Scale",    I.Scale);

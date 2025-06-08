@@ -61,8 +61,8 @@ public struct GameManagerBridge : IComponentData {
 
 public static class GameManagerBridgeExtensions {
 
-	public static void PlayEvent
-		(this ref GameManagerBridge bridge, UnityObjectRef<EventGraphSO> graph) {
+	public static void PlayEvent(this ref GameManagerBridge bridge,
+		UnityObjectRef<EventGraphSO> graph) {
 		bridge.PlayEvent_graph = graph;
 	}
 }

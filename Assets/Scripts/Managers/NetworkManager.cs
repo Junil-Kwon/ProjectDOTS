@@ -44,7 +44,8 @@ public enum NetworkState : byte {
 	Connecting,
 	ConnectionSucceeded,
 	ConnectionFailed,
-	Connected,
+	ConnectedAsHost,
+	ConnectedAsClient,
 }
 
 
@@ -133,6 +134,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		get         => Instance.m_NetworkState;
 		private set => Instance.m_NetworkState = value;
 	}
+	public static bool IsHost   => NetworkState == NetworkState.ConnectedAsHost;
+	public static bool IsClient => NetworkState == NetworkState.ConnectedAsClient;
 
 	public static int MaxPlayers {
 		get         => Instance.m_MaxPlayers;
@@ -224,7 +227,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 					return;
 				};
 			}
-			NetworkState = NetworkState.Connected;
+			NetworkState = NetworkState.ConnectedAsHost;
 		}
 	}
 
@@ -264,7 +267,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 					return;
 				};
 			}
-			NetworkState = NetworkState.Connected;
+			NetworkState = NetworkState.ConnectedAsClient;
 		}
 	}
 
@@ -296,7 +299,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 					return;
 				};
 			}
-			NetworkState = NetworkState.Connected;
+			NetworkState = NetworkState.ConnectedAsHost;
 		}
 	}
 
@@ -321,7 +324,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 					return;
 				};
 			}
-			NetworkState = NetworkState.Connected;
+			NetworkState = NetworkState.ConnectedAsClient;
 		}
 	}
 
@@ -333,16 +336,13 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		await LeaveAsync();
 	}
 	public static async Task LeaveAsync() {
-		if (NetworkState == NetworkState.Connected || NetworkState == NetworkState.ConnectionFailed) {
+		NetworkState = NetworkState.SceneLoading;
+		var world = ClientServerBootstrap.CreateLocalWorld("DefaultWorld");
+		DestroyServerClientSimulationWorld();
+		World.DefaultGameObjectInjectionWorld = world;
+		await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
-			NetworkState = NetworkState.SceneLoading;
-			var world = ClientServerBootstrap.CreateLocalWorld("DefaultWorld");
-			DestroyServerClientSimulationWorld();
-			World.DefaultGameObjectInjectionWorld = world;
-			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
-
-			NetworkState = NetworkState.Ready;
-		}
+		NetworkState = NetworkState.Ready;
 	}
 
 

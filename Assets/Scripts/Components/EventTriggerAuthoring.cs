@@ -14,6 +14,15 @@ using Unity.NetCode;
 
 
 
+// ━
+
+public enum TriggerType : byte {
+	InRange,
+	OnInteract,
+}
+
+
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Event Trigger Authoring
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -32,29 +41,25 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 				LabelField("Event", EditorStyles.boldLabel);
 				I.Event = ObjectField("Event Graph", I.Event);
-				if (Button("Open Event Graph")) {
-					if (!I.Event) I.Event = CreateInstance<EventGraphSO>();
+				if (I.Event == null && Button("Create Event Graph")) {
+					I.Event = CreateInstance<EventGraphSO>();
 					I.Event.name = I.gameObject.name;
+				}
+				if (I.Event != null && Button("Open Event Graph")) {
 					I.Event.Open();
 				}
 				Space();
-				if (I.Event != null) {
-					LabelField("Trigger", EditorStyles.boldLabel);
-					I.IsGlobal = Toggle("Is Global", I.IsGlobal);
-					if (!Toggle("Use Iteration Limit", I.Count != -1)) I.Count = -1;
-					else {
-						IntentLevel++;
-						I.Count = Mathf.Max(0, IntField("Count", I.Count));
-						IntentLevel--;
-					}
-					if (!Toggle("Use Time Limit", I.Timer != -1f)) I.Timer = -1f;
-					else {
-						IntentLevel++;
-						I.Timer = Mathf.Max(0f, FloatField("Timer", I.Timer));
-						IntentLevel--;
-					}
-					Space();
+				LabelField("Trigger", EditorStyles.boldLabel);
+				I.TriggerType   = EnumField("Trigger Type",    I.TriggerType);
+				I.UseCountLimit = Toggle   ("Use Count Limit", I.UseCountLimit);
+				I.UseCooldown   = Toggle   ("Use Cooldown",    I.UseCooldown);
+				if (I.UseCountLimit) I.Count    = IntField  ("Count",    I.Count);
+				if (I.UseCooldown  ) I.Cooldown = FloatField("Cooldown", I.Cooldown);
+				if (I.TryGetComponent(out InteractableAuthoring _)) {
+					I.TriggerType = TriggerType.OnInteract;
 				}
+				Space();
+
 				End();
 			}
 
@@ -83,9 +88,9 @@ public class EventTriggerAuthoring : MonoBehaviour {
 	// Fields
 
 	[SerializeField] EventGraphSO m_Event;
-	[SerializeField] bool  m_IsGlobal = false;
+	[SerializeField] TriggerType  m_TriggerType;
 	[SerializeField] int   m_Count = -1;
-	[SerializeField] float m_Timer = -1f;
+	[SerializeField] float m_Cooldown = -1f;
 
 
 
@@ -95,17 +100,35 @@ public class EventTriggerAuthoring : MonoBehaviour {
 		get => m_Event;
 		set => m_Event = value;
 	}
-	public bool IsGlobal {
-		get => m_IsGlobal;
-		set => m_IsGlobal = value;
+	public TriggerType TriggerType {
+		get => m_TriggerType;
+		set {
+			if (m_TriggerType != value) {
+				m_TriggerType = value;
+				bool hasComponent = gameObject.TryGetComponent(out InteractableAuthoring interactable);
+				if (m_TriggerType == TriggerType.OnInteract) {
+					if (!hasComponent) gameObject.AddComponent<InteractableAuthoring>();
+				} else {
+					if (hasComponent) DestroyImmediate(interactable);
+				}
+			}
+		}
+	}
+	public bool UseCountLimit {
+		get => 0 <= m_Count;
+		set => m_Count = value ? Mathf.Max(0, m_Count) : -1;
+	}
+	public bool UseCooldown {
+		get => 0f <= m_Cooldown;
+		set => m_Cooldown = value ? Mathf.Max(0f, m_Cooldown) : -1f;
 	}
 	public int Count {
 		get => m_Count;
 		set => m_Count = value;
 	}
-	public float Timer {
-		get => m_Timer;
-		set => m_Timer = value;
+	public float Cooldown {
+		get => m_Cooldown;
+		set => m_Cooldown = value;
 	}
 
 
@@ -119,11 +142,9 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 				Event = authoring.Event,
 				Count = authoring.Count,
-				Timer = authoring.Timer,
+				Cooldown = authoring.Cooldown,
 
 			});
-			if (authoring.IsGlobal) AddComponent(entity, new ServerEvent());
-			else                    AddComponent(entity, new ClientEvent());
 		}
 	}
 }
@@ -138,21 +159,18 @@ public struct EventTrigger : IComponentData {
 
 	public UnityObjectRef<EventGraphSO> Event;
 	public int   Count;
-	public float Timer;
 	public float Cooldown;
+	public float Timer;
 }
-
-public struct ServerEvent : IComponentData { }
-public struct ClientEvent : IComponentData { }
 
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Event Trigger Server System
+// Event Trigger System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 [UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
 partial struct GlobalEventSystem : ISystem {
 
@@ -166,29 +184,27 @@ partial struct GlobalEventSystem : ISystem {
 			DeltaTime = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new TriggerServerEventJob {
-			GameManager       = SystemAPI.GetSingletonRW<GameManagerBridge>(),
-			TriggerGroup      = SystemAPI.GetComponentLookup<EventTrigger>(),
-			ServerGroup       = SystemAPI.GetComponentLookup<ServerEvent>(),
-			InteractableGroup = SystemAPI.GetComponentLookup<Interactable>(true),
-			LocalGhostGroup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
+			GameManager        = SystemAPI.GetSingletonRW<GameManagerBridge>(),
+			LocalGhostLookup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
+			InteractableLookup = SystemAPI.GetComponentLookup<Interactable>(true),
+			TriggerLookup      = SystemAPI.GetComponentLookup<EventTrigger>(),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
-	[BurstCompile, WithAll(typeof(ServerEvent), typeof(Simulate))]
+	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct ServerEventSimulationJob : IJobEntity {
 		public float DeltaTime;
 		public void Execute(ref EventTrigger trigger) {
-			trigger.Cooldown = math.max(0f, trigger.Cooldown - DeltaTime);
+			if (0f <= trigger.Cooldown) trigger.Timer = math.max(0f, trigger.Timer - DeltaTime);
 		}
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct TriggerServerEventJob : ITriggerEventsJob {
 		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> GameManager;
-		public ComponentLookup<EventTrigger> TriggerGroup;
-		public ComponentLookup<ServerEvent> ServerGroup;
-		[ReadOnly] public ComponentLookup<Interactable> InteractableGroup;
-		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> LocalGhostGroup;
+		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> LocalGhostLookup;
+		[ReadOnly] public ComponentLookup<Interactable> InteractableLookup;
+		public ComponentLookup<EventTrigger> TriggerLookup;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
@@ -196,82 +212,15 @@ partial struct GlobalEventSystem : ISystem {
 		}
 
 		public void Execute(Entity entity, Entity target) {
-			if (ServerGroup.HasComponent(entity) && !InteractableGroup.HasComponent(entity)) {
-					if (LocalGhostGroup.HasComponent(target)) {
-					if (TriggerGroup[entity].Count != 0 && TriggerGroup[entity].Cooldown == 0f) {
-						GameManager.ValueRW.PlayEvent(TriggerGroup[entity].Event);
+			if (LocalGhostLookup.HasComponent(entity) && LocalGhostLookup.IsComponentEnabled(entity)) {
+				if (!InteractableLookup.HasComponent(target) && TriggerLookup.HasComponent(target)) {
+					if (TriggerLookup[target].Count != 0 && TriggerLookup[target].Timer == 0f) {
+						GameManager.ValueRW.PlayEvent(TriggerLookup[target].Event);
 
-						var temp = TriggerGroup[entity];
+						var temp = TriggerLookup[target];
 						if (0 < temp.Count) temp.Count--;
-						temp.Cooldown = math.max(float.Epsilon, temp.Timer);
-						TriggerGroup[entity] = temp;
-					}
-				}
-			}
-		}
-	}
-}
-
-
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Event Trigger Client System
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-[BurstCompile]
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
-partial struct LocalEventSystem : ISystem {
-
-	public void OnCreate(ref SystemState state) {
-		state.RequireForUpdate<SimulationSingleton>();
-		state.RequireForUpdate<GameManagerBridge>();
-	}
-
-	public void OnUpdate(ref SystemState state) {
-		state.Dependency = new ClientEventSimulationJob {
-			DeltaTime = SystemAPI.Time.DeltaTime,
-		}.ScheduleParallel(state.Dependency);
-		state.Dependency = new TriggerClientEventJob {
-			GameManager       = SystemAPI.GetSingletonRW<GameManagerBridge>(),
-			TriggerGroup      = SystemAPI.GetComponentLookup<EventTrigger>(),
-			ClientGroup       = SystemAPI.GetComponentLookup<ClientEvent>(),
-			InteractableGroup = SystemAPI.GetComponentLookup<Interactable>(true),
-			LocalGhostGroup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
-		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
-	}
-
-	[BurstCompile, WithAll(typeof(ClientEvent), typeof(Simulate))]
-	partial struct ClientEventSimulationJob : IJobEntity {
-		public float DeltaTime;
-		public void Execute(ref EventTrigger trigger) {
-			trigger.Cooldown = math.max(0f, trigger.Cooldown - DeltaTime);
-		}
-	}
-
-	[BurstCompile, WithAll(typeof(Simulate))]
-	partial struct TriggerClientEventJob : ITriggerEventsJob {
-		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> GameManager;
-		public ComponentLookup<EventTrigger> TriggerGroup;
-		public ComponentLookup<ClientEvent> ClientGroup;
-		[ReadOnly] public ComponentLookup<Interactable> InteractableGroup;
-		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> LocalGhostGroup;
-
-		public void Execute(TriggerEvent triggerEvent) {
-			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
-			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
-		}
-
-		public void Execute(Entity entity, Entity target) {
-			if (ClientGroup.HasComponent(entity) && !InteractableGroup.HasComponent(entity)) {
-					if (LocalGhostGroup.HasComponent(target)) {
-					if (TriggerGroup[entity].Count != 0 && TriggerGroup[entity].Cooldown == 0f) {
-						GameManager.ValueRW.PlayEvent(TriggerGroup[entity].Event);
-
-						var temp = TriggerGroup[entity];
-						if (0 < temp.Count) temp.Count--;
-						temp.Cooldown = math.max(float.Epsilon, temp.Timer);
-						TriggerGroup[entity] = temp;
+						if (0f <= temp.Cooldown) temp.Timer = math.max(float.Epsilon, temp.Cooldown);
+						TriggerLookup[target] = temp;
 					}
 				}
 			}

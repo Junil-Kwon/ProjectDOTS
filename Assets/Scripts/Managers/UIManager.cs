@@ -168,7 +168,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 				ConfirmQuitGame();
 				break;
 			case global::GameCanvas:
-				ShowMenu();
+				OpenMenu();
 				break;
 			case global::ConfirmationCanvas:
 				ConfirmationCanvas.CancelEvent.Invoke();
@@ -195,33 +195,29 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Canvas Methods
 
-	public static void ShowTitle() => ShowMainCanvas(TitleCanvas);
-	public static void ShowGame () => ShowMainCanvas(GameCanvas);
+	public static void OpenTitle() => OpenMainCanvas(TitleCanvas);
+	public static void OpenGame () => OpenMainCanvas(GameCanvas);
 
-	static void ShowMainCanvas(BaseCanvas mainCanvas) {
-		if (MainCanvas) {
-			if (MainCanvas == mainCanvas) return;
-			MainCanvas.Hide();
-		}
+	static void OpenMainCanvas(BaseCanvas mainCanvas) {
+		if (mainCanvas == CurrentCanvas) return;
+		if (MainCanvas) MainCanvas.Hide();
 		while (OverlayCanvas.TryPop(out var canvas)) canvas.Hide();
 		MainCanvas = mainCanvas;
 		mainCanvas.Show();
 		OnCanvasChanged();
 	}
 
-	public static void ShowMultiplayer () => ShowOverlayCanvas(MultiplayerCanvas);
-	public static void ShowDialogue    () => ShowOverlayCanvas(DialogueCanvas);
-	public static void ShowMenu        () => ShowOverlayCanvas(MenuCanvas);
-	public static void ShowAchievement () => ShowOverlayCanvas(AchievementCanvas);
-	public static void ShowSettings    () => ShowOverlayCanvas(SettingsCanvas);
-	public static void ShowConfirmation() => ShowOverlayCanvas(ConfirmationCanvas);
-	public static void ShowAlert       () => ShowOverlayCanvas(AlertCanvas);
+	public static void OpenMultiplayer () => OpenOverlayCanvas(MultiplayerCanvas);
+	public static void OpenDialogue    () => OpenOverlayCanvas(DialogueCanvas);
+	public static void OpenMenu        () => OpenOverlayCanvas(MenuCanvas);
+	public static void OpenAchievement () => OpenOverlayCanvas(AchievementCanvas);
+	public static void OpenSettings    () => OpenOverlayCanvas(SettingsCanvas);
+	public static void OpenConfirmation() => OpenOverlayCanvas(ConfirmationCanvas);
+	public static void OpenAlert       () => OpenOverlayCanvas(AlertCanvas);
 
-	static void ShowOverlayCanvas(BaseCanvas overlayCanvas) {
-		if (OverlayCanvas.TryPeek(out var canvas)) {
-			if (canvas == overlayCanvas) return;
-			canvas.Hide(true);
-		}
+	static void OpenOverlayCanvas(BaseCanvas overlayCanvas) {
+		if (overlayCanvas == CurrentCanvas) return;
+		if (OverlayCanvas.TryPeek(out var canvas)) canvas.Hide(true);
 		OverlayCanvas.Push(overlayCanvas);
 		overlayCanvas.Show();
 		OnCanvasChanged();
@@ -247,7 +243,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	public static UnityEvent GetCancelEvent () => ConfirmationCanvas.CancelEvent;
 
 	public static void ConfirmReturnToLobby() {
-		ShowConfirmation();
+		OpenConfirmation();
 		ConfirmationCanvas.HeaderKey  = "Confirmation_ReturnToLobbyHeader";
 		ConfirmationCanvas.ContentKey = "Confirmation_ReturnToLobbyContent";
 		ConfirmationCanvas.ConfirmKey = "Confirmation_ReturnToLobbyConfirm";
@@ -256,7 +252,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	}
 
 	public static void ConfirmQuitGame() {
-		ShowConfirmation();
+		OpenConfirmation();
 		ConfirmationCanvas.HeaderKey  = "Confirmation_QuitGameHeader";
 		ConfirmationCanvas.ContentKey = "Confirmation_QuitGameContent";
 		ConfirmationCanvas.ConfirmKey = "Confirmation_QuitGameConfirm";
@@ -269,7 +265,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	}
 
 	public static void ConfirmResetAllData() {
-		ShowConfirmation();
+		OpenConfirmation();
 		ConfirmationCanvas.SetSelectedCancel();
 		ConfirmationCanvas.HeaderKey  = "Confirmation_ResetAllDataHeader";
 		ConfirmationCanvas.ContentKey = "Confirmation_ResetAllDataContent";
@@ -282,13 +278,13 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	// Alert Canvas Methods
 
 	public static void AlertServerConnectionLost() {
-		ShowAlert();
+		OpenAlert();
 		AlertCanvas.ContentKey = "Alert_ServerConnectionLostContent";
 		AlertCanvas.CloseKey   = "Alert_ServerConnectionLostClose";
 	}
 
 	public static void AlertAllDataReset() {
-		ShowAlert();
+		OpenAlert();
 		AlertCanvas.ContentKey = "Alert_AllDataResetContent";
 		AlertCanvas.CloseKey   = "Alert_AllDataResetClose";
 	}
@@ -297,7 +293,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Fade Canvas Methods
 
-	public static void FadeIn () { }
+	public static void FadeIn() { }
 	public static void FadeOut() { }
 
 
@@ -306,7 +302,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	void OnEnable() {
 		Initialize();
-		ShowTitle();
+		OpenTitle();
 	}
 
 	void Update() {

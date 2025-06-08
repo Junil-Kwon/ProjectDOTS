@@ -26,10 +26,9 @@ public class ShadowDrawerAuthoring : MonoBehaviour {
 			ShadowDrawerAuthoring I => target as ShadowDrawerAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Shadow Drawer Authoring");
-
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
-				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
-				if (flag) {
+				if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
+
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position",  I.Position);
 					I.Yaw      = FloatField  ("Yaw",       I.Yaw);

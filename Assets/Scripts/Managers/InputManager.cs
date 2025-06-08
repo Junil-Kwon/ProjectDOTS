@@ -86,7 +86,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Constants
 
 	const string SensitivityKey = "MouseSensitivity";
-	const float SensitivityValue = 0.2f;
+	const float  SensitivityValue = 0.2f;
 
 
 

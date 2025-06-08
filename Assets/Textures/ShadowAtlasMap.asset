@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ShadowAtlasMap
   m_EditorClassIdentifier: 
   m_Data:
-  - SourceTexture: Assets/Textures/ShadowBases
+  - SourceTexture: Assets/Textures/ShadowBases/
     TargetTexture: {fileID: 2800000, guid: a694164bb54cabb439c4911b8ed38224, type: 3}
     FallbackColor:
       serializedVersion: 2

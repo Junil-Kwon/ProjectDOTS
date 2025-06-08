@@ -65,9 +65,9 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 	readonly List<CreatureCore> m_Players = new();
 
-	readonly List<EventGraphSO> m_ActiveGraphs = new();
-	readonly List<BaseEvent   > m_ActiveEvents = new();
-	readonly List<float       > m_EventElapsed = new();
+	readonly List<BaseEvent> m_ActiveEvents = new();
+	readonly List<float    > m_EventElapsed = new();
+	readonly List<BaseEvent> m_Temp = new();
 
 
 
@@ -107,49 +107,48 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 
 
-	static List<EventGraphSO> ActiveGraphs => Instance.m_ActiveGraphs;
-	static List<BaseEvent   > ActiveEvents => Instance.m_ActiveEvents;
-	static List<float       > EventElapsed => Instance.m_EventElapsed;
+	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
+	static List<float    > EventElapsed => Instance.m_EventElapsed;
+	static List<BaseEvent> Temp => Instance.m_Temp;
 
 
 
 	// Methods
 
 	public static void PlayEvent(EventGraphSO graph) {
-		graph.OnEventBegin.Invoke();
-		ActiveGraphs.Add(graph);
 		ActiveEvents.Add(graph.Entry);
 		EventElapsed.Add(-1f);
 	}
 
 	static void SimulateEvents() {
-		if (GameState != GameState.Paused) {
-			int i = 0;
-			while (i < ActiveEvents.Count) {
-				while (true) {
-					if (ActiveEvents[i] == null) {
-						ActiveGraphs[i].OnEventEnd.Invoke();
-						ActiveGraphs.RemoveAt(i);
-						ActiveEvents.RemoveAt(i);
-						EventElapsed.RemoveAt(i);
-						break;
-					}
-					if (EventElapsed[i] < 0f) {
-						EventElapsed[i] = 0f;
-						ActiveEvents[i].Start();
-						if (ActiveEvents[i].async) {
-							ActiveEvents.Add(ActiveEvents[i]);
-							EventElapsed.Add(EventElapsed[i]);
-						}
-					}
-					if (ActiveEvents[i].Update() == false) {
-						EventElapsed[i] += Time.deltaTime;
-						i++;
-						break;
-					} else {
-						ActiveEvents[i].End();
-						ActiveEvents[i] = ActiveEvents[i].GetNext();
+		if (GameState == GameState.Paused) return;
+		int i = 0;
+		while (i < ActiveEvents.Count) {
+			while (true) {
+				if (ActiveEvents[i] == null) {
+					ActiveEvents.RemoveAt(i);
+					EventElapsed.RemoveAt(i);
+					break;
+				}
+				if (EventElapsed[i] < 0f) {
+					EventElapsed[i] = 0f;
+					ActiveEvents[i].Start();
+				}
+				if (ActiveEvents[i].Update() == false) {
+					EventElapsed[i] += Time.deltaTime;
+					i++;
+					break;
+				} else {
+					ActiveEvents[i].End();
+					ActiveEvents[i].GetNext(Temp);
+					if (Temp.Count == 0) ActiveEvents[i] = null;
+					else {
+						ActiveEvents[i] = Temp[0];
 						EventElapsed[i] = -1f;
+						for (int j = 1; j < Temp.Count; j++) {
+							ActiveEvents.Add(Temp[j]);
+							EventElapsed.Add(-1f);
+						}
 					}
 				}
 			}
@@ -168,7 +167,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 		if (startDirectly == false) {
 			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 		} else {
-			UIManager.ShowGame();
+			UIManager.OpenGame();
 		}
 	}
 

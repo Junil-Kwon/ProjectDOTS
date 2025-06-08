@@ -49,10 +49,9 @@ public abstract class BaseEvent {
 	#if UNITY_EDITOR
 		public abstract class BaseEventNode : Node {
 			const Orientation Horizontal = Orientation.Horizontal;
-			const Port.Capacity Single = Port.Capacity.Single;
-			const Port.Capacity Multi  = Port.Capacity.Multi;
+			protected const float DefaultNodeWidth  = 128f;
+			protected const float ExtendedNodeWidth = 224f;
 
-			public static readonly Vector2 DefaultSize = new(128f, 96f);
 			public static List<string> Dropdown {
 				get {
 					var cache = TypeCache.GetTypesWithAttribute<NodeMenuAttribute>();
@@ -82,7 +81,7 @@ public abstract class BaseEvent {
 
 			public virtual void ConstructData() { }
 			public virtual void ConstructPort() {
-				CreatePort(Direction.Input );
+				CreatePort(Direction.Input);
 				CreatePort(Direction.Output);
 				RefreshExpandedState();
 				RefreshPorts();
@@ -93,12 +92,12 @@ public abstract class BaseEvent {
 				var port  = default(Port);
 				switch (type) {
 					case PortType.Default:
-						port = InstantiatePort(Horizontal, direction, input ? Multi : Single, null);
+						port = InstantiatePort(Horizontal, direction, Port.Capacity.Multi, null);
 						port.portColor = new Color(1.0f, 1.0f, 1.0f);
 						port.portName = input ? "Prev" : "Next";
 						break;
 					case PortType.Object:
-						port = InstantiatePort(Horizontal, direction, Multi, null);
+						port = InstantiatePort(Horizontal, direction, Port.Capacity.Multi, null);
 						port.portColor = new Color(0.0f, 0.8f, 1.0f);
 						port.portName = input ? "In" : "Out";
 						break;
@@ -134,7 +133,6 @@ public abstract class BaseEvent {
 	[SerializeReference] public List<Connection> prev = new();
 	[SerializeReference] public List<Connection> next = new();
 	public Vector2 position;
-	public bool async;
 
 	#if UNITY_EDITOR
 		[NonSerialized] public BaseEventNode node;
@@ -165,23 +163,23 @@ public abstract class BaseEvent {
 		prev = data.prev;
 		next = data.next;
 		position = data.position;
-		async = data.async;
 	}
 
-	public virtual void Start () { }
+	public virtual void Start() { }
 	public virtual bool Update() => true;
-	public virtual void End   () { }
+	public virtual void End() { }
 
-	public virtual BaseEvent GetNext() {
+	public virtual void GetNext(List<BaseEvent> list) {
+		list ??= new();
+		list.Clear();
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
-			if (next.oPort == 0) return next.data;
+			if (next.oPort == 0) list.Add(next.data);
 		}
-		return null;
 	}
 	public virtual GameObject GetObject() => null;
 
 	#if UNITY_EDITOR
-		public virtual void DrawGizmos () { }
+		public virtual void DrawGizmos() { }
 		public virtual void DrawHandles() { }
 	#endif
 }
@@ -231,7 +229,7 @@ public class LogEvent : BaseEvent {
 			LogEvent I => target as LogEvent;
 
 			public LogEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 			}
 
 			public override void ConstructData() {
@@ -280,7 +278,7 @@ public class DelayEvent : BaseEvent {
 			DelayEvent I => target as DelayEvent;
 
 			public DelayEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 			}
 
 			public override void ConstructData() {
@@ -310,7 +308,7 @@ public class DelayEvent : BaseEvent {
 		}
 	}
 
-	public override void Start () =>  timer = time;
+	public override void Start () => timer = time;
 	public override bool Update() => (timer -= Time.deltaTime) <= 0f;
 }
 
@@ -330,11 +328,11 @@ public class OnceThenEvent : BaseEvent {
 			OnceThenEvent I => target as OnceThenEvent;
 
 			public OnceThenEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 			}
 
 			public override void ConstructPort() {
-				CreatePort(Direction.Input );
+				CreatePort(Direction.Input);
 				CreatePort(Direction.Output).portName = "Once";
 				CreatePort(Direction.Output).portName = "Then";
 				RefreshExpandedState();
@@ -353,13 +351,14 @@ public class OnceThenEvent : BaseEvent {
 
 	// Methods
 
-	public override BaseEvent GetNext() {
+	public override void GetNext(List<BaseEvent> list) {
+		list ??= new();
+		list.Clear();
 		var index = !value ? 0 : 1;
-		value = true;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
-			if (next.oPort == index) return next.data;
+			if (next.oPort == index) list.Add(next.data);
 		}
-		return null;
+		value = true;
 	}
 }
 
@@ -379,7 +378,7 @@ public class RepeatEvent : BaseEvent {
 			RepeatEvent I => target as RepeatEvent;
 
 			public RepeatEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 			}
 
 			public override void ConstructData() {
@@ -389,7 +388,7 @@ public class RepeatEvent : BaseEvent {
 			}
 
 			public override void ConstructPort() {
-				CreatePort(Direction.Input );
+				CreatePort(Direction.Input);
 				CreatePort(Direction.Output).portName = "While";
 				CreatePort(Direction.Output).portName = "Break";
 				RefreshExpandedState();
@@ -421,29 +420,34 @@ public class RepeatEvent : BaseEvent {
 		if (count < value) value = 0;
 	}
 
-	public override BaseEvent GetNext() {
+	public override void GetNext(List<BaseEvent> list) {
+		list ??= new();
+		list.Clear();
 		var index = value++ < count ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
-			if (next.oPort == index) return next.data;
+			if (next.oPort == index) list.Add(next.data);
 		}
-		return null;
 	}
 }
 
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Random
+// Randomize
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[NodeMenu("Logic/Random")]
-public class RandomEvent : BaseEvent {
+[NodeMenu("Logic/Randomize")]
+public class RandomizeEvent : BaseEvent {
 
 	// Node
 
 	#if UNITY_EDITOR
-		public class RandomEventNode : BaseEventNode {
-			RandomEvent I => target as RandomEvent;
+		public class RandomizeEventNode : BaseEventNode {
+			RandomizeEvent I => target as RandomizeEvent;
+
+			public RandomizeEventNode() : base() {
+				mainContainer.style.width = DefaultNodeWidth;
+			}
 
 			public override void ConstructData() {
 				var root = new VisualElement();
@@ -456,7 +460,7 @@ public class RandomEvent : BaseEvent {
 					root.Add(element);
 
 					var weight = new FloatField() { value = I.weights[index] };
-					weight.style.width = 120f;
+					weight.style.width = DefaultNodeWidth - 16f - 18f;
 					weight.RegisterValueChangedCallback(evt => {
 						I.weights[index] = evt.newValue;
 						UpdateProbability();
@@ -485,9 +489,7 @@ public class RandomEvent : BaseEvent {
 
 			public override void ConstructPort() {
 				CreatePort(Direction.Input);
-				for (int i = 0; i < I.weights.Count; i++) {
-					CreatePort(Direction.Output);
-				}
+				for (int i = 0; i < I.weights.Count; i++) CreatePort(Direction.Output);
 				UpdateProbability();
 				RefreshExpandedState();
 				RefreshPorts();
@@ -517,21 +519,22 @@ public class RandomEvent : BaseEvent {
 
 	public override void CopyFrom(BaseEvent data) {
 		base.CopyFrom(data);
-		if (data is RandomEvent random) {
-			weights.CopyFrom(random.weights);
+		if (data is RandomizeEvent randomize) {
+			weights.CopyFrom(randomize.weights);
 		}
 	}
 
-	public override BaseEvent GetNext() {
+	public override void GetNext(List<BaseEvent> list) {
+		list ??= new();
+		list.Clear();
 		var sum = 0f;
 		foreach (var weight in weights) sum += weight;
 		var random = Random.Range(0f, sum);
 		var index = weights.FindIndex(weight => (random -= weight) <= 0f);
 		if (index == -1) index = weights.Count - 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
-			if (next.oPort == index) return next.data;
+			if (next.oPort == index) list.Add(next.data);
 		}
-		return null;
 	}
 }
 
@@ -551,7 +554,7 @@ public class ObjectEvent : BaseEvent {
 			ObjectEvent I => target as ObjectEvent;
 
 			public ObjectEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 				var skyblue = new StyleColor(color.HSVtoRGB(200f, 0.75f, 0.60f));
 				titleContainer.style.backgroundColor = skyblue;
 			}
@@ -582,8 +585,8 @@ public class ObjectEvent : BaseEvent {
 
 	public override void CopyFrom(BaseEvent data) {
 		base.CopyFrom(data);
-		if (data is ObjectEvent gameObject) {
-			instance = gameObject.instance;
+		if (data is ObjectEvent @object) {
+			instance = @object.instance;
 		}
 	}
 
@@ -602,10 +605,11 @@ public class InstantiateObjectEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-		public class InstantiateObjectEventNode : BaseEventNode {
+		public class ObjectInstantiationEventNode : BaseEventNode {
 			InstantiateObjectEvent I => target as InstantiateObjectEvent;
 
-			public InstantiateObjectEventNode() : base() {
+			public ObjectInstantiationEventNode() : base() {
+				mainContainer.style.width = ExtendedNodeWidth;
 				var skyblue = new StyleColor(color.HSVtoRGB(200f, 0.75f, 0.60f));
 				titleContainer.style.backgroundColor = skyblue;
 			}
@@ -614,12 +618,9 @@ public class InstantiateObjectEvent : BaseEvent {
 				var prefab = new ObjectField ("Prefab") { value = I.prefab };
 				var anchor = new ObjectField ("Anchor") { value = I.anchor };
 				var offset = new Vector3Field("Offset") { value = I.offset };
-				prefab.labelElement.style.minWidth = prefab.labelElement.style.maxWidth =  60f;
-				anchor.labelElement.style.minWidth = anchor.labelElement.style.maxWidth =  60f;
-				offset.labelElement.style.minWidth = offset.labelElement.style.maxWidth =  60f;
-				prefab.ElementAt(1).style.minWidth = prefab.ElementAt(1).style.maxWidth = 144f;
-				anchor.ElementAt(1).style.minWidth = anchor.ElementAt(1).style.maxWidth = 144f;
-				offset.ElementAt(1).style.minWidth = offset.ElementAt(1).style.maxWidth = 144f;
+				prefab.labelElement.style.minWidth = prefab.labelElement.style.maxWidth = 56f;
+				anchor.labelElement.style.minWidth = anchor.labelElement.style.maxWidth = 56f;
+				offset.labelElement.style.minWidth = offset.labelElement.style.maxWidth = 56f;
 				prefab.RegisterValueChangedCallback(evt => I.prefab = evt.newValue as GameObject);
 				anchor.RegisterValueChangedCallback(evt => I.anchor = evt.newValue as GameObject);
 				offset.RegisterValueChangedCallback(evt => I.offset = evt.newValue);
@@ -654,10 +655,10 @@ public class InstantiateObjectEvent : BaseEvent {
 
 	public override void CopyFrom(BaseEvent data) {
 		base.CopyFrom(data);
-		if (data is InstantiateObjectEvent instantiate) {
-			prefab = instantiate.prefab;
-			anchor = instantiate.anchor;
-			offset = instantiate.offset;
+		if (data is InstantiateObjectEvent instantiateObject) {
+			prefab = instantiateObject.prefab;
+			anchor = instantiateObject.anchor;
+			offset = instantiateObject.offset;
 		}
 	}
 
@@ -723,13 +724,13 @@ public class DestroyObjectEvent : BaseEvent {
 			DestroyObjectEvent I => target as DestroyObjectEvent;
 
 			public DestroyObjectEventNode() : base() {
-				mainContainer.style.minWidth = mainContainer.style.maxWidth = DefaultSize.x;
+				mainContainer.style.width = DefaultNodeWidth;
 				var skyblue = new StyleColor(color.HSVtoRGB(200f, 0.75f, 0.60f));
 				titleContainer.style.backgroundColor = skyblue;
 			}
 
 			public override void ConstructPort() {
-				CreatePort(Direction.Input );
+				CreatePort(Direction.Input);
 				CreatePort(Direction.Output);
 				CreatePort(Direction.Input, PortType.Object);
 				RefreshExpandedState();

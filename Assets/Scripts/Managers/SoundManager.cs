@@ -22,11 +22,6 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 			public override void OnInspectorGUI() {
 				Begin("Sound Manager");
 
-				LabelField("Volume", EditorStyles.boldLabel);
-				Music   = Slider("Music",    Music,   0.0f, 1.5f);
-				SoundFX = Slider("Sound FX", SoundFX, 0.0f, 1.5f);
-				Space();
-
 				End();
 			}
 		}
@@ -37,9 +32,10 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 	// Constants
 
 	const string MusicKey = "Music";
+	const float  MusicValue = 1f;
+
 	const string SoundFXKey = "SoundFX";
-	const float MusicValue = 1f;
-	const float SoundFXValue = 1f;
+	const float  SoundFXValue = 1f;
 
 
 

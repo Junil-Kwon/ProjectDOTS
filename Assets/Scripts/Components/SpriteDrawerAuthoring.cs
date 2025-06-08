@@ -48,10 +48,9 @@ public class SpriteDrawerAuthoring : MonoBehaviour {
 			SpriteDrawerAuthoring I => target as SpriteDrawerAuthoring;
 			public override void OnInspectorGUI() {
 				Begin("Sprite Drawer Authoring");
-
 				var status = PrefabUtility.GetPrefabInstanceStatus(I.gameObject);
-				var flag   = !Application.isPlaying && status != PrefabInstanceStatus.Connected;
-				if (flag) {
+				if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
+
 					LabelField("Transform", EditorStyles.boldLabel);
 					I.Position = Vector3Field("Position",  I.Position);
 					I.Pivot    = Vector2Field("Pivot",     I.Pivot);

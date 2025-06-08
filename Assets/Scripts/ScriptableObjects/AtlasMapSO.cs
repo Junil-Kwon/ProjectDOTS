@@ -157,7 +157,7 @@ public class AtlasMapSO : ScriptableObject {
 	// Utility Methods
 
 	#if UNITY_EDITOR
-		public static T[] LoadAsset<T>(string path) where T : UnityEngine.Object {
+		static T[] LoadAssets<T>(string path) where T : UnityEngine.Object {
 			var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name, new[] { path });
 			var assets = new T[guids.Length];
 			for (int i = 0; i < guids.Length; i++) {
@@ -167,20 +167,20 @@ public class AtlasMapSO : ScriptableObject {
 			return assets;
 		}
 
-		public static Texture2D CreateTexture(int width = 1, int height = 1) {
+		static Texture2D CreateTexture(int width = 1, int height = 1) {
 			return CreateTexture(width, height, Color.clear);
 		}
-		public static Texture2D CreateTexture(int width, int height, Color color) {
+		static Texture2D CreateTexture(int width, int height, Color color) {
 			var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
 			texture.SetPixels(Enumerable.Repeat(color, width * height).ToArray());
 			texture.Apply();
 			return texture;
 		}
 
-		public static Texture2D ResizeTexture(Texture2D texture, int width, int height) {
+		static Texture2D ResizeTexture(Texture2D texture, int width, int height) {
 			return ResizeTexture(texture, new RectInt(0, 0, width, height));
 		}
-		public static Texture2D ResizeTexture(Texture2D texture, RectInt rect) {
+		static Texture2D ResizeTexture(Texture2D texture, RectInt rect) {
 			var copy = default(RectInt);
 			copy.x = math.max(0, rect.x);
 			copy.y = math.max(0, rect.y);
@@ -191,22 +191,6 @@ public class AtlasMapSO : ScriptableObject {
 			resized.SetPixels(texture.GetPixels(copy.x, copy.y, copy.width, copy.height));
 			resized.Apply();
 			return resized;
-		}
-
-		public static int GetTextureHash(Texture2D texture) {
-			var pixels = texture.GetPixels();
-			int hash = 17;
-			int step = 1;
-			if (4096 < pixels.Length) step = Mathf.FloorToInt(Mathf.Sqrt(pixels.Length / 4096));
-			for (int i = 0; i < pixels.Length; i += step) {
-				Color pixel = pixels[i];
-				int r = (int)(pixel.r * 255);
-				int g = (int)(pixel.g * 255);
-				int b = (int)(pixel.b * 255);
-				int a = (int)(pixel.a * 255);
-				hash = (hash * 31) ^ (r << 24 | g << 16 | b <<  8 | a <<  0);
-			}
-			return hash;
 		}
 	#endif
 
@@ -240,7 +224,7 @@ public class AtlasMapSO : ScriptableObject {
 			var sourceNM = new Texture2D[N][];
 			var targetNM = new Texture2D[N][];
 			for (int n = 0; n < N; n++) {
-				sourceNM[n] = LoadAsset<Texture2D>(Data[n].SourceTexture);
+				sourceNM[n] = LoadAssets<Texture2D>(Data[n].SourceTexture);
 				targetNM[n] = new Texture2D[sourceNM[0].Length];
 			}
 			M = sourceNM[0].Length;

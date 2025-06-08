@@ -73,21 +73,14 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 
 
 
-	// Constants
-
-	public const float DefaultFocusDistance = 64f;
-	public const float DefaultProjection    =  1f;
-
-
-
 	// Fields
 
 	Camera m_MainCamera;
 	UniversalAdditionalCameraData m_CameraData;
 
-	[SerializeField] float       m_FocusDistance = DefaultFocusDistance;
-	[SerializeField] float       m_Projection    = DefaultProjection;
-	[SerializeField] constraints m_Constraints   = new();
+	[SerializeField] float m_FocusDistance = 64f;
+	[SerializeField] float m_Projection    =  1f;
+	[SerializeField] constraints m_Constraints = new();
 
 
 
@@ -190,11 +183,12 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 			float right  =  OrthographicSize * aspect;
 			float bottom = -OrthographicSize;
 			float top    =  OrthographicSize;
+			var matrix = MainCamera.projectionMatrix;
 			var a = Matrix4x4.Perspective(FieldOfView, aspect, near, far);
 			var b = Matrix4x4.Ortho(left, right,  bottom, top, near, far);
-			var projection = MainCamera.projectionMatrix;
-			for (int i = 0; i < 16; i++) projection[i] = Mathf.Lerp(a[i], b[i], value);
-			MainCamera.projectionMatrix = projection;
+			var t = Mathf.Pow(Mathf.Max(0.01f, value), 0.03f);
+			for (int i = 0; i < 16; i++) matrix[i] = Mathf.Lerp(a[i], b[i], t);
+			MainCamera.projectionMatrix = matrix;
 		}
 	}
 

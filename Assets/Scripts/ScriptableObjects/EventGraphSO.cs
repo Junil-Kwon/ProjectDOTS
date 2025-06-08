@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UIElements;
 using System;
 using System.Collections.Generic;
@@ -29,10 +28,7 @@ public class EventGraphSO : ScriptableObject {
 			public override void OnInspectorGUI() {
 				Begin("Event Graph SO");
 
-				if (Button("Open Event Graph")) I.Open();				
-				Space();
-				PropertyField("m_OnEventBegin");
-				PropertyField("m_OnEventEnd");
+				if (Button("Open Event Graph")) I.Open();
 				Space();
 
 				End();
@@ -45,16 +41,12 @@ public class EventGraphSO : ScriptableObject {
 	// Fields
 
 	[SerializeReference] EntryEvent m_Entry = new();
-	[SerializeField] UnityEvent m_OnEventBegin = new();
-	[SerializeField] UnityEvent m_OnEventEnd = new();
 
 
 
 	// Properties
 
 	public EntryEvent Entry => m_Entry;
-	public UnityEvent OnEventBegin => m_OnEventBegin;
-	public UnityEvent OnEventEnd => m_OnEventEnd;
 
 	#if UNITY_EDITOR
 		public EntryEvent Clone { get; set; }
@@ -216,7 +208,7 @@ public class EventGraphSO : ScriptableObject {
 			var nodeType = Type.GetType(type.Name + "+" + type.Name + "Node");
 			if (nodeType == null) return null;
 			var node = Activator.CreateInstance(nodeType) as BaseEvent.BaseEventNode;
-			node.SetPosition(new Rect(position, BaseEvent.BaseEventNode.DefaultSize));
+			node.SetPosition(new Rect(position, Vector2.zero));
 			AddElement(node);
 			return node;
 		}
@@ -224,8 +216,15 @@ public class EventGraphSO : ScriptableObject {
 		public override List<Port> GetCompatiblePorts(Port startport, NodeAdapter adapter) {
 			return ports.Where(port => {
 				var match = true;
-				match &= port.node != startport.node && port.direction != startport.direction;
-				match &= (byte)port.userData == (byte)startport.userData;
+				if (match) match &= port.node != startport.node;
+				if (match) match &= port.direction != startport.direction;
+				if (match) match &= (byte)port.userData == (byte)startport.userData;
+				if (match) {
+					var connectedPorts = startport.connections.Select(edge => {
+						return edge.output == startport ? edge.input : edge.output;
+					}).ToList();
+					match &= !connectedPorts.Contains(port);
+				}
 				return match;
 			}).ToList();
 		}
@@ -296,6 +295,7 @@ public class EventGraphSO : ScriptableObject {
 			stack.Push(graph.Entry);
 			while (0 < stack.Count) {
 				var data = stack.Pop();
+				if (data == null) continue;
 				if (cache.ContainsKey(data.guid)) continue;
 				var node = CreateNode(data.GetType(), data.position);
 				node.target.CopyFrom(data);
@@ -310,6 +310,7 @@ public class EventGraphSO : ScriptableObject {
 				var data = node.target;
 				var node_oPorts = node.outputContainer.Children().OfType<Port>().ToList();
 				if (data.next != null) for (int i = 0; i < data.next.Count; i++) {
+					if (data.next[i].data == null) continue;
 					var next = cache[data.next[i].data.guid];
 					var next_iPorts = next.inputContainer.Children().OfType<Port>().ToList();
 					var nodeOPort = node_oPorts[data.next[i].oPort];
@@ -321,22 +322,28 @@ public class EventGraphSO : ScriptableObject {
 			foreach (var (_, node) in cache) {
 				var data = node.target;
 				var prev = new List<BaseEvent.Connection>();
-				foreach (var connection in data.prev) prev.Add(new() {
-					data      = cache[connection.data.guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
-					iPortType = connection.iPortType,
-					oPortType = connection.oPortType,					
-				});
+				foreach (var connection in data.prev) {
+					if (connection.data == null) continue;
+					prev.Add(new() {
+						data      = cache[connection.data.guid].target,
+						iPort     = connection.iPort,
+						oPort     = connection.oPort,
+						iPortType = connection.iPortType,
+						oPortType = connection.oPortType,
+					});
+				}
 				data.prev = prev;
 				var next = new List<BaseEvent.Connection>();
-				foreach (var connection in data.next) next.Add(new() {
-					data      = cache[connection.data.guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
-					iPortType = connection.iPortType,
-					oPortType = connection.oPortType,					
-				});
+					foreach (var connection in data.next) {
+					if (connection.data == null) continue;
+					next.Add(new() {
+						data      = cache[connection.data.guid].target,
+						iPort     = connection.iPort,
+						oPort     = connection.oPort,
+						iPortType = connection.iPortType,
+						oPortType = connection.oPortType,
+					});
+				}
 				data.next = next;
 			}
 

@@ -22,6 +22,22 @@ public class InteractableAuthoring : MonoBehaviour {
 			AddComponent(entity, new Interactable());
 		}
 	}
+
+
+
+	// Editor
+
+	#if UNITY_EDITOR
+		[CustomEditor(typeof(InteractableAuthoring))]
+		class InteractableAuthoringEditor : EditorExtensions {
+			InteractableAuthoring I => target as InteractableAuthoring;
+			public override void OnInspectorGUI() {
+				Begin("Interactable Authoring");
+
+				End();
+			}
+		}
+	#endif
 }
 
 

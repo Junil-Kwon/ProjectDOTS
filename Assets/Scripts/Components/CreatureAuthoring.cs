@@ -1113,17 +1113,17 @@ partial struct CreatureInitializationSystem : ISystem {
 		state.Dependency = new CreatureComponentsModificationJob {
 			Buffer          = singleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
 			PrefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(),
-			BlobGroup       = SystemAPI.GetComponentLookup<CreatureBlob   >(),
-			CoreGroup       = SystemAPI.GetComponentLookup<CreatureCore   >(),
-			TempGroup       = SystemAPI.GetComponentLookup<CreatureTemp   >(),
-			StatusGroup     = SystemAPI.GetComponentLookup<CreatureStatus >(),
-			EffectGroup     = SystemAPI.GetBufferLookup   <CreatureEffect >(),
-			ColliderGroup   = SystemAPI.GetComponentLookup<PhysicsCollider>(),
-			MassGroup       = SystemAPI.GetComponentLookup<PhysicsMass    >(),
-			TileGroup       = SystemAPI.GetBufferLookup<TileDrawer  >(),
-			SpriteGroup     = SystemAPI.GetBufferLookup<SpriteDrawer>(),
-			ShadowGroup     = SystemAPI.GetBufferLookup<ShadowDrawer>(),
-			UIGroup         = SystemAPI.GetBufferLookup<UIDrawer    >(),
+			BlobLookup      = SystemAPI.GetComponentLookup<CreatureBlob   >(),
+			CoreLookup      = SystemAPI.GetComponentLookup<CreatureCore   >(),
+			TempLookup      = SystemAPI.GetComponentLookup<CreatureTemp   >(),
+			StatusLookup    = SystemAPI.GetComponentLookup<CreatureStatus >(),
+			EffectLookup    = SystemAPI.GetBufferLookup   <CreatureEffect >(),
+			ColliderLookup  = SystemAPI.GetComponentLookup<PhysicsCollider>(),
+			MassLookup      = SystemAPI.GetComponentLookup<PhysicsMass    >(),
+			TileLookup      = SystemAPI.GetBufferLookup<TileDrawer  >(),
+			SpriteLookup    = SystemAPI.GetBufferLookup<SpriteDrawer>(),
+			ShadowLookup    = SystemAPI.GetBufferLookup<ShadowDrawer>(),
+			UILookup        = SystemAPI.GetBufferLookup<UIDrawer    >(),
 		}.ScheduleParallel(state.Dependency);
 	}
 
@@ -1147,36 +1147,36 @@ partial struct CreatureInitializationSystem : ISystem {
 	partial struct CreatureComponentsModificationJob : IJobEntity {
 		public EntityCommandBuffer.ParallelWriter Buffer;
 		[ReadOnly] public DynamicBuffer<PrefabContainer> PrefabContainer;
-		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureBlob> BlobGroup;
-		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureCore> CoreGroup;
-		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureTemp> TempGroup;
-		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureStatus > StatusGroup;
-		[NativeDisableParallelForRestriction] public BufferLookup   <CreatureEffect > EffectGroup;
-		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsCollider> ColliderGroup;
-		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsMass    > MassGroup;
-		[NativeDisableParallelForRestriction] public BufferLookup<TileDrawer  > TileGroup;
-		[NativeDisableParallelForRestriction] public BufferLookup<SpriteDrawer> SpriteGroup;
-		[NativeDisableParallelForRestriction] public BufferLookup<ShadowDrawer> ShadowGroup;
-		[NativeDisableParallelForRestriction] public BufferLookup<UIDrawer    > UIGroup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureBlob> BlobLookup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureCore> CoreLookup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureTemp> TempLookup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<CreatureStatus > StatusLookup;
+		[NativeDisableParallelForRestriction] public BufferLookup   <CreatureEffect > EffectLookup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsCollider> ColliderLookup;
+		[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsMass    > MassLookup;
+		[NativeDisableParallelForRestriction] public BufferLookup<TileDrawer  > TileLookup;
+		[NativeDisableParallelForRestriction] public BufferLookup<SpriteDrawer> SpriteLookup;
+		[NativeDisableParallelForRestriction] public BufferLookup<ShadowDrawer> ShadowLookup;
+		[NativeDisableParallelForRestriction] public BufferLookup<UIDrawer    > UILookup;
 
 		public void Execute(
 			[ChunkIndexInQuery] int sortKey,
 			Entity entity,
 			EnabledRefRW<CreatureInitialize> initialize) {
 
-			var blob = BlobGroup[entity];
-			var core = CoreGroup[entity];
-			var temp = TempGroup[entity];
-			var collider = ColliderGroup[entity];
-			var mass     = MassGroup    [entity];
+			var blob = BlobLookup[entity];
+			var core = CoreLookup[entity];
+			var temp = TempLookup[entity];
+			var collider = ColliderLookup[entity];
+			var mass     = MassLookup    [entity];
 
 			initialize.ValueRW = false;
 			mass.InverseInertia = float3.zero;
 			var target = Entity.Null;
 			var body = core.Body;
 			foreach (var prefab in PrefabContainer.Reinterpret<Entity>()) {
-				if (BlobGroup.HasComponent(prefab)) {
-					if (BlobGroup[prefab].Value.Value.InitialBody == body) {
+				if (BlobLookup.HasComponent(prefab)) {
+					if (BlobLookup[prefab].Value.Value.InitialBody == body) {
 						target = prefab;
 						break;
 					}
@@ -1196,23 +1196,23 @@ partial struct CreatureInitializationSystem : ISystem {
 				if (b != default) Buffer.   AddComponent(sortKey, entity, b);
 				temp.Body = core.Body;
 
-				blob.Value       = BlobGroup[target].Value;
-				core.MotionX     = CoreGroup[target].MotionX;
-				core.MotionY     = CoreGroup[target].MotionY;
-				core.MotionXTick = CoreGroup[target].MotionXTick;
-				core.MotionYTick = CoreGroup[target].MotionYTick;
-				collider.Value   = ColliderGroup[target].Value;
-				mass.InverseMass = MassGroup[target].InverseMass;
-				EffectGroup[entity].Clear();
+				blob.Value       = BlobLookup[target].Value;
+				core.MotionX     = CoreLookup[target].MotionX;
+				core.MotionY     = CoreLookup[target].MotionY;
+				core.MotionXTick = CoreLookup[target].MotionXTick;
+				core.MotionYTick = CoreLookup[target].MotionYTick;
+				collider.Value   = ColliderLookup[target].Value;
+				mass.InverseMass = MassLookup[target].InverseMass;
+				EffectLookup[entity].Clear();
 
-				TileGroup  [entity].Clear();
-				SpriteGroup[entity].Clear();
-				ShadowGroup[entity].Clear();
-				UIGroup    [entity].Clear();
-				foreach (var element in TileGroup  [target]) TileGroup  [entity].Add(element);
-				foreach (var element in SpriteGroup[target]) SpriteGroup[entity].Add(element);
-				foreach (var element in ShadowGroup[target]) ShadowGroup[entity].Add(element);
-				foreach (var element in UIGroup    [target]) UIGroup    [entity].Add(element);
+				TileLookup  [entity].Clear();
+				SpriteLookup[entity].Clear();
+				ShadowLookup[entity].Clear();
+				UILookup    [entity].Clear();
+				foreach (var element in TileLookup  [target]) TileLookup  [entity].Add(element);
+				foreach (var element in SpriteLookup[target]) SpriteLookup[entity].Add(element);
+				foreach (var element in ShadowLookup[target]) ShadowLookup[entity].Add(element);
+				foreach (var element in UILookup    [target]) UILookup    [entity].Add(element);
 			}
 			if (temp.Flag != core.Flag) {
 				for (int i = 0; i < 8; i++) {
@@ -1225,10 +1225,10 @@ partial struct CreatureInitializationSystem : ISystem {
 					switch (flag) {
 						case Flag.Pinned:
 							if (b) mass.InverseMass = 1f / CreaturePhysics.PinnedMass;
-							else   mass.InverseMass = MassGroup[target].InverseMass;
+							else   mass.InverseMass = MassLookup[target].InverseMass;
 							break;
 						case Flag.Piercing:
-							var filter = ColliderGroup[target].Value.Value.GetCollisionFilter();
+							var filter = ColliderLookup[target].Value.Value.GetCollisionFilter();
 							if (b) filter.CollidesWith &= ~(1u << (int)PhysicsCategory.Creature);
 							else   filter.CollidesWith |=  (1u << (int)PhysicsCategory.Creature);
 							if (!collider.Value.Value.GetCollisionFilter().Equals(filter)) {
@@ -1251,11 +1251,11 @@ partial struct CreatureInitializationSystem : ISystem {
 					temp.SetTeam(team, b);
 				}
 			}
-			TempGroup[entity] = temp;
-			CoreGroup[entity] = core;
-			BlobGroup[entity] = blob;
-			ColliderGroup[entity] = collider;
-			MassGroup    [entity] = mass;
+			TempLookup[entity] = temp;
+			CoreLookup[entity] = core;
+			BlobLookup[entity] = blob;
+			ColliderLookup[entity] = collider;
+			MassLookup    [entity] = mass;
 		}
 	}
 }
@@ -1279,8 +1279,8 @@ partial struct CreatureBeginPredictedSimulationSystem : ISystem {
 		state.Dependency = new CreatureBeginSimulationJob {
 		}.ScheduleParallel(state.Dependency);
 		state.Dependency = new CreatureGravityRemovalJob {
-			CoreGroup    = SystemAPI.GetComponentLookup<CreatureCore>(),
-			TriggerGroup = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			CoreLookup    = SystemAPI.GetComponentLookup<CreatureCore>(),
+			TriggerLookup = SystemAPI.GetComponentLookup<EventTrigger>(true),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
 
@@ -1298,8 +1298,8 @@ partial struct CreatureBeginPredictedSimulationSystem : ISystem {
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct CreatureGravityRemovalJob : ITriggerEventsJob {
-		public ComponentLookup<CreatureCore> CoreGroup;
-		[ReadOnly] public ComponentLookup<EventTrigger> TriggerGroup;
+		public ComponentLookup<CreatureCore> CoreLookup;
+		[ReadOnly] public ComponentLookup<EventTrigger> TriggerLookup;
 
 		public void Execute(TriggerEvent triggerEvent) {
 			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
@@ -1307,10 +1307,10 @@ partial struct CreatureBeginPredictedSimulationSystem : ISystem {
 		}
 
 		public void Execute(Entity entity, Entity target) {
-			if (CoreGroup.HasComponent(entity) && !TriggerGroup.HasComponent(target)) {
-				var core = CoreGroup[entity];
+			if (CoreLookup.HasComponent(entity) && !TriggerLookup.HasComponent(target)) {
+				var core = CoreLookup[entity];
 				core.GravityFactor = 0;
-				CoreGroup[entity] = core;
+				CoreLookup[entity] = core;
 			}
 		}
 	}
@@ -1377,11 +1377,11 @@ partial struct CreatureSimulationSystem : ISystem {
 			buffer          = system.CreateCommandBuffer(state.WorldUnmanaged),
 			CameraManager   = SystemAPI.GetSingletonRW<CameraManagerBridge>(),
 			PrefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true),
-			TransformGroup  = SystemAPI.GetComponentLookup<LocalToWorld>(true),
-			BlobGroup       = SystemAPI.GetComponentLookup<CreatureBlob>(true),
-			CoreGroup       = SystemAPI.GetComponentLookup<CreatureCore>(true),
-			MassGroup       = SystemAPI.GetComponentLookup<PhysicsMass >(true),
-			TriggerGroup    = SystemAPI.GetComponentLookup<EventTrigger>(true),
+			TransformLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
+			BlobLookup      = SystemAPI.GetComponentLookup<CreatureBlob>(true),
+			CoreLookup      = SystemAPI.GetComponentLookup<CreatureCore>(true),
+			MassLookup      = SystemAPI.GetComponentLookup<PhysicsMass >(true),
+			TriggerLookup   = SystemAPI.GetComponentLookup<EventTrigger>(true),
 			Random          = new Random(1u + (uint)(4801 * SystemAPI.Time.ElapsedTime) % 1000),
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 	}
@@ -1391,11 +1391,11 @@ partial struct CreatureSimulationSystem : ISystem {
 		public EntityCommandBuffer buffer;
 		[NativeDisableUnsafePtrRestriction] public RefRW<CameraManagerBridge> CameraManager;
 		[ReadOnly] public DynamicBuffer<PrefabContainer> PrefabContainer;
-		[ReadOnly] public ComponentLookup<LocalToWorld> TransformGroup;
-		[ReadOnly] public ComponentLookup<CreatureBlob> BlobGroup;
-		[ReadOnly] public ComponentLookup<CreatureCore> CoreGroup;
-		[ReadOnly] public ComponentLookup<PhysicsMass > MassGroup;
-		[ReadOnly] public ComponentLookup<EventTrigger> TriggerGroup;
+		[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
+		[ReadOnly] public ComponentLookup<CreatureBlob> BlobLookup;
+		[ReadOnly] public ComponentLookup<CreatureCore> CoreLookup;
+		[ReadOnly] public ComponentLookup<PhysicsMass > MassLookup;
+		[ReadOnly] public ComponentLookup<EventTrigger> TriggerLookup;
 		[ReadOnly] public Random Random;
 
 		public void Execute(TriggerEvent triggerEvent) {
@@ -1404,17 +1404,17 @@ partial struct CreatureSimulationSystem : ISystem {
 		}
 
 		public void Execute(Entity entity, Entity target) {
-			if (CoreGroup.HasComponent(entity) && !TriggerGroup.HasComponent(target)) {
-				var entityCore = CoreGroup[entity];
+			if (CoreLookup.HasComponent(entity) && !TriggerLookup.HasComponent(target)) {
+				var entityCore = CoreLookup[entity];
 				var gravity = entityCore.GravityFactor * CreaturePhysics.GravityMultiplier;
 				var knock   = entityCore.KnockFactor   * CreaturePhysics.KnockMultiplier;
 				var match = true;
 				match &= gravity + knock < CreaturePhysics.DustThreshold;
 				match &= !entityCore.HasFlag(Flag.Pinned);
-				if (match && !CoreGroup.HasComponent(target)) {
+				if (match && !CoreLookup.HasComponent(target)) {
 
-					var position = TransformGroup[entity].Position;
-					var radius = BlobGroup[entity].Value.Value.Radius;
+					var position = TransformLookup[entity].Position;
+					var radius = BlobLookup[entity].Value.Value.Radius;
 					var right   = CameraManager.ValueRO.Right();
 					var up      = CameraManager.ValueRO.Up();
 					var forward = CameraManager.ValueRO.Forward();

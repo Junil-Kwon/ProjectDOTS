@@ -40,7 +40,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 	void Awake() {
 		if (instance == null) instance = this as T;
 		if (Instance == this) DontDestroyOnLoad(gameObject);
-		else                  Destroy          (gameObject);
+		else                  DestroyImmediate (gameObject);
 	}
 
 	void OnDestroy() {
