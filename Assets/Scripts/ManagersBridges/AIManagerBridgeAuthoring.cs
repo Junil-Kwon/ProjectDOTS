@@ -54,11 +54,13 @@ public class AIManagerBridgeAuthoring : MonoBehaviour {
 
 public struct AIManagerBridge : IComponentData {
 
-}
+	// Fields
+
+	public uint Flag;
 
 
 
-public static class AIManagerBridgeExtensions {
+	// Properties
 
 }
 
@@ -68,12 +70,8 @@ public static class AIManagerBridgeExtensions {
 // AI Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class AIManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	AIManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<AIManagerBridge>();
@@ -81,15 +79,11 @@ public partial class AIManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<AIManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

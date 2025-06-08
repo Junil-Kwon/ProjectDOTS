@@ -54,16 +54,30 @@ public class GameManagerBridgeAuthoring : MonoBehaviour {
 
 public struct GameManagerBridge : IComponentData {
 
+	// Fields
+
+	public GameState m_GameState;
+
 	public UnityObjectRef<EventGraphSO> PlayEvent_graph;
-}
+
+	public uint Flag;
 
 
 
-public static class GameManagerBridgeExtensions {
+	// Properties
 
-	public static void PlayEvent(this ref GameManagerBridge bridge,
-		UnityObjectRef<EventGraphSO> graph) {
-		bridge.PlayEvent_graph = graph;
+	public GameState GameState {
+		get => m_GameState;
+		set => m_GameState = value;
+	}
+
+
+
+	// Methods
+
+	public void PlayEvent(UnityObjectRef<EventGraphSO> graph) {
+		PlayEvent_graph = graph;
+		Flag |= 0x0001u;
 	}
 }
 
@@ -76,27 +90,20 @@ public static class GameManagerBridgeExtensions {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class GameManagerBridgeSystem : SystemBase {
 
-	bool initialized = false;
-	GameManagerBridge prev;
-
 	protected override void OnCreate() {
 		RequireForUpdate<GameManagerBridge>();
 	}
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<GameManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			
-			prev = bridge.ValueRO;
-		}
-		var next = bridge.ValueRO;
 
-		var playEvent = false;
-		playEvent |= prev.PlayEvent_graph != next.PlayEvent_graph;
-		if (playEvent) GameManager.PlayEvent(next.PlayEvent_graph.Value);
-		next.PlayEvent_graph = default;
+		var i = bridge.ValueRO;
+		if ((i.Flag & 0x0001u) != 0u) GameManager.PlayEvent(i.PlayEvent_graph.Value);
 
-		bridge.ValueRW = prev = next;
+		ref var o = ref bridge.ValueRW;
+		o.GameState = GameManager.GameState;
+		o.PlayEvent_graph = default;
+
+		o.Flag = 0u;
 	}
 }

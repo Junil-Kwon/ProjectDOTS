@@ -3942,6 +3942,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Event: {fileID: 58103876}
   m_TriggerType: 0
+  m_IsGlobal: 0
   m_Count: -1
   m_Cooldown: 2
 --- !u!1660057539 &9223372036854775807

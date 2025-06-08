@@ -54,11 +54,13 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 
 public struct EnvironmentManagerBridge : IComponentData {
 
-}
+	// Fields
+
+	public uint Flag;
 
 
 
-public static class EnvironmentManagerBridgeExtensions {
+	// Properties
 
 }
 
@@ -68,28 +70,20 @@ public static class EnvironmentManagerBridgeExtensions {
 // Environment Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class EnvironmentManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	EnvironmentManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<EnvironmentManagerBridge>();
 	}
 
 	protected override void OnUpdate() {
-		var bridge = SystemAPI.GetSingletonRW<EnvironmentManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
+		var bridge = SystemAPI.GetSingletonRW<AIManagerBridge>();
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

@@ -1415,9 +1415,9 @@ partial struct CreatureSimulationSystem : ISystem {
 
 					var position = TransformLookup[entity].Position;
 					var radius = BlobLookup[entity].Value.Value.Radius;
-					var right   = CameraManager.ValueRO.Right();
-					var up      = CameraManager.ValueRO.Up();
-					var forward = CameraManager.ValueRO.Forward();
+					var right   = CameraManager.ValueRO.Right;
+					var up      = CameraManager.ValueRO.Up;
+					var forward = CameraManager.ValueRO.Forward;
 
 					var smoke0 = buffer.Instantiate(PrefabContainer[(int)Prefab.SmokeTiny].Prefab);
 					var smoke1 = buffer.Instantiate(PrefabContainer[(int)Prefab.SmokeTiny].Prefab);

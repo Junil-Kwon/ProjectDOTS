@@ -83,7 +83,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			if (Instance.m_StartDirectly != value) {
 				Instance.m_StartDirectly = value;
 				#if UNITY_EDITOR
-					if (value) CompilationPipeline.RequestScriptCompilation();
+					CompilationPipeline.RequestScriptCompilation();
 				#endif
 			}
 		}

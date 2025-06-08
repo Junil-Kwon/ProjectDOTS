@@ -54,43 +54,93 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 
 public struct CameraManagerBridge : IComponentData {
 
-	public float3      Position;
-	public quaternion  Rotation;
-	public constraints Constraints;
-	public float       FocusDistance;
-	public float       FieldOfView;
-	public float       OrthographicSize;
-	public float       Projection;
-}
+	// Fields
+
+	public float3      m_Position;
+	public quaternion  m_Rotation;
+	public constraints m_Constraints;
+	public float       m_FocusDistance;
+	public float       m_FieldOfView;
+	public float       m_OrthographicSize;
+	public float       m_Projection;
+
+	public uint Flag;
 
 
 
-public static class CameraManagerBridgeExtensions {
+	// Properties
 
-	public static float3 GetEulerRotation(this in CameraManagerBridge bridge) {
-		return math.Euler(bridge.Rotation) * math.TODEGREES;
+	public float3 Position {
+		get => m_Position;
+		set {
+			m_Position = value;
+			Flag |= 0x0001u;
+		}
 	}
-	public static void SetEulerRotation(this ref CameraManagerBridge bridge, float3 value) {
-		bridge.Rotation = quaternion.Euler(value * math.TORADIANS);
+	public quaternion Rotation {
+		get => m_Rotation;
+		set {
+			m_Rotation = value;
+			Flag |= 0x0002u;
+		}
+	}
+	public float3 EulerRotation {
+		get => math.Euler(Rotation) * math.TODEGREES;
+		set => Rotation = quaternion.Euler(value * math.TORADIANS);
+	}
+	public float Yaw {
+		get => EulerRotation.y;
+		set => EulerRotation = new float3(EulerRotation.x, value, EulerRotation.z);
+	}
+	public float3 Right   => math.mul(Rotation, new float3(1f, 0f, 0f));
+	public float3 Up      => math.mul(Rotation, new float3(0f, 1f, 0f));
+	public float3 Forward => math.mul(Rotation, new float3(0f, 0f, 1f));
+
+	public constraints Constraints {
+		get => m_Constraints;
+		set {
+			m_Constraints = value;
+			Flag |= 0x0004u;
+		}
+	}
+	public bool3 FreezePosition {
+		get => Constraints.position;
+		set => Constraints = new constraints(value, Constraints.rotation);
+	}
+	public bool3 FreezeRotation {
+		get => Constraints.rotation;
+		set => Constraints = new constraints(Constraints.position, value);
 	}
 
-	public static float GetYaw(this in CameraManagerBridge bridge) {
-		return bridge.GetEulerRotation().y;
-	}
-	public static void SetYaw(this ref CameraManagerBridge bridge, float value) {
-		var eulerRotation = bridge.GetEulerRotation();
-		eulerRotation.y = value;
-		bridge.SetEulerRotation(eulerRotation);
-	}
 
-	public static float3 Right(this in CameraManagerBridge bridge) {
-		return math.mul(bridge.Rotation, new float3(1f, 0f, 0f));
+
+	public float FocusDistance {
+		get => m_FocusDistance;
+		set {
+			m_FocusDistance = math.clamp(value, 0f, 255f);
+			Flag |= 0x0008u;
+		}
 	}
-	public static float3 Up(this in CameraManagerBridge bridge) {
-		return math.mul(bridge.Rotation, new float3(0f, 1f, 0f));
+	public float FieldOfView {
+		get => m_FieldOfView;
+		set {
+			m_FieldOfView = math.clamp(value, 1f, 179f);
+			Flag |= 0x0010u;
+		}
 	}
-	public static float3 Forward(this in CameraManagerBridge bridge) {
-		return math.mul(bridge.Rotation, new float3(0f, 0f, 1f));
+	public float OrthographicSize {
+		get => m_OrthographicSize;
+		set {
+			m_OrthographicSize = value;
+			Flag |= 0x0020u;
+		}
+	}
+	public float Projection {
+		get => m_Projection;
+		set {
+			m_Projection = value;
+			Flag |= 0x0040u;
+		}
 	}
 }
 
@@ -103,73 +153,31 @@ public static class CameraManagerBridgeExtensions {
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class CameraBridgeSystem : SystemBase {
 
-	bool initialized = false;
-	CameraManagerBridge prev;
-
 	protected override void OnCreate() {
 		RequireForUpdate<CameraManagerBridge>();
 	}
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<CameraManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			bridge.ValueRW.Position         = CameraManager.Position;
-			bridge.ValueRW.Rotation         = CameraManager.Rotation;
-			bridge.ValueRW.Constraints      = CameraManager.Constraints;
-			bridge.ValueRW.FocusDistance    = CameraManager.FocusDistance;
-			bridge.ValueRW.FieldOfView      = CameraManager.FieldOfView;
-			bridge.ValueRW.OrthographicSize = CameraManager.OrthographicSize;
-			bridge.ValueRW.Projection       = CameraManager.Projection;
-			prev = bridge.ValueRO;
-		}
-		var next = bridge.ValueRO;
 
-		var position = false;
-		position |= math.EPSILON < math.abs(prev.Position.x - next.Position.x);
-		position |= math.EPSILON < math.abs(prev.Position.y - next.Position.y);
-		position |= math.EPSILON < math.abs(prev.Position.z - next.Position.z);
-		if (position) CameraManager.Position = next.Position;
-		else          next.Position = CameraManager.Position;
+		var i = bridge.ValueRO;
+		if ((i.Flag & 0x0001u) != 0u) CameraManager.Position         = i.Position;
+		if ((i.Flag & 0x0002u) != 0u) CameraManager.Rotation         = i.Rotation;
+		if ((i.Flag & 0x0004u) != 0u) CameraManager.Constraints      = i.Constraints;
+		if ((i.Flag & 0x0008u) != 0u) CameraManager.FocusDistance    = i.FocusDistance;
+		if ((i.Flag & 0x0010u) != 0u) CameraManager.FieldOfView      = i.FieldOfView;
+		if ((i.Flag & 0x0020u) != 0u) CameraManager.OrthographicSize = i.OrthographicSize;
+		if ((i.Flag & 0x0040u) != 0u) CameraManager.Projection       = i.Projection;
 
-		var rotation = false;
-		rotation |= math.EPSILON < math.abs(prev.Rotation.value.x - next.Rotation.value.x);
-		rotation |= math.EPSILON < math.abs(prev.Rotation.value.y - next.Rotation.value.y);
-		rotation |= math.EPSILON < math.abs(prev.Rotation.value.z - next.Rotation.value.z);
-		rotation |= math.EPSILON < math.abs(prev.Rotation.value.w - next.Rotation.value.w);
-		if (rotation) CameraManager.Rotation = next.Rotation;
-		else          next.Rotation = CameraManager.Rotation;
+		ref var o = ref bridge.ValueRW;
+		o.Position         = CameraManager.Position;
+		o.Rotation         = CameraManager.Rotation;
+		o.Constraints      = CameraManager.Constraints;
+		o.FocusDistance    = CameraManager.FocusDistance;
+		o.FieldOfView      = CameraManager.FieldOfView;
+		o.OrthographicSize = CameraManager.OrthographicSize;
+		o.Projection       = CameraManager.Projection;
 
-		var constraints = false;
-		constraints |= prev.Constraints.positionX != next.Constraints.positionX;
-		constraints |= prev.Constraints.positionY != next.Constraints.positionY;
-		constraints |= prev.Constraints.positionZ != next.Constraints.positionZ;
-		constraints |= prev.Constraints.rotationX != next.Constraints.rotationX;
-		constraints |= prev.Constraints.rotationY != next.Constraints.rotationY;
-		constraints |= prev.Constraints.rotationZ != next.Constraints.rotationZ;
-		if (constraints) CameraManager.Constraints = next.Constraints;
-		else             next.Constraints = CameraManager.Constraints;
-
-		var focusDistance = false;
-		focusDistance |= math.EPSILON < math.abs(prev.FocusDistance - next.FocusDistance);
-		if (focusDistance) CameraManager.FocusDistance = next.FocusDistance;
-		else               next.FocusDistance = CameraManager.FocusDistance;
-
-		var fieldOfView = false;
-		fieldOfView |= math.EPSILON < math.abs(prev.FieldOfView - next.FieldOfView);
-		if (fieldOfView) CameraManager.FieldOfView = next.FieldOfView;
-		else             next.FieldOfView = CameraManager.FieldOfView;
-
-		var orthographicSize = false;
-		orthographicSize |= math.EPSILON < math.abs(prev.OrthographicSize - next.OrthographicSize);
-		if (orthographicSize) CameraManager.OrthographicSize = next.OrthographicSize;
-		else                  next.OrthographicSize = CameraManager.OrthographicSize;
-
-		var projection = false;
-		projection |= math.EPSILON < math.abs(prev.Projection - next.Projection);
-		if (projection) CameraManager.Projection = next.Projection;
-		else            next.Projection = CameraManager.Projection;
-
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }

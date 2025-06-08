@@ -54,24 +54,24 @@ public class SoundManagerBridgeAuthoring : MonoBehaviour {
 
 public struct SoundManagerBridge : IComponentData {
 
+	// Fields
+
+	public uint Flag;
+
+
+
+	// Properties
+
 }
 
 
-
-public static class SoundManagerBridgeExtensions {
-
-}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Sound Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class SoundManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	SoundManagerBridge prev = default;
 
 	protected override void OnCreate() {
 		RequireForUpdate<SoundManagerBridge>();
@@ -79,15 +79,11 @@ public partial class SoundManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<SoundManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

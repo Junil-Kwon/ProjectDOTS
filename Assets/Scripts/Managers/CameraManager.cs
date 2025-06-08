@@ -166,7 +166,6 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 	public static float OrthographicSize {
 		get => MainCamera.orthographicSize;
 		set {
-			value = Mathf.Clamp(value, 1f, 179f);
 			MainCamera.orthographicSize = value;
 			Projection = Projection;
 		}

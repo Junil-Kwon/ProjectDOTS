@@ -54,17 +54,14 @@ public class NavigationManagerBridgeAuthoring : MonoBehaviour {
 
 public struct NavigationManagerBridge : IComponentData {
 
-}
+	// Fields
+
+	public uint Flag;
 
 
 
-public static class NavigationManagerBridgeExtensions {
+	// Properties
 
-	public static FixedList512Bytes<float3> GetPath
-		(this in NavigationManagerBridge bridge, Entity entity, float3 source, float3 target) {
-
-		return default;
-	}
 }
 
 
@@ -73,12 +70,8 @@ public static class NavigationManagerBridgeExtensions {
 // Navigation Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class NavigationManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	NavigationManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<NavigationManagerBridge>();
@@ -86,15 +79,11 @@ public partial class NavigationManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<NavigationManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

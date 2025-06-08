@@ -54,12 +54,13 @@ public class DrawManagerBridgeAuthoring : MonoBehaviour {
 
 public struct DrawManagerBridge : IComponentData {
 
-	public byte temp;
-}
+	// Fields
+
+	public uint Flag;
 
 
 
-public static class DrawManagerBridgeExtensions {
+	// Properties
 
 }
 
@@ -69,12 +70,8 @@ public static class DrawManagerBridgeExtensions {
 // Draw Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class DrawManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	DrawManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<DrawManagerBridge>();
@@ -82,15 +79,11 @@ public partial class DrawManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<DrawManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

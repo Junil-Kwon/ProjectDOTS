@@ -54,12 +54,27 @@ public class NetworkManagerBridgeAuthoring : MonoBehaviour {
 
 public struct NetworkManagerBridge : IComponentData {
 
-}
+	// Fields
+
+	public ServiceState m_ServiceState;
+	public NetworkState m_NetworkState;
+
+	public uint Flag;
 
 
 
-public static class NetworkManagerBridgeExtensions {
+	// Properties
 
+	public ServiceState ServiceState {
+		get => m_ServiceState;
+		set => m_ServiceState = value;
+	}
+	public NetworkState NetworkState {
+		get => m_NetworkState;
+		set => m_NetworkState = value;
+	}
+	public bool IsHost   => m_NetworkState == NetworkState.ConnectedAsHost;
+	public bool IsClient => m_NetworkState == NetworkState.ConnectedAsClient;
 }
 
 
@@ -68,12 +83,8 @@ public static class NetworkManagerBridgeExtensions {
 // Network Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class NetworkManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	NetworkManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<NetworkManagerBridge>();
@@ -81,15 +92,13 @@ public partial class NetworkManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<NetworkManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
+		o.ServiceState = i.ServiceState;
+		o.NetworkState = i.NetworkState;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

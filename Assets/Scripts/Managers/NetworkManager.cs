@@ -38,7 +38,7 @@ public enum ServiceState : byte {
 }
 
 public enum NetworkState : byte {
-	Ready,
+	Disconnected,
 	Allocating,
 	SceneLoading,
 	Connecting,
@@ -90,9 +90,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	public const float Tickrate = 60f;
 	public const float Ticktime = 1f / Tickrate;
 
-	const int RelayMaxPlayers =   5;
-	const int LocalMaxPlayers = 100;
-	const float ConnectionTimeOut = 8f;
+	const float ConnectionTimeOut = 5f;
 
 
 
@@ -136,6 +134,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	}
 	public static bool IsHost   => NetworkState == NetworkState.ConnectedAsHost;
 	public static bool IsClient => NetworkState == NetworkState.ConnectedAsClient;
+
+
 
 	public static int MaxPlayers {
 		get         => Instance.m_MaxPlayers;
@@ -189,10 +189,11 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	public static async Task CreateRelayHostAsync(int maxPlayers) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
-		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
+		if (NetworkState != NetworkState.Disconnected ) Disconnect();
+		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.Allocating;
-			MaxPlayers = Mathf.Max(maxPlayers, RelayMaxPlayers);
+			MaxPlayers = Mathf.Max(1, maxPlayers);
 			RelayServerData relayServerData;
 			RelayServerData relayClientData;
 			try {
@@ -217,17 +218,19 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
-			Listen (server, NetworkEndpoint.AnyIpv4 );
+			Listen (server, NetworkEndpoint.AnyIpv4);
 			Connect(client, relayClientData.Endpoint);
-			var startpoint = Time.realtimeSinceStartup;
+			float timeStartConnecting = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
 			}
-			NetworkState = NetworkState.ConnectedAsHost;
+			if (NetworkState == NetworkState.ConnectionSucceeded) {
+				NetworkState = NetworkState.ConnectedAsHost;
+			}
 		}
 	}
 
@@ -237,7 +240,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	public static async Task JoinRelayServerAsync(string joinCode) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
 		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
-		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Ready) {
+		if (NetworkState != NetworkState.Disconnected ) Disconnect();
+		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.Allocating;
 			RelayServerData relayClientData;
@@ -259,15 +263,17 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, relayClientData.Endpoint);
-			var startpoint = Time.realtimeSinceStartup;
+			float timeStartConnecting = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
 			}
-			NetworkState = NetworkState.ConnectedAsClient;
+			if (NetworkState == NetworkState.ConnectionSucceeded) {
+				NetworkState = NetworkState.ConnectedAsHost;
+			}
 		}
 	}
 
@@ -279,27 +285,30 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		_ = CreateLocalHostAsync(port, maxPlayers);
 	}
 	public static async Task CreateLocalHostAsync(ushort port, int maxPlayers) {
-		if (NetworkState == NetworkState.Ready) {
+		if (NetworkState != NetworkState.Disconnected) Disconnect();
+		if (NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.SceneLoading;
-			MaxPlayers = Mathf.Max(maxPlayers, LocalMaxPlayers);
+			MaxPlayers = Mathf.Max(1, maxPlayers);
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
 			var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
 			DestroyLocalSimulationWorld();
 			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
 			NetworkState = NetworkState.Connecting;
-			Listen (server, NetworkEndpoint.AnyIpv4     .WithPort(port));
+			Listen (server, NetworkEndpoint.AnyIpv4.WithPort(port));
 			Connect(client, NetworkEndpoint.LoopbackIpv4.WithPort(port));
-			var startpoint = Time.realtimeSinceStartup;
+			float timeStartConnecting = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
 			}
-			NetworkState = NetworkState.ConnectedAsHost;
+			if (NetworkState == NetworkState.ConnectionSucceeded) {
+				NetworkState = NetworkState.ConnectedAsHost;
+			}
 		}
 	}
 
@@ -307,7 +316,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		_ = JoinLocalServerAsync(address, port);
 	}
 	public static async Task JoinLocalServerAsync(string address, ushort port) {
-		if (NetworkState == NetworkState.Ready) {
+		if (NetworkState != NetworkState.Disconnected) Disconnect();
+		if (NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.SceneLoading;
 			var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
@@ -316,33 +326,38 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, NetworkEndpoint.Parse(address, port));
-			var startpoint = Time.realtimeSinceStartup;
+			float timeStartConnecting = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - startpoint) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
 			}
-			NetworkState = NetworkState.ConnectedAsClient;
+			if (NetworkState == NetworkState.ConnectionSucceeded) {
+				NetworkState = NetworkState.ConnectedAsHost;
+			}
 		}
 	}
 
 
 
-	// Disconnection Methods
+	// Connection Methods
 
-	public static async void Leave() {
-		await LeaveAsync();
+	public static void Connect() {
+		CreateLocalHost(7979, 1);
 	}
-	public static async Task LeaveAsync() {
-		NetworkState = NetworkState.SceneLoading;
-		var world = ClientServerBootstrap.CreateLocalWorld("DefaultWorld");
-		DestroyServerClientSimulationWorld();
-		World.DefaultGameObjectInjectionWorld = world;
-		await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
-		NetworkState = NetworkState.Ready;
+	public static void Disconnect() {
+		bool disconnectable = true;
+		disconnectable &= NetworkState != NetworkState.Allocating;
+		disconnectable &= NetworkState != NetworkState.SceneLoading;
+		disconnectable &= NetworkState != NetworkState.Connecting;
+		if (disconnectable) {
+			NetworkState = NetworkState.Disconnected;
+			ClientServerBootstrap.CreateLocalWorld("DefaultWorld");
+			DestroyServerClientSimulationWorld();
+		}
 	}
 
 

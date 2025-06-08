@@ -52,7 +52,7 @@ partial struct PlayerHeadSystem : ISystem {
 
 			input.Key = (ushort)InputManager.KeyNext;
 			float3 moveDirection = new(InputManager.MoveDirection.x, 0f, InputManager.MoveDirection.y);
-			float3 eulerRotation = new(0f, CameraManager.GetYaw() * math.TORADIANS, 0f);
+			float3 eulerRotation = new(0f, CameraManager.Yaw * math.TORADIANS, 0f);
 			input.MoveVector = math.mul(quaternion.Euler(eulerRotation), moveDirection);
 		}
 	}

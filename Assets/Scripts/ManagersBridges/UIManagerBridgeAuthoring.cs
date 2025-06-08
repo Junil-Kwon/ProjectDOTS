@@ -54,11 +54,13 @@ public class UIManagerBridgeAuthoring : MonoBehaviour {
 
 public struct UIManagerBridge : IComponentData {
 
-}
+	// Fields
+
+	public uint Flag;
 
 
 
-public static class UIManagerBridgeExtensions {
+	// Properties
 
 }
 
@@ -68,12 +70,8 @@ public static class UIManagerBridgeExtensions {
 // UI Manager Bridge System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/*
 [UpdateInGroup(typeof(SingletonBridgeSystemGroup))]
 public partial class UIManagerBridgeSystem : SystemBase {
-
-	bool initialized = false;
-	UIManagerBridge prev;
 
 	protected override void OnCreate() {
 		RequireForUpdate<UIManagerBridge>();
@@ -81,15 +79,11 @@ public partial class UIManagerBridgeSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var bridge = SystemAPI.GetSingletonRW<UIManagerBridge>();
-		if (initialized == false) {
-			initialized = true;
-			prev.
-		}
-		var next = bridge.ValueRO;
 
+		var i = bridge.ValueRO;
 
+		ref var o = ref bridge.ValueRW;
 
-		bridge.ValueRW = prev = next;
+		o.Flag = 0u;
 	}
 }
-*/

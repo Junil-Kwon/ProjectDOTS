@@ -51,6 +51,7 @@ public class EventTriggerAuthoring : MonoBehaviour {
 				Space();
 				LabelField("Trigger", EditorStyles.boldLabel);
 				I.TriggerType   = EnumField("Trigger Type",    I.TriggerType);
+				I.IsGlobal      = Toggle   ("Is Global",       I.IsGlobal);
 				I.UseCountLimit = Toggle   ("Use Count Limit", I.UseCountLimit);
 				I.UseCooldown   = Toggle   ("Use Cooldown",    I.UseCooldown);
 				if (I.UseCountLimit) I.Count    = IntField  ("Count",    I.Count);
@@ -89,6 +90,7 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 	[SerializeField] EventGraphSO m_Event;
 	[SerializeField] TriggerType  m_TriggerType;
+	[SerializeField] bool  m_IsGlobal = false;
 	[SerializeField] int   m_Count = -1;
 	[SerializeField] float m_Cooldown = -1f;
 
@@ -113,6 +115,10 @@ public class EventTriggerAuthoring : MonoBehaviour {
 				}
 			}
 		}
+	}
+	public bool IsGlobal {
+		get => m_IsGlobal;
+		set => m_IsGlobal = value;
 	}
 	public bool UseCountLimit {
 		get => 0 <= m_Count;
@@ -140,8 +146,9 @@ public class EventTriggerAuthoring : MonoBehaviour {
 			var entity = GetEntity(TransformUsageFlags.None);
 			AddComponent(entity, new EventTrigger {
 
-				Event = authoring.Event,
-				Count = authoring.Count,
+				Event    = authoring.Event,
+				IsGlobal = authoring.IsGlobal,
+				Count    = authoring.Count,
 				Cooldown = authoring.Cooldown,
 
 			});
@@ -158,6 +165,7 @@ public class EventTriggerAuthoring : MonoBehaviour {
 public struct EventTrigger : IComponentData {
 
 	public UnityObjectRef<EventGraphSO> Event;
+	public bool  IsGlobal;
 	public int   Count;
 	public float Cooldown;
 	public float Timer;
@@ -168,6 +176,11 @@ public struct EventTrigger : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Event Trigger System
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/*
+if is global enabled, then the event will be triggered on all clients
+rpc this entity
+*/
 
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
