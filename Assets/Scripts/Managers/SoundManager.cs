@@ -39,7 +39,7 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 
 
 
-	// Methods
+	// Fields
 
 	float m_Music;
 	float m_SoundFX;
@@ -59,5 +59,14 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 			Instance.m_SoundFX = PlayerPrefs.GetFloat(SoundFXKey, SoundFXValue) :
 			Instance.m_SoundFX;
 		set => PlayerPrefs.SetFloat(SoundFXKey, Instance.m_SoundFX = value);
+	}
+
+
+
+	// Lifecycle
+
+	void Start() {
+		Music = Music;
+		SoundFX = SoundFX;
 	}
 }

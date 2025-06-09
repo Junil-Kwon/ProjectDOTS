@@ -276,8 +276,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetTag(Tag tag) => (Tag & (1u << (int)tag)) != 0u;
 	public void SetTag(Tag tag, bool value) => Tag = value switch {
-		true  => (byte)(Tag |  (1 << (int)tag)),
 		false => (byte)(Tag & ~(1 << (int)tag)),
+		true  => (byte)(Tag |  (1 << (int)tag)),
 	};
 	public bool HasTag   (Tag tag) => GetTag(tag);
 	public void AddTag   (Tag tag) => SetTag(tag, true);
@@ -330,16 +330,16 @@ public class CreatureAuthoring : MonoBehaviour {
 				switch ((Flag)i) {
 					case global::Flag.Pinned:
 						if (TryGetComponent(out PhysicsBodyAuthoring body)) body.Mass = b switch {
-							true  => CreaturePhysics.PinnedMass,
 							false => CreaturePhysics.InitialMass,
+							true  => CreaturePhysics.PinnedMass,
 						};
 						break;
 					case global::Flag.Piercing:
 						foreach (var shape in GetComponents<PhysicsShapeAuthoring>()) {
 							var collidesWith = shape.CollidesWith;
 							collidesWith.Value = b switch {
-								true  => collidesWith.Value & ~(1u << (int)PhysicsCategory.Creature),
 								false => collidesWith.Value |  (1u << (int)PhysicsCategory.Creature),
+								true  => collidesWith.Value & ~(1u << (int)PhysicsCategory.Creature),
 							};
 							shape.CollidesWith = collidesWith;
 						}
@@ -351,8 +351,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetFlag(Flag flag) => (Flag & (1u << (int)flag)) != 0u;
 	public void SetFlag(Flag flag, bool value) => Flag = value switch {
-		true  => Flag |  (1u << (int)flag),
 		false => Flag & ~(1u << (int)flag),
+		true  => Flag |  (1u << (int)flag),
 	};
 	public bool HasFlag   (Flag flag) => GetFlag(flag);
 	public void AddFlag   (Flag flag) => SetFlag(flag, true);
@@ -364,8 +364,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetTeam(Team team) => (Team & (1u << (int)team)) != 0u;
 	public void SetTeam(Team team, bool value) => Team = value switch {
-		true  => Team |  (1u << (int)team),
 		false => Team & ~(1u << (int)team),
+		true  => Team |  (1u << (int)team),
 	};
 	public bool HasTeam   (Team team) => GetTeam(team);
 	public void AddTeam   (Team team) => SetTeam(team, true);
@@ -522,8 +522,8 @@ public static class CreatureInputExtensions {
 	}
 	public static void SetKey(this ref CreatureInput input, KeyAction key, bool value) {
 		input.SetKey(value switch {
-			true  => input.GetKey() |  (1u << (int)key),
 			false => input.GetKey() & ~(1u << (int)key),
+			true  => input.GetKey() |  (1u << (int)key),
 		});
 	}
 
@@ -600,8 +600,8 @@ public static class CreatureBlobAssetExtensions {
 	}
 	public static void SetTag(this ref CreatureBlobData data, Tag tag, bool value) {
 		data.Tag = value switch {
-			true  => (byte)(data.Tag |  (1u << (int)tag)),
 			false => (byte)(data.Tag & ~(1u << (int)tag)),
+			true  => (byte)(data.Tag |  (1u << (int)tag)),
 		};
 	}
 	public static bool HasTag   (this in  CreatureBlobData data, Tag tag) => data.GetTag(tag);
@@ -756,8 +756,8 @@ public static class CreatureCoreExtensions {
 	}
 	public static void SetFlag(this ref CreatureCore core, Flag flag, bool value) {
 		core.SetFlag(value switch {
-			true  => core.GetFlag() |  (1u << (int)flag),
 			false => core.GetFlag() & ~(1u << (int)flag),
+			true  => core.GetFlag() |  (1u << (int)flag),
 		});
 	}
 	public static bool HasFlag   (this in  CreatureCore core, Flag flag) => core.GetFlag(flag);
@@ -775,8 +775,8 @@ public static class CreatureCoreExtensions {
 	}
 	public static void SetTeam(this ref CreatureCore core, Team team, bool value) {
 		core.SetTeam(value switch {
-			true  => core.GetTeam() |  (1u << (int)team),
 			false => core.GetTeam() & ~(1u << (int)team),
+			true  => core.GetTeam() |  (1u << (int)team),
 		});
 	}
 	public static bool HasTeam   (this in  CreatureCore core, Team team) => core.GetTeam(team);
@@ -941,8 +941,8 @@ public static class CreatureTempExtensions {
 	}
 	public static void SetFlag(this ref CreatureTemp temp, Flag flag, bool value) {
 		temp.SetFlag(value switch {
-			true  => temp.GetFlag() |  (1u << (int)flag),
 			false => temp.GetFlag() & ~(1u << (int)flag),
+			true  => temp.GetFlag() |  (1u << (int)flag),
 		});
 	}
 	public static bool HasFlag   (this in  CreatureTemp temp, Flag flag) => temp.GetFlag(flag);
@@ -960,8 +960,8 @@ public static class CreatureTempExtensions {
 	}
 	public static void SetTeam(this ref CreatureTemp temp, Team team, bool value) {
 		temp.SetTeam(value switch {
-			true  => temp.GetTeam() |  (1u << (int)team),
 			false => temp.GetTeam() & ~(1u << (int)team),
+			true  => temp.GetTeam() |  (1u << (int)team),
 		});
 	}
 	public static bool HasTeam   (this in  CreatureTemp temp, Team team) => temp.GetTeam(team);

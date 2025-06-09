@@ -16,8 +16,6 @@ GameObject:
   - component: {fileID: 3532901235315166235}
   - component: {fileID: 4294225871712326046}
   - component: {fileID: 4480612405488540148}
-  - component: {fileID: -6298346078477567219}
-  - component: {fileID: 1494149728784210698}
   m_Layer: 0
   m_Name: GoldMetal
   m_TagString: Untagged
@@ -321,61 +319,3 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!33 &-6298346078477567219
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 362312251402167067}
-  m_Mesh: {fileID: 4300000, guid: 04756aa99e4587e429e0bc844a8532aa, type: 2}
---- !u!23 &1494149728784210698
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 362312251402167067}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 12a128ddb6624e0439c2588b150b7559, type: 2}
-  - {fileID: 2100000, guid: 78aa2d80277092c4c8c03279e81bf983, type: 2}
-  - {fileID: 2100000, guid: e733e3b948d8a8648a7344aa491be5e4, type: 2}
-  - {fileID: 2100000, guid: edabafa1529a5e6468a8c0f624699fd0, type: 2}
-  - {fileID: 2100000, guid: dd3c147a30a60be45b80ca76d3250093, type: 2}
-  - {fileID: 2100000, guid: 75a3b2494e551834581893267c05d330, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}

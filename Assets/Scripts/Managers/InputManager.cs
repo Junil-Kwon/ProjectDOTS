@@ -283,6 +283,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Lifecycle
 
 	void Start() {
+		MouseSensitivity = MouseSensitivity;
 		RegisterActionMap();
 		RegisterKeyRecord();
 	}

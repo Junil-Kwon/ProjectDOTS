@@ -154,8 +154,8 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_Default;
 		set {
 			value = Integer switch {
-				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
 				false => Mathf.Clamp(value, MinValue, MaxValue),
+				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
 			};
 			if (m_Default != value) {
 				m_Default = value;
@@ -167,8 +167,8 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_Value;
 		set {
 			value = Integer switch {
-				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
 				false => Mathf.Clamp(value, MinValue, MaxValue),
+				true  => Mathf.Round(Mathf.Max(0, Mathf.Min(value, MaxValue))),
 			};
 			if (m_Value != value) {
 				m_Value = value;

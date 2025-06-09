@@ -58,13 +58,6 @@ public class MultiplayerCanvas : BaseCanvas {
 
 
 
-	// Constants
-
-	const string DefaultIPAddress = "127.0.0.1";
-	const ushort DefaultPort      = 7979;
-
-
-
 	// Fields
 
 	[SerializeField] GameObject m_JoinRelayServerLayout;
@@ -127,29 +120,29 @@ public class MultiplayerCanvas : BaseCanvas {
 	string JoinRelayServerJoinCode {
 		get {
 			string text = m_JoinRelayServerJoinCodeInputfield.Value;
-			if (!string.IsNullOrEmpty(text)) return text;
-			return default;
+			if (string.IsNullOrEmpty(text)) text = m_JoinRelayServerJoinCodeInputfield.PlaceHolder;
+			return text;
 		}
 	}
 	ushort CreateLocalHostPort {
 		get {
 			string text = m_CreateLocalHostPortInputfield.Value;
-			if (ushort.TryParse(text, out ushort port)) return port;
-			return DefaultPort;
+			if (string.IsNullOrEmpty(text)) text = m_CreateLocalHostPortInputfield.PlaceHolder;
+			return ushort.TryParse(text, out ushort port) ? port : default;
 		}
 	}
 	string JoinLocalServerIPAddress {
 		get {
 			string text = m_JoinLocalServerIPAddressInputfield.Value;
-			if (!string.IsNullOrEmpty(text)) return text;
-			return DefaultIPAddress;
+			if (string.IsNullOrEmpty(text)) text = m_JoinLocalServerIPAddressInputfield.PlaceHolder;
+			return text;
 		}
 	}
 	ushort JoinLocalServerPort {
 		get {
 			string text = m_JoinLocalServerPortInputfield.Value;
-			if (ushort.TryParse(text, out ushort port)) return port;
-			return DefaultPort;
+			if (string.IsNullOrEmpty(text)) text = m_JoinLocalServerPortInputfield.PlaceHolder;
+			return ushort.TryParse(text, out ushort port) ? port : default;
 		}
 	}
 
@@ -164,8 +157,8 @@ public class MultiplayerCanvas : BaseCanvas {
 	};
 
 	public void SwitchConnection(bool value) => LayoutIndex = value switch {
-		true  => (LayoutIndex % 2 == 0) ? 2 : 3,
 		false => (LayoutIndex % 2 == 0) ? 0 : 1,
+		true  => (LayoutIndex % 2 == 0) ? 2 : 3,
 	};
 
 	public void CreateRelayHost() {

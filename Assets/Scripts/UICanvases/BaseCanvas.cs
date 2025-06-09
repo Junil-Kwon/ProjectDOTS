@@ -15,6 +15,8 @@ public abstract class BaseCanvas : MonoBehaviour {
 	[SerializeField] Selectable m_FirstSelected;
 	Selectable m_LastSelected;
 
+	GraphicRaycaster m_Raycaster;
+
 
 
 	// Properties
@@ -28,20 +30,25 @@ public abstract class BaseCanvas : MonoBehaviour {
 		set => m_LastSelected = value;
 	}
 
+	GraphicRaycaster Raycaster => m_Raycaster || TryGetComponent(out m_Raycaster) ? m_Raycaster : null;
+
 
 
 	// Methods
 
 	public virtual void Show() {
 		gameObject.SetActive(true);
-		if (UIManager.IsPointerClicked) {
-			UIManager.Selected = null;
-		} else {
-			UIManager.Selected = LastSelected ? LastSelected : FirstSelected;
+		if (Raycaster.enabled) {
+			UIManager.Selected = UIManager.IsPointerClicked switch {
+				false => LastSelected ? LastSelected : FirstSelected,
+				true  => null,
+			};
 		}
 	}
 	public virtual void Hide(bool keepState = false) {
 		gameObject.SetActive(false);
-		LastSelected = UIManager.Selected;
+		if (Raycaster.enabled) {
+			LastSelected = UIManager.Selected;
+		}
 	}
 }

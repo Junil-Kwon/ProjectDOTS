@@ -120,8 +120,8 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		get => m_Default;
 		set {
 			value = Loop switch {
-				true  => (int)Mathf.Repeat(value, Elements.Length),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+				true  => (int)Mathf.Repeat(value, Elements.Length),
 			};
 			if (m_Default != value) {
 				m_Default = value;
@@ -133,8 +133,8 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		get => m_Value;
 		set {
 			value = Loop switch {
-				true  => (int)Mathf.Repeat(value, Elements.Length),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+				true  => (int)Mathf.Repeat(value, Elements.Length),
 			};
 			if (m_Value != value) {
 				m_Value = value;

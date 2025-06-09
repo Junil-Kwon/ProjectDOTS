@@ -91,8 +91,8 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		get => m_Default;
 		set {
 			value = MultiSelect switch {
-				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 			};
 			if (m_Default != value) {
 				m_Default = value;
@@ -104,8 +104,8 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		get => m_Value;
 		set {
 			value = MultiSelect switch {
-				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
+				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 			};
 			if (m_Value != value) {
 				m_Value = value;
@@ -167,8 +167,8 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 				if (child.TryGetComponent(out CustomToggle toggle)) {
 					toggle.interactable = interactable && (MultiSelect || i != Value);
 					toggle.Value = MultiSelect switch {
-						true  => (Value & (1 << i)) != 0,
 						false => Value == i,
+						true  => (Value & (1 << i)) != 0,
 					};
 					if (Application.isPlaying) {
 						int index = i;
@@ -178,8 +178,8 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 						});
 						toggle.OnValueChanged.AddListener(MultiSelect switch {
 							true => value => Value = value switch {
-								true  => Value |  (1 << index),
 								false => Value & ~(1 << index),
+								true  => Value |  (1 << index),
 							},
 							false => value => {
 								if (value) Value = index;

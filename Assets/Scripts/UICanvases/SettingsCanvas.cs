@@ -122,12 +122,26 @@ public class SettingsCanvas : BaseCanvas {
 
 	// Advanced Methods
 
+	public void UpdateMaxFrameRateSlider(CustomSlider slider) {
+		slider.Value = GameManager.MaxFrameRate;
+	}
+	public void SetMaxFrameRateValue(float value) {
+		GameManager.MaxFrameRate = (int)value;
+	}
+
+	public void UpdateDisplayDebugScreenToggle(CustomToggle toggle) {
+		toggle.Value = UIManager.DisplayDebugScreen;
+	}
+	public void SetDisplayDebugScreenValue(bool value) {
+		UIManager.DisplayDebugScreen = value;
+	}
+
 	public void ResetAllData() {
 		UIManager.ConfirmResetAllData();
 		UIManager.GetConfirmEvent().AddListener(() => {
 			RestoreDefaults();
 			PlayerPrefs.DeleteAll();
-			UIManager.OnBackPressed.AddListener(() => UIManager.AlertAllDataReset());
+			UIManager.OnBackCompleted.AddListener(() => UIManager.AlertAllDataReset());
 		});
 	}
 

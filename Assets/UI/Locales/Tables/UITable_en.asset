@@ -229,6 +229,14 @@ MonoBehaviour:
     m_Localized: Start Game
     m_Metadata:
       m_Items: []
+  - m_Id: 4399934253948928
+    m_Localized: Display Debug Screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4400027371692032
+    m_Localized: Max Frame Rate
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

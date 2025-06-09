@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: "Schlie\xDFen"
     m_Metadata:
       m_Items: []
+  - m_Id: 4399934253948928
+    m_Localized: Debug-Bildschirm anzeigen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4400027371692032
+    m_Localized: Maximale Bildfrequenz
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: Cerrar
     m_Metadata:
       m_Items: []
+  - m_Id: 4399934253948928
+    m_Localized: "Mostrar pantalla de depuraci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4400027371692032
+    m_Localized: "Tasa de fotogramas m\xE1xima"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

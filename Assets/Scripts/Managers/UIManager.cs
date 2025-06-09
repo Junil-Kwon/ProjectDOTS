@@ -51,6 +51,9 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		new(3840, 2160),
 	};
 
+	const string DisplayDebugScreenKey = "DisplayDebugScreen";
+	const bool   DisplayDebugScreenValue = false;
+
 
 
 	// Fields
@@ -65,11 +68,14 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	ConfirmationCanvas m_ConfirmationCanvas;
 	AlertCanvas        m_AlertCanvas;
 	FadeCanvas         m_FadeCanvas;
+	DebugCanvas        m_DebugCanvas;
 
 	BaseCanvas m_MainCanvas;
 	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
 	readonly UnityEvent m_BackEvent = new();
 	bool m_IsPointerClicked;
+
+	bool m_DisplayDebugScreen;
 
 
 
@@ -115,6 +121,10 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		Instance.m_FadeCanvas || TryGetComponentInChildren(out Instance.m_FadeCanvas) ?
 		Instance.m_FadeCanvas : null;
 
+	static DebugCanvas DebugCanvas =>
+		Instance.m_DebugCanvas || TryGetComponentInChildren(out Instance.m_DebugCanvas) ?
+		Instance.m_DebugCanvas : null;
+
 
 
 	static BaseCanvas MainCanvas {
@@ -128,14 +138,12 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	}
 	public static bool IsUIActive => CurrentCanvas != GameCanvas;
 
-	public static UnityEvent OnBackPressed => Instance.m_BackEvent;
+	public static UnityEvent OnBackCompleted => Instance.m_BackEvent;
 
 	public static bool IsPointerClicked {
 		get => Instance.m_IsPointerClicked;
 		set => Instance.m_IsPointerClicked = value;
 	}
-
-
 
 	static GameObject Temp {
 		get => EventSystem.current.currentSelectedGameObject;
@@ -144,6 +152,18 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	public static Selectable Selected {
 		get => Temp && Temp.TryGetComponent(out Selectable selectable) ? selectable : null;
 		set => Temp = value ? value.gameObject : null;
+	}
+
+
+
+	public static bool DisplayDebugScreen {
+		get => Instance.m_DisplayDebugScreen == default ?
+			Instance.m_DisplayDebugScreen = PlayerPrefs.GetInt(DisplayDebugScreenKey, DisplayDebugScreenValue ? 1 : 0) != 0 :
+			Instance.m_DisplayDebugScreen;
+		set {
+			PlayerPrefs.SetInt(DisplayDebugScreenKey, (Instance.m_DisplayDebugScreen = value) ? 1 : 0);
+			SetDebug(value);
+		}
 	}
 
 
@@ -157,7 +177,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		}
 		MainCanvas = null;
 		OverlayCanvas.Clear();
-		OnBackPressed.RemoveAllListeners();
+		OnBackCompleted.RemoveAllListeners();
 		Selected = null;
 	}
 
@@ -187,8 +207,8 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 			if (OverlayCanvas.TryPeek(out var prev)) prev.Show();
 			OnCanvasChanged();
 		}
-		OnBackPressed.Invoke();
-		OnBackPressed.RemoveAllListeners();
+		OnBackCompleted.Invoke();
+		OnBackCompleted.RemoveAllListeners();
 	}
 
 
@@ -248,7 +268,10 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		ConfirmationCanvas.ContentKey = "Confirmation_ReturnToLobbyContent";
 		ConfirmationCanvas.ConfirmKey = "Confirmation_ReturnToLobbyConfirm";
 		ConfirmationCanvas.CancelKey  = "Confirmation_ReturnToLobbyCancel";
-		ConfirmationCanvas.ConfirmEvent.AddListener(() => {});
+		ConfirmationCanvas.ConfirmEvent.AddListener(() => {
+			NetworkManager.Connect();
+			OnBackCompleted.AddListener(() => OpenGame());
+		});
 	}
 
 	public static void ConfirmQuitGame() {
@@ -298,11 +321,25 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 
 
+	// Debug Canvas Methods
+
+	public static void ShowDebug() => DebugCanvas.gameObject.SetActive(true);
+	public static void HideDebug() => DebugCanvas.gameObject.SetActive(false);
+
+	public static bool GetDebug() => DebugCanvas.gameObject.activeSelf;
+	public static void SetDebug(bool value) => DebugCanvas.gameObject.SetActive(value);
+
+
+
 	// Lifecycle
 
 	void OnEnable() {
 		Initialize();
 		OpenTitle();
+	}
+
+	void Start() {
+		DisplayDebugScreen = DisplayDebugScreen;
 	}
 
 	void Update() {

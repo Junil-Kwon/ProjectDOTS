@@ -46,7 +46,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 				Space();
 				LabelField("Debug", EditorStyles.boldLabel);
 				BeginDisabledGroup();
-				TextField("Game State", $"{(Application.isPlaying ? GameState : "None")}");
+				TextField("Game State", $"{GameState}");
 				EndDisabledGroup();
 				Space();
 
@@ -57,7 +57,16 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 
 
+	// Constants
+
+	const string MaxFrameRateKey = "MaxFrameRate";
+	const int    MaxFrameRateValue = 60;
+
+
+
 	// Fields
+
+	int m_MaxFrameRate;
 
 	[SerializeField] int  m_GameScene;
 	[SerializeField] bool m_StartDirectly;
@@ -72,6 +81,16 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 
 	// Properties
+
+	public static int MaxFrameRate {
+		get => Instance.m_MaxFrameRate == default ?
+			Instance.m_MaxFrameRate = PlayerPrefs.GetInt(MaxFrameRateKey, MaxFrameRateValue) :
+			Instance.m_MaxFrameRate;
+		set {
+			PlayerPrefs.SetInt(MaxFrameRateKey, Instance.m_MaxFrameRate = Mathf.Max(60, value));
+			if (Application.isPlaying) Application.targetFrameRate = Instance.m_MaxFrameRate;
+		}
+	}
 
 	static int GameScene {
 		get => Instance.m_GameScene;
@@ -160,6 +179,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	// Lifecycle
 
 	void Start() {
+		MaxFrameRate = MaxFrameRate;
 		var startDirectly = false;
 		#if UNITY_EDITOR
 			startDirectly = StartDirectly;

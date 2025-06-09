@@ -73,8 +73,8 @@ public struct NetworkManagerBridge : IComponentData {
 		get => m_NetworkState;
 		set => m_NetworkState = value;
 	}
-	public bool IsHost   => m_NetworkState == NetworkState.ConnectedAsHost;
-	public bool IsClient => m_NetworkState == NetworkState.ConnectedAsClient;
+	public bool IsHost   => m_NetworkState == NetworkState.ConnectedAsRelayHost;
+	public bool IsClient => m_NetworkState == NetworkState.ConnectedAsRelayClient;
 }
 
 

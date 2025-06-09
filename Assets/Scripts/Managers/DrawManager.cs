@@ -265,7 +265,9 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 		set {
 			if (Instance.m_AutoLoad != value) {
 				Instance.m_AutoLoad = value;
-				if (value) LoadDataAll();
+				#if UNITY_EDITOR
+					if (value) LoadDataAll();
+				#endif
 			}
 		}
 	}
@@ -279,8 +281,10 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 		set {
 			if (Instance.m_AutoDraw != value) {
 				Instance.m_AutoDraw = value;
-				if (value) DrawEditorMeshAll();
-				else ClearEditorMeshAll();
+				#if UNITY_EDITOR
+					if (value) DrawEditorMeshAll();
+					else ClearEditorMeshAll();
+				#endif
 			}
 		}
 	}

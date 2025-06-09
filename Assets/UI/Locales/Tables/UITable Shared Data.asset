@@ -143,6 +143,14 @@ MonoBehaviour:
     m_Key: Settings_Advanced
     m_Metadata:
       m_Items: []
+  - m_Id: 4400027371692032
+    m_Key: Settings_MaxFrameRate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4399934253948928
+    m_Key: Settings_DisplayDebugScreen
+    m_Metadata:
+      m_Items: []
   - m_Id: 1185973664604160
     m_Key: Settings_ResetAllData
     m_Metadata:

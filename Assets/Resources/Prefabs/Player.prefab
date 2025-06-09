@@ -18,8 +18,6 @@ GameObject:
   - component: {fileID: 3578951256646902265}
   - component: {fileID: 6800752375898292781}
   - component: {fileID: 2955496078475622061}
-  - component: {fileID: -8432566625145950078}
-  - component: {fileID: -2673706852950443799}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -328,12 +326,12 @@ MonoBehaviour:
   m_ShapeType: 2
   m_PrimitiveCenter:
     x: 0
-    y: 0.42
+    y: 0.36
     z: 0
   m_PrimitiveSize:
-    x: 0.88
-    y: 0.88
-    z: 0.88
+    x: 0.76
+    y: 0.76
+    z: 0.76
   m_PrimitiveOrientation:
     Value:
       x: 0
@@ -341,15 +339,15 @@ MonoBehaviour:
       z: 0
     RotationOrder: 4
   m_Capsule:
-    Height: 0.88
-    Radius: 0.44
+    Height: 0.76
+    Radius: 0.38
     Axis: 2
   m_Cylinder:
-    Height: 0.88
-    Radius: 0.44
+    Height: 0.76
+    Radius: 0.38
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.44
+  m_SphereRadius: 0.38
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.015
@@ -544,57 +542,3 @@ MonoBehaviour:
         - localeIdentifier:
             m_Code: ko
           value: 0
---- !u!33 &-8432566625145950078
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7883430157158324649}
-  m_Mesh: {fileID: 4300000, guid: b23eb7a2e785a92438444c249c5792e2, type: 2}
---- !u!23 &-2673706852950443799
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7883430157158324649}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: d6d9685aecd8b444f8a399897e725d97, type: 2}
-  - {fileID: 2100000, guid: 78e3283be7adce842965b43eaf005d8d, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
