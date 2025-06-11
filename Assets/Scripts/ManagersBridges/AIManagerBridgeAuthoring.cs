@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class AIManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(AIManagerBridgeAuthoring))]
-		class AIManagerBridgeAuthoringEditor : EditorExtensions {
-			AIManagerBridgeAuthoring I => target as AIManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("AI Manager Bridge Authoring");
+	[CustomEditor(typeof(AIManagerBridgeAuthoring))]
+	class AIManagerBridgeAuthoringEditor : EditorExtensions {
+		AIManagerBridgeAuthoring I => target as AIManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("AI Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

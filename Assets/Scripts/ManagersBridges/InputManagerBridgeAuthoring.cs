@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class InputManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(InputManagerBridgeAuthoring))]
-		class InputManagerBridgeAuthoringEditor : EditorExtensions {
-			InputManagerBridgeAuthoring I => target as InputManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Input Manager Bridge Authoring");
+	[CustomEditor(typeof(InputManagerBridgeAuthoring))]
+	class InputManagerBridgeAuthoringEditor : EditorExtensions {
+		InputManagerBridgeAuthoring I => target as InputManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Input Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -56,8 +56,9 @@ public struct InputManagerBridge : IComponentData {
 
 	// Fields
 
-	public uint m_KeyPrev;
-	public uint m_KeyNext;
+	public float  m_MouseSensitivity;
+	public uint   m_KeyPrev;
+	public uint   m_KeyNext;
 	public float2 m_LookDirection;
 	public float2 m_MoveDirection;
 	public float2 m_PointPosition;
@@ -69,6 +70,11 @@ public struct InputManagerBridge : IComponentData {
 
 
 	// Properties
+
+	public float MouseSensitivity {
+		get => m_MouseSensitivity;
+		set => m_MouseSensitivity = value;
+	}
 
 	public uint KeyPrev {
 		get => m_KeyPrev;
@@ -130,13 +136,14 @@ public partial class InputManagerBridgeSystem : SystemBase {
 		var i = bridge.ValueRO;
 
 		ref var o = ref bridge.ValueRW;
-		o.KeyPrev       = InputManager.KeyPrev;
-		o.KeyNext       = InputManager.KeyNext;
-		o.LookDirection = InputManager.LookDirection;
-		o.MoveDirection = InputManager.MoveDirection;
-		o.PointPosition = InputManager.PointPosition;
-		o.ScrollWheel   = InputManager.ScrollWheel;
-		o.Navigate      = InputManager.Navigate;
+		o.MouseSensitivity = InputManager.MouseSensitivity;
+		o.KeyPrev          = InputManager.KeyPrev;
+		o.KeyNext          = InputManager.KeyNext;
+		o.LookDirection    = InputManager.LookDirection;
+		o.MoveDirection    = InputManager.MoveDirection;
+		o.PointPosition    = InputManager.PointPosition;
+		o.ScrollWheel      = InputManager.ScrollWheel;
+		o.Navigate         = InputManager.Navigate;
 
 		o.Flag = 0u;
 	}

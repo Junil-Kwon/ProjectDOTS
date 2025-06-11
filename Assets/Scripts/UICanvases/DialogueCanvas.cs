@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,19 +16,20 @@ public class DialogueCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(DialogueCanvas))]
-		class DialogueCanvasEditor : EditorExtensions {
-			DialogueCanvas I => target as DialogueCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Dialogue Canvas");
+	[CustomEditor(typeof(DialogueCanvas))]
+	class DialogueCanvasEditor : EditorExtensions {
+		DialogueCanvas I => target as DialogueCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Dialogue Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-
-				End();
 			}
+			End();
 		}
+	}
 	#endif
 
 }

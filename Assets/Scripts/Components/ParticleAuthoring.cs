@@ -10,7 +10,7 @@ using Unity.Physics;
 using Random = Unity.Mathematics.Random;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -18,7 +18,7 @@ using Random = Unity.Mathematics.Random;
 // Particle Patterns
 
 public enum Pattern : byte {
-	
+	None,
 }
 
 
@@ -33,23 +33,23 @@ public class ParticleAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(ParticleAuthoring))]
-		class ParticleAuthoringEditor : EditorExtensions {
-			ParticleAuthoring I => target as ParticleAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Particle Authoring");
+	[CustomEditor(typeof(ParticleAuthoring))]
+	class ParticleAuthoringEditor : EditorExtensions {
+		ParticleAuthoring I => target as ParticleAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Particle Authoring");
 
-				LabelField("Particle", EditorStyles.boldLabel);
-				I.Pattern = FlagField<Pattern>("Pattern", I.Pattern);
-				Space();
+			LabelField("Particle", EditorStyles.boldLabel);
+			I.Pattern = FlagField<Pattern>("Pattern", I.Pattern);
+			Space();
 
-				I.Lifetime   = FloatField("Lifetime",    I.Lifetime);
-				I.FlipRandom = Toggle2   ("Flip Random", I.FlipRandom);
-				Space();
+			I.Lifetime   = FloatField("Lifetime",    I.Lifetime);
+			I.FlipRandom = Toggle2   ("Flip Random", I.FlipRandom);
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

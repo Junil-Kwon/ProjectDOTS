@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,43 +21,36 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CustomStepper))]
-		class CustomStepperEditor : EditorExtensionsSelectable {
-			CustomStepper I => target as CustomStepper;
-			public override void OnInspectorGUI() {
-				Begin("Custom Stepper");
+	[CustomEditor(typeof(CustomStepper))]
+	class CustomStepperEditor : EditorExtensionsSelectable {
+		CustomStepper I => target as CustomStepper;
+		public override void OnInspectorGUI() {
+			Begin("Custom Stepper");
 
-				LabelField("Selectable", EditorStyles.boldLabel);
-				base.OnInspectorGUI();
-				Space();
-				LabelField("Stepper", EditorStyles.boldLabel);
-				I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
-				I.LeftArrow     = ObjectField("Left Arrow ",    I.LeftArrow);
-				I.RightArrow    = ObjectField("Right Arrow",    I.RightArrow);
-				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
-				Space();
-				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-				if (I.TextUGUI) {
-					BeginHorizontal();
-					PrefixLabel("Text Alignment");
-					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
-				Space();
-				PropertyField("m_Elements");
-				I.Default = IntField("Default", I.Default);
-				I.Value   = IntField("Value",   I.Value);
-				I.Loop    = Toggle  ("Loop",    I.Loop);
-				Space();
-				PropertyField("m_OnStateUpdated");
-				PropertyField("m_OnValueChanged");
-				Space();
+			LabelField("Selectable", EditorStyles.boldLabel);
+			base.OnInspectorGUI();
+			Space();
+			LabelField("Stepper", EditorStyles.boldLabel);
+			I.BodyRect        = ObjectField("Body Rect",         I.BodyRect);
+			I.LeftArrowImage  = ObjectField("Left Arrow Image",  I.LeftArrowImage);
+			I.RightArrowImage = ObjectField("Right Arrow Image", I.RightArrowImage);
+			I.RestoreButton   = ObjectField("Restore Button",    I.RestoreButton);
+			Space();
+			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
+			Space();
+			PropertyField("m_Elements");
+			Space();
+			I.Default = IntField("Default", I.Default);
+			I.Value   = IntField("Value",   I.Value);
+			I.Loop    = Toggle  ("Loop",    I.Loop);
+			Space();
+			PropertyField("m_OnStateUpdated");
+			PropertyField("m_OnValueChanged");
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -65,19 +58,20 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	// Fields
 
 	[SerializeField] RectTransform m_BodyRect;
-	[SerializeField] GameObject m_LeftArrow;
-	[SerializeField] GameObject m_RightArrow;
-	[SerializeField] GameObject m_RestoreButton;
+	[SerializeField] GameObject    m_LeftArrowImage;
+	[SerializeField] GameObject    m_RightArrowImage;
+	[SerializeField] GameObject    m_RestoreButton;
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
 	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
-	[SerializeField] bool m_Loop    = false;
-	[SerializeField] int  m_Default = 0;
-	[SerializeField] int  m_Value   = 0;
+
+	[SerializeField] int  m_Default;
+	[SerializeField] int  m_Value;
+	[SerializeField] bool m_Loop;
 
 	[SerializeField] UnityEvent<CustomStepper> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent<int          > m_OnValueChanged = new();
+	[SerializeField] UnityEvent<int>           m_OnValueChanged = new();
 
 
 
@@ -87,13 +81,13 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		get => m_BodyRect;
 		set => m_BodyRect = value;
 	}
-	GameObject LeftArrow {
-		get => m_LeftArrow;
-		set => m_LeftArrow = value;
+	GameObject LeftArrowImage {
+		get => m_LeftArrowImage;
+		set => m_LeftArrowImage = value;
 	}
-	GameObject RightArrow {
-		get => m_RightArrow;
-		set => m_RightArrow = value;
+	GameObject RightArrowImage {
+		get => m_RightArrowImage;
+		set => m_RightArrowImage = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
@@ -110,12 +104,15 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	public string[] Elements {
 		get => m_Elements;
 		set {
-			m_Elements = value;
-			Default = Default;
-			Value = Value;
-			Refresh();
+			if (m_Elements != value) {
+				m_Elements = value;
+				Default = Default;
+				Value = Value;
+				Refresh();
+			}
 		}
 	}
+
 	public int Default {
 		get => m_Default;
 		set {
@@ -146,26 +143,25 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	public bool Loop {
 		get => m_Loop;
 		set {
-			m_Loop = value;
-			Refresh();
+			if (m_Loop != value) {
+				m_Loop = value;
+				Refresh();
+			}
 		}
 	}
 
 	public UnityEvent<CustomStepper> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<int          > OnValueChanged => m_OnValueChanged;
+	public UnityEvent<int>           OnValueChanged => m_OnValueChanged;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (LeftArrow ) LeftArrow .SetActive(Loop || 0 < Value);
-		if (RightArrow) RightArrow.SetActive(Loop || Value < Elements.Length - 1);
-		if (TextUGUI) {
-			var match = Elements != null && 0 < Elements.Length;
-			TextUGUI.text = match ? Elements[Value] : string.Empty;
-		}
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
+		if (LeftArrowImage)  LeftArrowImage .SetActive(Loop || 0 < Value);
+		if (RightArrowImage) RightArrowImage.SetActive(Loop || Value < Elements.Length - 1);
+		if (TextUGUI)        TextUGUI.text = 0 < Elements.Length ? Elements[Value] : "";
+		if (RestoreButton)   RestoreButton.SetActive(Value != Default);
 		OnStateUpdated.Invoke(this);
 	}
 
@@ -192,8 +188,14 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	public override void OnMove(AxisEventData eventData) {
 		if (interactable) switch (eventData.moveDir) {
-			case MoveDirection.Left:  Value--; UIManager.IsPointerClicked = false; return;
-			case MoveDirection.Right: Value++; UIManager.IsPointerClicked = false; return;
+			case MoveDirection.Left:
+				UIManager.IsPointerClicked = false;
+				Value--;
+				return;
+			case MoveDirection.Right:
+				UIManager.IsPointerClicked = false;
+				Value++;
+				return;
 		}
 		base.OnMove(eventData);
 	}

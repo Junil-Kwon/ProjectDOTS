@@ -14,9 +14,9 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 
 	// Fields
 
-	[SerializeField] List<Vector3> point    = new() { Vector3.zero };
-	[SerializeField] List<bool   > curve    = new() { false        };
-	[SerializeField] List<float  > distance = new() { 0f           };
+	[SerializeField] List<Vector3> point = new();
+	[SerializeField] List<bool>    curve = new();
+	[SerializeField] List<float>   cache = new();
 
 	bool isDirty = false;
 
@@ -34,12 +34,12 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 			}
 		}
 	}
-	public int Count => distance.Count;
+	public int Count => cache.Count;
 
 	public float Distance {
 		get {
 			if (isDirty) CalculateDistance();
-			return (0 < distance.Count) ? distance[^1] : 0f;
+			return (0 < cache.Count) ? cache[^1] : 0f;
 		}
 	}
 
@@ -60,52 +60,52 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 		Add(value);
 	}
 
-	public void Add((Vector3, bool) value) {
-		point   .Add(value.Item1);
-		curve   .Add(value.Item2);
-		distance.Add(0f);
+	public void Add((Vector3 point, bool curve) value) {
+		point.Add(value.point);
+		curve.Add(value.curve);
+		cache.Add(0f);
 		isDirty = true;
 	}
 
-	public void Insert(int index, (Vector3, bool) value) {
-		point.Insert(index, value.Item1);
-		curve.Insert(index, value.Item2);
+	public void Insert(int index, (Vector3 point, bool curve) value) {
+		point.Insert(index, value.point);
+		curve.Insert(index, value.curve);
 		isDirty = true;
 	}
 
 	public void RemoveAt(int index) {
-		point   .RemoveAt(index);
-		curve   .RemoveAt(index);
-		distance.RemoveAt(index);
+		point.RemoveAt(index);
+		curve.RemoveAt(index);
+		cache.RemoveAt(index);
 		isDirty = true;
 	}
 
 	public void Clear() {
-		point   .Clear();
-		curve   .Clear();
-		distance.Clear();
+		point.Clear();
+		curve.Clear();
+		cache.Clear();
 		isDirty = true;
 	}
 
 	public void CopyFrom(Track track) {
-		point   .Clear();
-		curve   .Clear();
-		distance.Clear();
-		point   .AddRange(track.point   );
-		curve   .AddRange(track.curve   );
-		distance.AddRange(track.distance);
+		point.Clear();
+		curve.Clear();
+		cache.Clear();
+		point.AddRange(track.point);
+		curve.AddRange(track.curve);
+		cache.AddRange(track.cache);
 		isDirty = false;
 	}
 
 
 
 	void CalculateDistance() {
-		if (distance.Count == 0) return;
+		if (cache.Count == 0) return;
 		isDirty = false;
 
-		distance[0] = 0f;
+		cache[0] = 0f;
 		for (int i = 0; i < point.Count - 1; i++) {
-			float s = 0f;
+			float s;
 			if (!curve[i]) s = Vector3.Distance(point[i], point[i + 1]);
 			else {
 				Vector3 p0 = (0 <= i - 1) ? point[i - 1] : point[i] - (point[i + 1] - point[i]);
@@ -114,27 +114,27 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 				Vector3 p3 = (i + 2 < point.Count) ? point[i + 2] : p2 + (p2 - p1);
 				s = ApproximateLength(p0, p1, p2, p3, 0f, 1f, 0);
 			}
-			distance[i + 1] = distance[i] + s;
+			cache[i + 1] = cache[i] + s;
 		}
 	}
 
 	public Vector3 Evaluate(float s) {
-		if (point.Count == 0 ) return Vector3.zero;
-		if (point.Count == 1 ) return point[ 0];
-		if (s           <= 0f) return point[ 0];
-		if (Distance    <= s ) return point[^1];
+		if (point.Count == 0) return Vector3.zero;
+		if (point.Count == 1) return point[ 0];
+		if (s <= 0f) return point[ 0];
+		if (Distance <= s) return point[^1];
 	
 		int a = 0, b = point.Count - 1;
 		while (a < b) {
 			int m = (a + b) / 2;
-			if (distance[m] < s) a = m + 1;
+			if (cache[m] < s) a = m + 1;
 			else b = m;
 		}
 		int i = Mathf.Max(a - 1, 0);
 		int j = i + 1;
 
-		float delta = distance[j] - distance[i];
-		float t = (Mathf.Epsilon < delta) ? (s - distance[i]) / delta : 0f;
+		float delta = cache[j] - cache[i];
+		float t = (Mathf.Epsilon < delta) ? (s - cache[i]) / delta : 0f;
 		if (!curve[i]) return Vector3.Lerp(point[i], point[j], t);
 		else {
 			Vector3 p0 = (0 <= i - 1) ? point[i - 1] : point[i] - (point[j] - point[i]);
@@ -161,8 +161,8 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 	}
 
 	static Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
-		float t2 = t  * t;
-		float t3 = t2 * t;
+		float t2 = t * t;
+		float t3 = t * t2;
 		return 0.5f * (
 			(2f * p1) +
 			(p2 - p0) * t +

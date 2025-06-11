@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,62 +21,48 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CustomDropdown))]
-		class CustomDropdownEditor : EditorExtensionsSelectable {
-			CustomDropdown I => target as CustomDropdown;
-			public override void OnInspectorGUI() {
-				Begin("Custom Dropdown");
+	[CustomEditor(typeof(CustomDropdown))]
+	class CustomDropdownEditor : EditorExtensionsSelectable {
+		CustomDropdown I => target as CustomDropdown;
+		public override void OnInspectorGUI() {
+			Begin("Custom Dropdown");
 
-				LabelField("Selectable", EditorStyles.boldLabel);
-				base.OnInspectorGUI();
-				Space();
-				LabelField("Dropdown", EditorStyles.boldLabel);
-				I.Highlight     = ObjectField("Highlight",      I.Highlight);
-				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
-				I.Template      = ObjectField("Template",       I.Template);
-				I.FadeDuration  = FloatField ("Fade Duration",  I.FadeDuration);
-				Space();
-				I.CaptionUGUI = ObjectField("Caption UGUI", I.CaptionUGUI);
-				if (I.CaptionUGUI) {
-					BeginHorizontal();
-					PrefixLabel("Caption Alignment");
-					if (Button("Left"  )) I.CaptionUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.CaptionUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.CaptionUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
-				I.ItemUGUI = ObjectField("Item UGUI", I.ItemUGUI);
-				if (I.ItemUGUI) {
-					BeginHorizontal();
-					PrefixLabel("Item Alignment");
-					if (Button("Left"  )) I.ItemUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.ItemUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.ItemUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
-				Space();
-				PropertyField("m_Elements");
-				I.Default = IntField("Default", I.Default);
-				I.Value   = IntField("Value",   I.Value);
-				Space();
-				PropertyField("m_OnStateUpdated");
-				PropertyField("m_OnValueChanged");
-				Space();
+			LabelField("Selectable", EditorStyles.boldLabel);
+			base.OnInspectorGUI();
+			Space();
+			LabelField("Dropdown", EditorStyles.boldLabel);
+			I.HighlightImage = ObjectField("HighlightImage", I.HighlightImage);
+			I.RestoreButton  = ObjectField("Restore Button", I.RestoreButton);
+			I.Template       = ObjectField("Template",       I.Template);
+			I.FadeDuration   = FloatField ("Fade Duration",  I.FadeDuration);
+			Space();
+			I.CaptionUGUI = ObjectField("Caption UGUI", I.CaptionUGUI);
+			I.ItemUGUI    = ObjectField("Item UGUI",    I.ItemUGUI);
+			Space();
+			PropertyField("m_Elements");
+			Space();
+			I.Default = IntField("Default", I.Default);
+			I.Value   = IntField("Value",   I.Value);
+			Space();
+			PropertyField("m_OnStateUpdated");
+			PropertyField("m_OnValueChanged");
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
 
 	// Fields
 
-	[SerializeField] GameObject m_Highlight;
+	[SerializeField] GameObject m_HighlightImage;
 	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
-	[SerializeField] int m_Default = 0;
+
+	[SerializeField] int m_Default;
 
 	[SerializeField] UnityEvent<CustomDropdown> m_OnStateUpdated = new();
 
@@ -84,9 +70,9 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 
 	// Properties
 
-	GameObject Highlight {
-		get => m_Highlight;
-		set => m_Highlight = value;
+	GameObject HighlightImage {
+		get => m_HighlightImage;
+		set => m_HighlightImage = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
@@ -115,14 +101,17 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	public string[] Elements {
 		get => m_Elements;
 		set {
-			m_Elements = value;
-			options.Clear();
-			foreach (var element in value) options.Add(new OptionData(element));
-			Default = Default;
-			Value = Value;
-			Refresh();
+			if (m_Elements != value) {
+				m_Elements = value;
+				options.Clear();
+				foreach (var element in value) options.Add(new OptionData(element));
+				Default = Default;
+				Value = Value;
+				Refresh();
+			}
 		}
 	}
+
 	public int Default {
 		get => m_Default;
 		set {
@@ -146,7 +135,7 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	}
 
 	public UnityEvent<CustomDropdown> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<int           > OnValueChanged => onValueChanged;
+	public UnityEvent<int>            OnValueChanged => onValueChanged;
 
 
 
@@ -166,47 +155,47 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	// Event Handlers
 
 	public override void OnPointerClick(PointerEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnPointerClick(eventData);
 	}
 
 	public override void OnPointerEnter(PointerEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnPointerEnter(eventData);
 	}
 
 	public override void OnPointerExit(PointerEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnPointerExit(eventData);
 	}
 
 	public override void OnSelect(BaseEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnSelect(eventData);
 	}
 
 	public override void OnDeselect(BaseEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnDeselect(eventData);
 	}
 
 	public override void OnSubmit(BaseEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnSubmit(eventData);
 	}
 
 	public override void OnCancel(BaseEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnCancel(eventData);
 	}
 
 	public override void OnPointerDown(PointerEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnPointerDown(eventData);
 	}
 
 	public override void OnPointerUp(PointerEventData eventData) {
-		if (Highlight) Highlight.SetActive(!IsExpanded);
+		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
 		base.OnPointerUp(eventData);
 	}
 

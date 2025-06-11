@@ -25,7 +25,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -65,25 +65,25 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(NetworkManager))]
-		class NetworkManagerEditor : EditorExtensions {
-			NetworkManager I => target as NetworkManager;
-			public override void OnInspectorGUI() {
-				Begin("Network Manager");
+	[CustomEditor(typeof(NetworkManager))]
+	class NetworkManagerEditor : EditorExtensions {
+		NetworkManager I => target as NetworkManager;
+		public override void OnInspectorGUI() {
+			Begin("Network Manager");
 
-				LabelField("Chat Message", EditorStyles.boldLabel);
-				PropertyField("m_OnChatMessageReceived");
-				Space();
-				LabelField("Debug", EditorStyles.boldLabel);
-				BeginDisabledGroup();
-				TextField("Service State", $"{ServiceState}");
-				TextField("Network State", $"{NetworkState}");
-				EndDisabledGroup();
-				Space();
+			LabelField("Chat Message", EditorStyles.boldLabel);
+			PropertyField("m_OnChatMessageReceived");
+			Space();
+			LabelField("Debug", EditorStyles.boldLabel);
+			BeginDisabledGroup();
+			TextField("Service State", $"{ServiceState}");
+			TextField("Network State", $"{NetworkState}");
+			EndDisabledGroup();
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -240,8 +240,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	}
 	static async Task CreateRelayHostAsync(int maxPlayers) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
-		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
-		if (NetworkState != NetworkState.Disconnected ) Disconnect();
+		if (ServiceState == ServiceState.Unsigned) await SignInAnonymouslyAsync();
+		if (NetworkState != NetworkState.Disconnected) Disconnect();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.Allocating;
@@ -272,10 +272,10 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			NetworkState = NetworkState.Connecting;
 			Listen (server, NetworkEndpoint.AnyIpv4);
 			Connect(client, relayClientData.Endpoint);
-			float timeStartConnecting = Time.realtimeSinceStartup;
+			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnect) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -294,8 +294,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	}
 	static async Task JoinRelayServerAsync(string joinCode) {
 		if (ServiceState == ServiceState.Uninitialized) await InitializeAsync();
-		if (ServiceState == ServiceState.Unsigned     ) await SignInAnonymouslyAsync();
-		if (NetworkState != NetworkState.Disconnected ) Disconnect();
+		if (ServiceState == ServiceState.Unsigned) await SignInAnonymouslyAsync();
+		if (NetworkState != NetworkState.Disconnected) Disconnect();
 		if (ServiceState == ServiceState.Ready && NetworkState == NetworkState.Disconnected) {
 
 			NetworkState = NetworkState.Allocating;
@@ -318,10 +318,10 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, relayClientData.Endpoint);
-			float timeStartConnecting = Time.realtimeSinceStartup;
+			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnect) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -357,10 +357,10 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			NetworkState = NetworkState.Connecting;
 			Listen (server, NetworkEndpoint.AnyIpv4.WithPort(Port));
 			Connect(client, NetworkEndpoint.LoopbackIpv4.WithPort(Port));
-			float timeStartConnecting = Time.realtimeSinceStartup;
+			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnect) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};
@@ -389,10 +389,10 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 
 			NetworkState = NetworkState.Connecting;
 			Connect(client, NetworkEndpoint.Parse(address, Port));
-			float timeStartConnecting = Time.realtimeSinceStartup;
+			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
 				await Task.Yield();
-				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnecting) {
+				if (ConnectionTimeOut < Time.realtimeSinceStartup - timeStartConnect) {
 					NetworkState = NetworkState.ConnectionFailed;
 					return;
 				};

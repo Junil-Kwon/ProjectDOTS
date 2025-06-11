@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,15 +16,15 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(SoundManager))]
-		class SoundManagerEditor : EditorExtensions {
-			SoundManager I => target as SoundManager;
-			public override void OnInspectorGUI() {
-				Begin("Sound Manager");
+	[CustomEditor(typeof(SoundManager))]
+	class SoundManagerEditor : EditorExtensions {
+		SoundManager I => target as SoundManager;
+		public override void OnInspectorGUI() {
+			Begin("Sound Manager");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -32,10 +32,10 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 	// Constants
 
 	const string MusicKey = "Music";
-	const float  MusicValue = 1f;
+	const float MusicValue = 1f;
 
 	const string SoundFXKey = "SoundFX";
-	const float  SoundFXValue = 1f;
+	const float SoundFXValue = 1f;
 
 
 

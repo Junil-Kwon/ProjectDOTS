@@ -38,7 +38,7 @@ public struct color {
 
 	// Fields
 
-	[SerializeField] uint data;
+	public uint data;
 
 
 
@@ -126,12 +126,12 @@ public struct color {
 		float m = v - c;
 		color color = new(0f, 0f, 0f, a);
 		switch (p) {
-		case < 1f: color.r =  c; color.g =  x; color.b = 0f; break;
-		case < 2f: color.r =  x; color.g =  c; color.b = 0f; break;
-		case < 3f: color.r = 0f; color.g =  c; color.b =  x; break;
-		case < 4f: color.r = 0f; color.g =  x; color.b =  c; break;
-		case < 5f: color.r =  x; color.g = 0f; color.b =  c; break;
-		default:   color.r =  c; color.g = 0f; color.b =  x; break;
+			case < 1f: color.r =  c; color.g =  x; color.b = 0f; break;
+			case < 2f: color.r =  x; color.g =  c; color.b = 0f; break;
+			case < 3f: color.r = 0f; color.g =  c; color.b =  x; break;
+			case < 4f: color.r = 0f; color.g =  x; color.b =  c; break;
+			case < 5f: color.r =  x; color.g = 0f; color.b =  c; break;
+			default:   color.r =  c; color.g = 0f; color.b =  x; break;
 		}
 		color.r += m;
 		color.g += m;

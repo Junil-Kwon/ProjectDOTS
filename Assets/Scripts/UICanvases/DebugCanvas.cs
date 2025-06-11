@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -18,19 +18,24 @@ public class DebugCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(DebugCanvas))]
-		class DebugCanvasEditor : EditorExtensions {
-			DebugCanvas I => target as DebugCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Debug Canvas");
+	[CustomEditor(typeof(DebugCanvas))]
+	class DebugCanvasEditor : EditorExtensions {
+		DebugCanvas I => target as DebugCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Debug Canvas");
 
-				LabelField("Elements", EditorStyles.boldLabel);
-				I.FrameRateText = ObjectField("Frame Rate Text", I.FrameRateText);
+			if (I.Raycaster) {
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-
-				End();
 			}
+			LabelField("Elements", EditorStyles.boldLabel);
+			I.FrameRateText = ObjectField("Frame Rate Text", I.FrameRateText);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 

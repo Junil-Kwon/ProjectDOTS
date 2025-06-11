@@ -356,7 +356,7 @@ MonoBehaviour:
   ClientNonGhostWorldIndex: 1
   DeepCopyDynamicColliders: 1
   DeepCopyStaticColliders: 0
---- !u!1001 &695863502
+--- !u!1001 &1112863346
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -366,7 +366,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.4235435
+      value: 3.9283912
       objectReference: {fileID: 0}
     - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -374,7 +374,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.0622692
+      value: -6.3341403
       objectReference: {fileID: 0}
     - target: {fileID: 691312296144875754, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -406,7 +406,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7883430157158324649, guid: 5dd1788d060e21149b23cba498441e7b, type: 3}
       propertyPath: m_Name
-      value: Temp
+      value: Dummy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -464,4 +464,4 @@ SceneRoots:
   - {fileID: 165012044}
   - {fileID: 71377503}
   - {fileID: 1496405521}
-  - {fileID: 695863502}
+  - {fileID: 1112863346}

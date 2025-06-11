@@ -10,7 +10,7 @@ using Unity.Physics;
 using Unity.NetCode;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -25,50 +25,50 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CameraManager))]
-		class CameraManagerEditor : EditorExtensions {
-			CameraManager I => target as CameraManager;
-			public override void OnInspectorGUI() {
-				Begin("Camera Manager");
+	[CustomEditor(typeof(CameraManager))]
+	class CameraManagerEditor : EditorExtensions {
+		CameraManager I => target as CameraManager;
+		public override void OnInspectorGUI() {
+			Begin("Camera Manager");
 
-				if (!MainCamera) {
-					var t0 = "No camera found.";
-					var t1 = "Please add a camera to child object.";
-					HelpBox($"{t0}\n{t1}", MessageType.Warning);
-					Space();
-				} else {
-					LabelField("Camera", EditorStyles.boldLabel);
-					RenderTextureSize = Vector2Field("Render Texture Size", RenderTextureSize);
-					FocusDistance     = Slider      ("Focus Distance",      FocusDistance, 0f, 255f);
-					FieldOfView       = FloatField  ("Field Of View",       FieldOfView);
-					OrthographicSize  = FloatField  ("Orthographic Size",   OrthographicSize);
-					Projection        = Slider      ("Projection",          Projection, 0f, 1f);
-					BeginHorizontal();
-					PrefixLabel(" ");
-					var l = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleLeft  };
-					var r = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleRight };
-					var s = new GUIStyle(GUI.skin.label) { fixedWidth = 50 };
-					GUILayout.Label("< Perspective ", l);
-					GUILayout.Label("Orthographic >", r);
-					GUILayout.Label(" ", s);
-					EndHorizontal();
-					Space();
-				}
-				if (CameraData) {
-					PostProcessing = Toggle("Post Processing", PostProcessing);
-					BeginDisabledGroup(!PostProcessing);
-					AntiAliasing = Toggle("Anti Aliasing", AntiAliasing);
-					EndDisabledGroup();
-					Space();
-				}
-				LabelField("Constraints", EditorStyles.boldLabel);
-				FreezePosition = Toggle3("Freeze Position", FreezePosition);
-				FreezeRotation = Toggle3("Freeze Rotation", FreezeRotation);
+			if (!MainCamera) {
+				var t0 = "No camera found.";
+				var t1 = "Please add a camera to child object.";
+				HelpBox($"{t0}\n{t1}", MessageType.Warning);
 				Space();
-
-				End();
+			} else {
+				LabelField("Camera", EditorStyles.boldLabel);
+				RenderTextureSize = Vector2Field("Render Texture Size", RenderTextureSize);
+				FocusDistance     = Slider      ("Focus Distance",      FocusDistance, 0f, 255f);
+				FieldOfView       = FloatField  ("Field Of View",       FieldOfView);
+				OrthographicSize  = FloatField  ("Orthographic Size",   OrthographicSize);
+				Projection        = Slider      ("Projection",          Projection, 0f, 1f);
+				BeginHorizontal();
+				PrefixLabel(" ");
+				var l = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleLeft  };
+				var r = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleRight };
+				var s = new GUIStyle(GUI.skin.label) { fixedWidth = 50 };
+				GUILayout.Label("< Perspective ", l);
+				GUILayout.Label("Orthographic >", r);
+				GUILayout.Label(" ", s);
+				EndHorizontal();
+				Space();
 			}
+			if (CameraData) {
+				PostProcessing = Toggle("Post Processing", PostProcessing);
+				BeginDisabledGroup(!PostProcessing);
+				AntiAliasing = Toggle("Anti Aliasing", AntiAliasing);
+				EndDisabledGroup();
+				Space();
+			}
+			LabelField("Constraints", EditorStyles.boldLabel);
+			FreezePosition = Toggle3("Freeze Position", FreezePosition);
+			FreezeRotation = Toggle3("Freeze Rotation", FreezeRotation);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -79,7 +79,7 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 	UniversalAdditionalCameraData m_CameraData;
 
 	[SerializeField] float m_FocusDistance = 64f;
-	[SerializeField] float m_Projection    =  1f;
+	[SerializeField] float m_Projection = 1f;
 	[SerializeField] constraints m_Constraints = new();
 
 
@@ -134,8 +134,10 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 	public static Vector2 RenderTextureSize {
 		get {
 			var target = MainCamera.targetTexture;
-			if (target) return new Vector2(target.width, target.height);
-			else        return new Vector2(Screen.width, Screen.height);
+			return (target != null) switch {
+				false => new Vector2(Screen.width, Screen.height),
+				true  => new Vector2(target.width, target.height),
+			};
 		}
 		set {
 			var target = MainCamera.targetTexture;
@@ -184,7 +186,7 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 			float top    =  OrthographicSize;
 			var matrix = MainCamera.projectionMatrix;
 			var a = Matrix4x4.Perspective(FieldOfView, aspect, near, far);
-			var b = Matrix4x4.Ortho(left, right,  bottom, top, near, far);
+			var b = Matrix4x4.Ortho(left, right, bottom, top, near, far);
 			var t = Mathf.Pow(Mathf.Max(0.01f, value), 0.03f);
 			for (int i = 0; i < 16; i++) matrix[i] = Mathf.Lerp(a[i], b[i], t);
 			MainCamera.projectionMatrix = matrix;

@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.Localization.Components;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -19,25 +19,27 @@ public class ConfirmationCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(ConfirmationCanvas))]
-		class ConfirmationCanvasEditor : EditorExtensions {
-			ConfirmationCanvas I => target as ConfirmationCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Confirmation Canvas");
+	[CustomEditor(typeof(ConfirmationCanvas))]
+	class ConfirmationCanvasEditor : EditorExtensions {
+		ConfirmationCanvas I => target as ConfirmationCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Confirmation Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-				LabelField("Localize Event", EditorStyles.boldLabel);
-				I.HeaderText    = ObjectField("Header Text",    I.HeaderText);
-				I.ContentText   = ObjectField("Content Text",   I.ContentText);
-				I.ConfirmButton = ObjectField("Confirm Button", I.ConfirmButton);
-				I.CancelButton  = ObjectField("Cancel Button",  I.CancelButton);
-				Space();
-
-				End();
 			}
+			LabelField("Localize Event", EditorStyles.boldLabel);
+			I.HeaderText    = ObjectField("Header Text",    I.HeaderText);
+			I.ContentText   = ObjectField("Content Text",   I.ContentText);
+			I.ConfirmButton = ObjectField("Confirm Button", I.ConfirmButton);
+			I.CancelButton  = ObjectField("Cancel Button",  I.CancelButton);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -49,8 +51,8 @@ public class ConfirmationCanvas : BaseCanvas {
 	[SerializeField] LocalizeStringEvent m_ConfirmButton;
 	[SerializeField] LocalizeStringEvent m_CancelButton;
 
-	readonly UnityEvent m_ConfirmEvent = new();
-	readonly UnityEvent m_CancelEvent  = new();
+	readonly UnityEvent m_OnConfirmed = new();
+	readonly UnityEvent m_OnCancelled = new();
 
 
 
@@ -90,8 +92,8 @@ public class ConfirmationCanvas : BaseCanvas {
 		set => CancelButton.StringReference.SetReference(UIManager.LocalizationTable, value);
 	}
 
-	public UnityEvent ConfirmEvent => m_ConfirmEvent;
-	public UnityEvent CancelEvent  => m_CancelEvent;
+	public UnityEvent OnConfirmed => m_OnConfirmed;
+	public UnityEvent OnCancelled => m_OnCancelled;
 
 
 
@@ -100,17 +102,17 @@ public class ConfirmationCanvas : BaseCanvas {
 	public override void Hide(bool keepState = false) {
 		gameObject.SetActive(false);
 		if (!keepState) {
-			ConfirmEvent.RemoveAllListeners();
-			CancelEvent .RemoveAllListeners();
+			OnConfirmed.RemoveAllListeners();
+			OnCancelled.RemoveAllListeners();
 		}
 	}
 
 	public void OnConfirmButtonClick() {
-		ConfirmEvent.Invoke();
+		OnConfirmed.Invoke();
 		UIManager.Back();
 	}
 	public void OnCancelButtonClick() {
-		CancelEvent.Invoke();
+		OnCancelled.Invoke();
 		UIManager.Back();
 	}
 

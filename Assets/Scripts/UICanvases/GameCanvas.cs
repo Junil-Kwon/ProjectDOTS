@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,23 +16,25 @@ public class GameCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(GameCanvas))]
-		class GameCanvasEditor : EditorExtensions {
-			GameCanvas I => target as GameCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Game Canvas");
+	[CustomEditor(typeof(GameCanvas))]
+	class GameCanvasEditor : EditorExtensions {
+		GameCanvas I => target as GameCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Game Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-				LabelField("Status", EditorStyles.boldLabel);
-				I.PlayerStatus = ObjectField("Player Status", I.PlayerStatus);
-				I.MemberStatus = ObjectField("Member Status", I.MemberStatus);
-				Space();
-
-				End();
 			}
+			LabelField("Status", EditorStyles.boldLabel);
+			I.PlayerStatus = ObjectField("Player Status", I.PlayerStatus);
+			I.MemberStatus = ObjectField("Member Status", I.MemberStatus);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 

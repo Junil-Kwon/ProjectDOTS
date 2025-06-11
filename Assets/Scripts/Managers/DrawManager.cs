@@ -15,7 +15,7 @@ using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -67,6 +67,15 @@ public struct UIDrawData {
 
 
 
+public static class QuaternionExtensions {
+	public static Quaternion ToQuaternion(this Vector4 value) =>
+		new(value.x, value.y, value.z, value.w);
+	public static quaternion ToQuaternion(this float4 value) =>
+		(quaternion)value;
+}
+
+
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Draw Manager
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -77,56 +86,56 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(DrawManager))]
-		class DrawManagerEditor : EditorExtensions {
-			DrawManager I => target as DrawManager;
-			public override void OnInspectorGUI() {
-				Begin("Draw Manager");
+	[CustomEditor(typeof(DrawManager))]
+	class DrawManagerEditor : EditorExtensions {
+		DrawManager I => target as DrawManager;
+		public override void OnInspectorGUI() {
+			Begin("Draw Manager");
 
-				LabelField("Material", EditorStyles.boldLabel);
-				TileMaterial   = ObjectField("Tile Material",   TileMaterial);
-				SpriteMaterial = ObjectField("Sprite Material", SpriteMaterial);
-				ShadowMaterial = ObjectField("Shadow Material", ShadowMaterial);
-				UIMaterial     = ObjectField("UI Material",     UIMaterial);
-				Space();
-				LabelField("Atlas Map", EditorStyles.boldLabel);
-				TileAtlasMapPath   = TextField("Tile Atlas Map Path",   TileAtlasMapPath);
-				SpriteAtlasMapPath = TextField("Sprite Atlas Map Path", SpriteAtlasMapPath);
-				ShadowAtlasMapPath = TextField("Shadow Atlas Map Path", ShadowAtlasMapPath);
-				UIAtlasMapPath     = TextField("UI Atlas Map Path",     UIAtlasMapPath);
-				BeginHorizontal();
-				PrefixLabel("Load Atlas Map");
-				if (Button("Clear")) ClearDataAll();
-				if (Button("Load" )) LoadDataAll();
-				EndHorizontal();
-				AutoLoad = Toggle("Auto Load", AutoLoad);
-				Space();
-				LabelField("Editor Mesh", EditorStyles.boldLabel);
-				CachePath = TextField("Cache Path", CachePath);
-				BeginHorizontal();
-				PrefixLabel("Draw Editor Mesh");
-				if (Button("Clear")) ClearEditorMeshAll();
-				if (Button("Draw" )) DrawEditorMeshAll();
-				EndHorizontal();
-				AutoDraw = Toggle("Auto Draw", AutoDraw);
-				Space();
-				LabelField("Debug", EditorStyles.boldLabel);
-				BeginDisabledGroup();
-				int lutable = Marshal.SizeOf<uint>() + Marshal.SizeOf<uint>();
-				int datamap = Marshal.SizeOf<uint>() + Marshal.SizeOf<AtlasData>();
-				int tile   = lutable * TileLUTable.Count   + datamap * TileDataMap.Count;
-				int sprite = lutable * SpriteLUTable.Count + datamap * SpriteDataMap.Count;
-				int shadow = lutable * ShadowLUTable.Count + datamap * ShadowDataMap.Count;
-				int ui     = lutable * UILUTable.Count     + datamap * UIDataMap.Count;
-				TextField("Tile Atlas Map Size",   $"{TileDataMap.Count  } ({tile:N0} Bytes)");
-				TextField("Sprite Atlas Map Size", $"{SpriteDataMap.Count} ({sprite:N0} Bytes)");
-				TextField("Shadow Atlas Map Size", $"{ShadowDataMap.Count} ({shadow:N0} Bytes)");
-				TextField("UI Atlas Map Size",     $"{UIDataMap.Count    } ({ui:N0} Bytes)");
-				EndDisabledGroup();
+			LabelField("Material", EditorStyles.boldLabel);
+			TileMaterial   = ObjectField("Tile Material",   TileMaterial);
+			SpriteMaterial = ObjectField("Sprite Material", SpriteMaterial);
+			ShadowMaterial = ObjectField("Shadow Material", ShadowMaterial);
+			UIMaterial     = ObjectField("UI Material",     UIMaterial);
+			Space();
+			LabelField("Atlas Map", EditorStyles.boldLabel);
+			TileAtlasMapPath   = TextField("Tile Atlas Map Path",   TileAtlasMapPath);
+			SpriteAtlasMapPath = TextField("Sprite Atlas Map Path", SpriteAtlasMapPath);
+			ShadowAtlasMapPath = TextField("Shadow Atlas Map Path", ShadowAtlasMapPath);
+			UIAtlasMapPath     = TextField("UI Atlas Map Path",     UIAtlasMapPath);
+			BeginHorizontal();
+			PrefixLabel("Load Atlas Map");
+			if (Button("Clear")) ClearDataAll();
+			if (Button("Load" )) LoadDataAll();
+			EndHorizontal();
+			AutoLoad = Toggle("Auto Load", AutoLoad);
+			Space();
+			LabelField("Editor Mesh", EditorStyles.boldLabel);
+			CachePath = TextField("Cache Path", CachePath);
+			BeginHorizontal();
+			PrefixLabel("Draw Editor Mesh");
+			if (Button("Clear")) ClearEditorMeshAll();
+			if (Button("Draw" )) DrawEditorMeshAll();
+			EndHorizontal();
+			AutoDraw = Toggle("Auto Draw", AutoDraw);
+			Space();
+			LabelField("Debug", EditorStyles.boldLabel);
+			BeginDisabledGroup();
+			int lutable = Marshal.SizeOf<uint>() + Marshal.SizeOf<uint>();
+			int datamap = Marshal.SizeOf<uint>() + Marshal.SizeOf<AtlasData>();
+			int tile   = lutable * TileLUTable.Count   + datamap * TileDataMap.Count;
+			int sprite = lutable * SpriteLUTable.Count + datamap * SpriteDataMap.Count;
+			int shadow = lutable * ShadowLUTable.Count + datamap * ShadowDataMap.Count;
+			int ui     = lutable * UILUTable.Count     + datamap * UIDataMap.Count;
+			TextField("Tile Atlas Map Size",   $"{TileDataMap.Count  } ({tile:N0} Bytes)");
+			TextField("Sprite Atlas Map Size", $"{SpriteDataMap.Count} ({sprite:N0} Bytes)");
+			TextField("Shadow Atlas Map Size", $"{ShadowDataMap.Count} ({shadow:N0} Bytes)");
+			TextField("UI Atlas Map Size",     $"{UIDataMap.Count    } ({ui:N0} Bytes)");
+			EndDisabledGroup();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -174,22 +183,22 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 
 	public static Mesh TileMesh {
 		get => Instance.m_TileMesh ?
-			   Instance.m_TileMesh : Instance.m_TileMesh = GetTileMesh();
+			Instance.m_TileMesh : Instance.m_TileMesh = GetTileMesh();
 		private set => Instance.m_TileMesh = value;
 	}
 	public static Mesh SpriteMesh {
 		get => Instance.m_SpriteMesh ?
-			   Instance.m_SpriteMesh : Instance.m_SpriteMesh = GetSpriteMesh();
+			Instance.m_SpriteMesh : Instance.m_SpriteMesh = GetSpriteMesh();
 		private set => Instance.m_SpriteMesh = value;
 	}
 	public static Mesh ShadowMesh {
 		get => Instance.m_ShadowMesh ?
-			   Instance.m_ShadowMesh : Instance.m_ShadowMesh = GetShadowMesh();
+			Instance.m_ShadowMesh : Instance.m_ShadowMesh = GetShadowMesh();
 		private set => Instance.m_ShadowMesh = value;
 	}
 	public static Mesh UIMesh {
 		get => Instance.m_UIMesh ?
-			   Instance.m_UIMesh : Instance.m_UIMesh = GetUIMesh();
+			Instance.m_UIMesh : Instance.m_UIMesh = GetUIMesh();
 		private set => Instance.m_UIMesh = value;
 	}
 
@@ -282,8 +291,8 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 			if (Instance.m_AutoDraw != value) {
 				Instance.m_AutoDraw = value;
 				#if UNITY_EDITOR
-					if (value) DrawEditorMeshAll();
-					else ClearEditorMeshAll();
+				if (value) DrawEditorMeshAll();
+				else ClearEditorMeshAll();
 				#endif
 			}
 		}
@@ -294,239 +303,238 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 	// Editor Methods
 
 	#if UNITY_EDITOR
-		static T LoadAsset<T>(string path) where T : UnityEngine.Object {
-			return AssetDatabase.LoadAssetAtPath<T>(path);
+	static T LoadAsset<T>(string path) where T : UnityEngine.Object {
+		return AssetDatabase.LoadAssetAtPath<T>(path);
+	}
+
+	static double time;
+	[InitializeOnLoadMethod]
+	static void InitializeOnLoadMethod() => EditorApplication.update += () => {
+		if (Instance == false) return;
+		if (AutoLoad && time + 5.0 < EditorApplication.timeSinceStartup) {
+			time = EditorApplication.timeSinceStartup;
+			var flag = false;
+			var tileAtlasMap = LoadAsset<AtlasMapSO>(TileAtlasMapPath);
+			if (tileAtlasMap && tileAtlasMap.IsDirty) {
+				tileAtlasMap.IsDirty = false;
+				LoadTileData(tileAtlasMap);
+				flag = true;
+			}
+			var spriteAtlasMap = LoadAsset<AtlasMapSO>(SpriteAtlasMapPath);
+			if (spriteAtlasMap && spriteAtlasMap.IsDirty) {
+				spriteAtlasMap.IsDirty = false;
+				LoadSpriteData(spriteAtlasMap);
+				flag = true;
+			}
+			var shadowAtlasMap = LoadAsset<AtlasMapSO>(ShadowAtlasMapPath);
+			if (shadowAtlasMap && shadowAtlasMap.IsDirty) {
+				shadowAtlasMap.IsDirty = false;
+				LoadShadowData(shadowAtlasMap);
+				flag = true;
+			}
+			var uiAtlasMap = LoadAsset<AtlasMapSO>(UIAtlasMapPath);
+			if (uiAtlasMap && uiAtlasMap.IsDirty) {
+				uiAtlasMap.IsDirty = false;
+				LoadUIData(uiAtlasMap);
+				flag = true;
+			}
+			if (flag && AutoDraw) DrawEditorMeshAll();
 		}
-
-		static double time;
-
-		[InitializeOnLoadMethod]
-		static void InitializeOnLoadMethod() => EditorApplication.update += () => {
-			if (Instance == false) return;
-			if (AutoLoad && time + 5.0 < EditorApplication.timeSinceStartup) {
-				time = EditorApplication.timeSinceStartup;
-				var flag = false;
-				var tileAtlasMap = LoadAsset<AtlasMapSO>(TileAtlasMapPath);
-				if (tileAtlasMap && tileAtlasMap.IsDirty) {
-					tileAtlasMap.IsDirty = false;
-					LoadTileData(tileAtlasMap);
-					flag = true;
-				}
-				var spriteAtlasMap = LoadAsset<AtlasMapSO>(SpriteAtlasMapPath);
-				if (spriteAtlasMap && spriteAtlasMap.IsDirty) {
-					spriteAtlasMap.IsDirty = false;
-					LoadSpriteData(spriteAtlasMap);
-					flag = true;
-				}
-				var shadowAtlasMap = LoadAsset<AtlasMapSO>(ShadowAtlasMapPath);
-				if (shadowAtlasMap && shadowAtlasMap.IsDirty) {
-					shadowAtlasMap.IsDirty = false;
-					LoadShadowData(shadowAtlasMap);
-					flag = true;
-				}
-				var uiAtlasMap = LoadAsset<AtlasMapSO>(UIAtlasMapPath);
-				if (uiAtlasMap && uiAtlasMap.IsDirty) {
-					uiAtlasMap.IsDirty = false;
-					LoadUIData(uiAtlasMap);
-					flag = true;
-				}
-				if (flag && AutoDraw) DrawEditorMeshAll();
+		if (AutoDraw && Selection.activeGameObject) {
+			var status = PrefabUtility.GetPrefabInstanceStatus(Selection.activeGameObject);
+			if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
+				DrawEditorMesh(Selection.activeGameObject);
 			}
-			if (AutoDraw && Selection.activeGameObject) {
-				var status = PrefabUtility.GetPrefabInstanceStatus(Selection.activeGameObject);
-				if (status != PrefabInstanceStatus.Connected && !Application.isPlaying) {
-					DrawEditorMesh(Selection.activeGameObject);
-				}
-			}
-		};
-
-		static void ClearDataAll() {
-			ClearTileData();
-			ClearSpriteData();
-			ClearShadowData();
-			ClearUIData();
 		}
+	};
 
-		static void LoadDataAll() {
-			LoadTileData  (LoadAsset<AtlasMapSO>(TileAtlasMapPath));
-			LoadSpriteData(LoadAsset<AtlasMapSO>(SpriteAtlasMapPath));
-			LoadShadowData(LoadAsset<AtlasMapSO>(ShadowAtlasMapPath));
-			LoadUIData    (LoadAsset<AtlasMapSO>(UIAtlasMapPath));
+	static void ClearDataAll() {
+		ClearTileData();
+		ClearSpriteData();
+		ClearShadowData();
+		ClearUIData();
+	}
+
+	static void LoadDataAll() {
+		LoadTileData(LoadAsset<AtlasMapSO>(TileAtlasMapPath));
+		LoadSpriteData(LoadAsset<AtlasMapSO>(SpriteAtlasMapPath));
+		LoadShadowData(LoadAsset<AtlasMapSO>(ShadowAtlasMapPath));
+		LoadUIData(LoadAsset<AtlasMapSO>(UIAtlasMapPath));
+	}
+
+	static void ClearEditorMeshAll() {
+		foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
+			if (prefab.TryGetComponent(out MeshFilter filter)) DestroyImmediate(filter, true);
+			if (prefab.TryGetComponent(out MeshRenderer renderer)) DestroyImmediate(renderer, true);
+
+			var prefabPath = AssetDatabase.GetAssetPath(prefab);
+			PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
 		}
+		AssetDatabase.Refresh();
+	}
 
-		static void ClearEditorMeshAll() {
-			foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
-				if (prefab.TryGetComponent(out MeshFilter   filter  )) DestroyImmediate(filter, true);
-				if (prefab.TryGetComponent(out MeshRenderer renderer)) DestroyImmediate(renderer, true);
-
-				var prefabPath = AssetDatabase.GetAssetPath(prefab);
-				PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
-			}
-			AssetDatabase.Refresh();
+	static void DrawEditorMeshAll() {
+		foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
+			if (!prefab.TryGetComponent(out MeshFilter _)) prefab.AddComponent<MeshFilter>();
+			if (!prefab.TryGetComponent(out MeshRenderer _)) prefab.AddComponent<MeshRenderer>();
+			DrawEditorMesh(prefab);
+			var prefabPath = AssetDatabase.GetAssetPath(prefab);
+			PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
 		}
+		AssetDatabase.Refresh();
+	}
 
-		static void DrawEditorMeshAll() {
-			foreach (var prefab in Resources.LoadAll<GameObject>("Prefabs")) {
-				if (!prefab.TryGetComponent(out MeshFilter   _)) prefab.AddComponent<MeshFilter>();
-				if (!prefab.TryGetComponent(out MeshRenderer _)) prefab.AddComponent<MeshRenderer>();
-				DrawEditorMesh(prefab);
-				var prefabPath = AssetDatabase.GetAssetPath(prefab);
-				PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
-			}
-			AssetDatabase.Refresh();
+	static void DrawEditorMesh(GameObject gameObject) {
+		if (!gameObject) return;
+		if (!gameObject.TryGetComponent(out MeshFilter filter)) return;
+		if (!gameObject.TryGetComponent(out MeshRenderer renderer)) return;
+		var tileArray   = gameObject.GetComponents<TileDrawerAuthoring>();
+		var spriteArray = gameObject.GetComponents<SpriteDrawerAuthoring>();
+		var shadowArray = gameObject.GetComponents<ShadowDrawerAuthoring>();
+		var uiArray     = gameObject.GetComponents<UIDrawerAuthoring>();
+		var match = false;
+		match |= 0 < tileArray.Length;
+		match |= 0 < spriteArray.Length;
+		match |= 0 < shadowArray.Length;
+		match |= 0 < uiArray.Length;
+		if (!match) return;
+
+		var path = Path.Combine(CachePath, $"{gameObject.name}.asset");
+		var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+		if (mesh == null) {
+			mesh = new Mesh();
+			AssetDatabase.CreateAsset(mesh, path);
 		}
+		var vertices  = new List<Vector3>();
+		var uvs       = new List<Vector2>();
+		var normals   = new List<Vector3>();
+		var triangles = new List<int[]>();
+		var offset    = 0;
+		var materials = new List<Material>();
 
-		static void DrawEditorMesh(GameObject gameObject) {
-			if (!gameObject) return;
-			if (!gameObject.TryGetComponent(out MeshFilter filter)) return;
-			if (!gameObject.TryGetComponent(out MeshRenderer renderer)) return;
-			var tileArray   = gameObject.GetComponents<TileDrawerAuthoring>();
-			var spriteArray = gameObject.GetComponents<SpriteDrawerAuthoring>();
-			var shadowArray = gameObject.GetComponents<ShadowDrawerAuthoring>();
-			var uiArray     = gameObject.GetComponents<UIDrawerAuthoring>();
-			var match = false;
-			match |= 0 < tileArray.Length;
-			match |= 0 < spriteArray.Length;
-			match |= 0 < shadowArray.Length;
-			match |= 0 < uiArray.Length;
-			if (!match) return;
+		foreach (var tile in tileArray) {
+			var data     = GetTileData(gameObject.transform, tile);
+			var position = tile.Position;
+			var rotation = tile.Rotation.ToQuaternion();
+			var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
+			var pivot    = (Vector3)data.position - gameObject.transform.position - position;
+			Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
+			Vector2 uv      (Vector2 i) => i;
+			Vector3 normal  (Vector3 i) => rotation * i;
+			int     triangle(int     i) => offset + i;
 
-			var path = Path.Combine(CachePath, $"{gameObject.name}.asset");
-			var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
-			if (mesh == null) {
-				mesh = new Mesh();
-				AssetDatabase.CreateAsset(mesh, path);
+			vertices .AddRange(TileMesh.vertices .Select(vertex));
+			uvs      .AddRange(TileMesh.uv       .Select(uv));
+			normals  .AddRange(TileMesh.normals  .Select(normal));
+			triangles.Add     (TileMesh.triangles.Select(triangle).ToArray());
+			offset += TileMesh.vertexCount;
+			path = Path.Combine(CachePath, $"{gameObject.name}Tile{materials.Count}.mat");
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if (material == null) {
+				material = new Material(TileMaterial);
+				AssetDatabase.CreateAsset(material, path);
 			}
-			var vertices  = new List<Vector3>();
-			var uvs       = new List<Vector2>();
-			var normals   = new List<Vector3>();
-			var triangles = new List<int[]>();
-			var offset    = 0;
-			var materials = new List<Material>();
-
-			foreach (var tile in tileArray) {
-				var data     = GetTileData(gameObject.transform, tile);
-				var position = tile.Position;
-				var rotation = tile.Rotation;
-				var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
-				var pivot    = (Vector3)data.position - gameObject.transform.position - position;
-				Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
-				Vector2 uv      (Vector2 i) => i;
-				Vector3 normal  (Vector3 i) => rotation * i;
-				int     triangle(int     i) => offset + i;
-
-				vertices .AddRange(TileMesh.vertices .Select(vertex));
-				uvs      .AddRange(TileMesh.uv       .Select(uv));
-				normals  .AddRange(TileMesh.normals  .Select(normal));
-				triangles.Add     (TileMesh.triangles.Select(triangle).ToArray());
-				offset += TileMesh.vertexCount;
-				path = Path.Combine(CachePath, $"{gameObject.name}Tile{materials.Count}.mat");
-				var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-				if (material == null) {
-					material = new Material(TileMaterial);
-					AssetDatabase.CreateAsset(material, path);
-				}
-				material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
-				material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
-				material.SetColor ("_BaseColor", data.basecolor);
-				material.SetColor ("_MaskColor", data.maskcolor);
-				material.SetColor ("_Emission",  data.emission);
-				materials.Add(material);
-			}
-			foreach (var sprite in spriteArray) {
-				var data     = GetSpriteData(gameObject.transform, sprite);
-				var position = sprite.Position;
-				var rotation = Quaternion.Euler(30f, 0f, 0f);
-				var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
-				var pivot    = rotation * new Vector3(data.pivot.x, data.pivot.y, 0f);
-				Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
-				Vector2 uv      (Vector2 i) => i;
-				Vector3 normal  (Vector3 i) => rotation * i;
-				int     triangle(int     i) => offset + i;
-
-				vertices .AddRange(SpriteMesh.vertices .Select(vertex));
-				uvs      .AddRange(SpriteMesh.uv       .Select(uv));
-				normals  .AddRange(SpriteMesh.normals  .Select(normal));
-				triangles.Add     (SpriteMesh.triangles.Select(triangle).ToArray());
-				offset += SpriteMesh.vertexCount;
-				path = Path.Combine(CachePath, $"{gameObject.name}Sprite{materials.Count}.mat");
-				var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-				if (material == null) {
-					material = new Material(SpriteMaterial);
-					AssetDatabase.CreateAsset(material, path);
-				}
-				material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
-				material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
-				material.SetColor ("_BaseColor", data.basecolor);
-				material.SetColor ("_MaskColor", data.maskcolor);
-				material.SetColor ("_Emission",  data.emission);
-				materials.Add(material);
-			}
-			foreach (var shadow in shadowArray) {
-				var data     = GetShadowData(gameObject.transform, shadow);
-				var position = shadow.Position;
-				var rotation = Quaternion.Euler(0f, 0f, 0f);
-				var scale    = new Vector3(data.scale.x, 1f, data.scale.y);
-				var pivot    = (Vector3)data.position - gameObject.transform.position - position;
-				Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
-				Vector2 uv      (Vector2 i) => i;
-				Vector3 normal  (Vector3 i) => rotation * i;
-				int     triangle(int     i) => offset + i;
-
-				vertices .AddRange(ShadowMesh.vertices .Select(vertex));
-				uvs      .AddRange(ShadowMesh.uv       .Select(uv));
-				normals  .AddRange(ShadowMesh.normals  .Select(normal));
-				triangles.Add     (ShadowMesh.triangles.Select(triangle).ToArray());
-				offset += ShadowMesh.vertexCount;
-				path = Path.Combine(CachePath, $"{gameObject.name}Shadow{materials.Count}.mat");
-				var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-				if (material == null) {
-					material = new Material(ShadowMaterial);
-					AssetDatabase.CreateAsset(material, path);
-				}
-				material.SetVector("_Tiling", new(data.tiling.x, data.tiling.y));
-				material.SetVector("_Offset", new(data.offset.x, data.offset.y));
-				materials.Add(material);
-			}
-			foreach (var ui in uiArray) {
-				var data     = GetUIData(gameObject.transform, ui);
-				var position = ui.Position;
-				var rotation = Quaternion.Euler(30f, 0f, 0f);
-				var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
-				var pivot    = rotation * new Vector3(data.pivot.x, data.pivot.y, 0f);
-				Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
-				Vector2 uv      (Vector2 i) => i;
-				Vector3 normal  (Vector3 i) => rotation * i;
-				int     triangle(int     i) => offset + i;
-
-				vertices .AddRange(UIMesh.vertices .Select(vertex));
-				uvs      .AddRange(UIMesh.uv       .Select(uv));
-				normals  .AddRange(UIMesh.normals  .Select(normal));
-				triangles.Add     (UIMesh.triangles.Select(triangle).ToArray());
-				offset += UIMesh.vertexCount;
-				path = Path.Combine(CachePath, $"{gameObject.name}UI{materials.Count}.mat");
-				var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-				if (material == null) {
-					material = new Material(UIMaterial);
-					AssetDatabase.CreateAsset(material, path);
-				}
-				material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
-				material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
-				material.SetColor ("_BaseColor", data.basecolor);
-				materials.Add(material);
-			}
-			mesh.Clear();
-			mesh.name = gameObject.name;
-			mesh.subMeshCount = triangles.Count;
-			mesh.SetVertices(vertices);
-			mesh.SetUVs(0, uvs);
-			mesh.SetNormals(normals);
-			for (int i = 0; i < triangles.Count; i++) mesh.SetTriangles(triangles[i], i);
-			mesh.RecalculateTangents();
-
-			filter.sharedMesh = mesh;
-			renderer.sharedMaterials = materials.ToArray();
+			material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
+			material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
+			material.SetColor ("_BaseColor", data.basecolor);
+			material.SetColor ("_MaskColor", data.maskcolor);
+			material.SetColor ("_Emission",  data.emission);
+			materials.Add(material);
 		}
+		foreach (var sprite in spriteArray) {
+			var data     = GetSpriteData(gameObject.transform, sprite);
+			var position = sprite.Position;
+			var rotation = Quaternion.Euler(30f, 0f, 0f);
+			var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
+			var pivot    = rotation * new Vector3(data.pivot.x, data.pivot.y, 0f);
+			Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
+			Vector2 uv      (Vector2 i) => i;
+			Vector3 normal  (Vector3 i) => rotation * i;
+			int     triangle(int     i) => offset + i;
+
+			vertices .AddRange(SpriteMesh.vertices .Select(vertex));
+			uvs      .AddRange(SpriteMesh.uv       .Select(uv));
+			normals  .AddRange(SpriteMesh.normals  .Select(normal));
+			triangles.Add     (SpriteMesh.triangles.Select(triangle).ToArray());
+			offset += SpriteMesh.vertexCount;
+			path = Path.Combine(CachePath, $"{gameObject.name}Sprite{materials.Count}.mat");
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if (material == null) {
+				material = new Material(SpriteMaterial);
+				AssetDatabase.CreateAsset(material, path);
+			}
+			material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
+			material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
+			material.SetColor ("_BaseColor", data.basecolor);
+			material.SetColor ("_MaskColor", data.maskcolor);
+			material.SetColor ("_Emission",  data.emission);
+			materials.Add(material);
+		}
+		foreach (var shadow in shadowArray) {
+			var data     = GetShadowData(gameObject.transform, shadow);
+			var position = shadow.Position;
+			var rotation = Quaternion.Euler(0f, 0f, 0f);
+			var scale    = new Vector3(data.scale.x, 1f, data.scale.y);
+			var pivot    = (Vector3)data.position - gameObject.transform.position - position;
+			Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
+			Vector2 uv      (Vector2 i) => i;
+			Vector3 normal  (Vector3 i) => rotation * i;
+			int     triangle(int     i) => offset + i;
+
+			vertices .AddRange(ShadowMesh.vertices .Select(vertex));
+			uvs      .AddRange(ShadowMesh.uv       .Select(uv));
+			normals  .AddRange(ShadowMesh.normals  .Select(normal));
+			triangles.Add     (ShadowMesh.triangles.Select(triangle).ToArray());
+			offset += ShadowMesh.vertexCount;
+			path = Path.Combine(CachePath, $"{gameObject.name}Shadow{materials.Count}.mat");
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if (material == null) {
+				material = new Material(ShadowMaterial);
+				AssetDatabase.CreateAsset(material, path);
+			}
+			material.SetVector("_Tiling", new(data.tiling.x, data.tiling.y));
+			material.SetVector("_Offset", new(data.offset.x, data.offset.y));
+			materials.Add(material);
+		}
+		foreach (var ui in uiArray) {
+			var data     = GetUIData(gameObject.transform, ui);
+			var position = ui.Position;
+			var rotation = Quaternion.Euler(30f, 0f, 0f);
+			var scale    = new Vector3(data.scale.x, data.scale.y, 1f);
+			var pivot    = rotation * new Vector3(data.pivot.x, data.pivot.y, 0f);
+			Vector3 vertex  (Vector3 i) => position + rotation * Vector3.Scale(i, scale) + pivot;
+			Vector2 uv      (Vector2 i) => i;
+			Vector3 normal  (Vector3 i) => rotation * i;
+			int     triangle(int     i) => offset + i;
+
+			vertices .AddRange(UIMesh.vertices .Select(vertex));
+			uvs      .AddRange(UIMesh.uv       .Select(uv));
+			normals  .AddRange(UIMesh.normals  .Select(normal));
+			triangles.Add     (UIMesh.triangles.Select(triangle).ToArray());
+			offset += UIMesh.vertexCount;
+			path = Path.Combine(CachePath, $"{gameObject.name}UI{materials.Count}.mat");
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if (material == null) {
+				material = new Material(UIMaterial);
+				AssetDatabase.CreateAsset(material, path);
+			}
+			material.SetVector("_Tiling",    new(data.tiling.x, data.tiling.y));
+			material.SetVector("_Offset",    new(data.offset.x, data.offset.y));
+			material.SetColor ("_BaseColor", data.basecolor);
+			materials.Add(material);
+		}
+		mesh.Clear();
+		mesh.name = gameObject.name;
+		mesh.subMeshCount = triangles.Count;
+		mesh.SetVertices(vertices);
+		mesh.SetUVs(0, uvs);
+		mesh.SetNormals(normals);
+		for (int i = 0; i < triangles.Count; i++) mesh.SetTriangles(triangles[i], i);
+		mesh.RecalculateTangents();
+
+		filter.sharedMesh = mesh;
+		renderer.sharedMaterials = materials.ToArray();
+	}
 	#endif
 
 
@@ -611,7 +619,7 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 
 	static TileDrawData GetTileData(Transform transform, TileDrawerAuthoring drawer) {
 		var position = new float3(transform.position + drawer.Position);
-		var rotation = math.mul(transform.rotation, drawer.Rotation);
+		var rotation = math.mul(transform.rotation, drawer.Rotation.ToQuaternion());
 		var scale    = new float3(1f, 1f, 1f);
 		var pivot    = new float3(0f, 0f, 0f);
 		var tiling   = new float2(1f, 1f);
@@ -636,7 +644,7 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 			}
 		}
 		var data = new TileDrawData() {
-			position  = position + math.mul(drawer.Rotation, pivot),
+			position  = position + math.mul(drawer.Rotation.ToQuaternion(), pivot),
 			rotation  = rotation.value,
 			scale     = scale,
 
@@ -1096,8 +1104,15 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 	// Lifecycle
 
 	#if UNITY_EDITOR
-		void OnEnable () { if (AutoDraw) ClearEditorMeshAll(); }
-		void OnDisable() { if (AutoDraw) DrawEditorMeshAll (); }
+	void OnEnable () {
+		if (AutoDraw) ClearEditorMeshAll();
+	}
+	#endif
+
+	#if UNITY_EDITOR
+	void OnDisable() {
+		if (AutoDraw) DrawEditorMeshAll ();
+	}
 	#endif
 }
 
@@ -1134,23 +1149,23 @@ public partial class DrawManagerSystem : SystemBase {
 	protected override void OnCreate() {
 		System = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
 
-		TileLUTable   = new(DrawManager.TileLUTable  .Count, Allocator.Persistent);
+		TileLUTable   = new(DrawManager.TileLUTable.Count,   Allocator.Persistent);
 		SpriteLUTable = new(DrawManager.SpriteLUTable.Count, Allocator.Persistent);
 		ShadowLUTable = new(DrawManager.ShadowLUTable.Count, Allocator.Persistent);
-		UILUTable     = new(DrawManager.UILUTable    .Count, Allocator.Persistent);
-		foreach (var pair in DrawManager.TileLUTable  ) TileLUTable  .Add(pair.Key, pair.Value);
+		UILUTable     = new(DrawManager.UILUTable.Count,     Allocator.Persistent);
+		foreach (var pair in DrawManager.TileLUTable)   TileLUTable  .Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.SpriteLUTable) SpriteLUTable.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.ShadowLUTable) ShadowLUTable.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UILUTable    ) UILUTable    .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UILUTable)     UILUTable    .Add(pair.Key, pair.Value);
 
-		TileDataMap   = new(DrawManager.TileDataMap  .Count, Allocator.Persistent);
+		TileDataMap   = new(DrawManager.TileDataMap.Count,   Allocator.Persistent);
 		SpriteDataMap = new(DrawManager.SpriteDataMap.Count, Allocator.Persistent);
 		ShadowDataMap = new(DrawManager.ShadowDataMap.Count, Allocator.Persistent);
-		UIDataMap     = new(DrawManager.UIDataMap    .Count, Allocator.Persistent);
-		foreach (var pair in DrawManager.TileDataMap  ) TileDataMap  .Add(pair.Key, pair.Value);
+		UIDataMap     = new(DrawManager.UIDataMap.Count,     Allocator.Persistent);
+		foreach (var pair in DrawManager.TileDataMap)   TileDataMap  .Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.SpriteDataMap) SpriteDataMap.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.ShadowDataMap) ShadowDataMap.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UIDataMap    ) UIDataMap    .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UIDataMap)     UIDataMap    .Add(pair.Key, pair.Value);
 
 		TileRenderer   = new(DrawManager.TileMaterial,   DrawManager.TileMesh);
 		SpriteRenderer = new(DrawManager.SpriteMaterial, DrawManager.SpriteMesh);
@@ -1170,37 +1185,37 @@ public partial class DrawManagerSystem : SystemBase {
 		ShadowQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
 		UIQuery     = new NativeArray<EntityQuery>(2, Allocator.Persistent);
 		var localToWorld = ComponentType.ReadOnly<LocalToWorld>();
-		var tileDrawer   = ComponentType.ReadOnly<TileDrawer  >();
+		var tileDrawer   = ComponentType.ReadOnly<TileDrawer>();
 		var spriteDrawer = ComponentType.ReadOnly<SpriteDrawer>();
 		var shadowDrawer = ComponentType.ReadOnly<ShadowDrawer>();
-		var uiDrawer     = ComponentType.ReadOnly<UIDrawer    >();
+		var uiDrawer     = ComponentType.ReadOnly<UIDrawer>();
 		TileQuery  [0] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.ReadOnly<Static>());
 		SpriteQuery[0] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.ReadOnly<Static>());
 		ShadowQuery[0] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.ReadOnly<Static>());
 		UIQuery    [0] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.ReadOnly<Static>());
-		TileQuery  [1] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.Exclude <Static>());
-		SpriteQuery[1] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.Exclude <Static>());
-		ShadowQuery[1] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.Exclude <Static>());
-		UIQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude <Static>());
+		TileQuery  [1] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.Exclude<Static>());
+		SpriteQuery[1] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.Exclude<Static>());
+		ShadowQuery[1] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.Exclude<Static>());
+		UIQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude<Static>());
 	}
 
 	protected override void OnDestroy() {
-		if (TileLUTable  .IsCreated) TileLUTable  .Dispose();
+		if (TileLUTable.IsCreated)   TileLUTable.Dispose();
 		if (SpriteLUTable.IsCreated) SpriteLUTable.Dispose();
 		if (ShadowLUTable.IsCreated) ShadowLUTable.Dispose();
-		if (UILUTable    .IsCreated) UILUTable    .Dispose();
-		if (TileDataMap  .IsCreated) TileDataMap  .Dispose();
+		if (UILUTable.IsCreated)     UILUTable.Dispose();
+		if (TileDataMap.IsCreated)   TileDataMap.Dispose();
 		if (SpriteDataMap.IsCreated) SpriteDataMap.Dispose();
 		if (ShadowDataMap.IsCreated) ShadowDataMap.Dispose();
-		if (UIDataMap    .IsCreated) UIDataMap    .Dispose();
-		TileRenderer  ?.Dispose();
+		if (UIDataMap.IsCreated)     UIDataMap.Dispose();
+		TileRenderer?.Dispose();
 		SpriteRenderer?.Dispose();
 		ShadowRenderer?.Dispose();
-		UIRenderer    ?.Dispose();
-		if (TileQuery  .IsCreated) TileQuery  .Dispose();
+		UIRenderer?.Dispose();
+		if (TileQuery.IsCreated)   TileQuery.Dispose();
 		if (SpriteQuery.IsCreated) SpriteQuery.Dispose();
 		if (ShadowQuery.IsCreated) ShadowQuery.Dispose();
-		if (UIQuery    .IsCreated) UIQuery    .Dispose();
+		if (UIQuery.IsCreated)     UIQuery.Dispose();
 	}
 
 	protected override void OnUpdate() {
@@ -1388,10 +1403,10 @@ public partial class DrawManagerSystem : SystemBase {
 		const float SampleRate = DrawManager.SampleRate;
 		[NativeDisableParallelForRestriction] public NativeArray<TileDrawData> DrawDataArray;
 		[ReadOnly] public NativeArray<Entity> EntityArray;
-		[ReadOnly] public NativeArray<int   > LengthArray;
+		[ReadOnly] public NativeArray<int>    LengthArray;
 		[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
-		[ReadOnly] public BufferLookup   <TileDrawer  > DrawerLookup;
-		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public BufferLookup<TileDrawer>      DrawerLookup;
+		[ReadOnly] public NativeHashMap<uint, uint>      LUTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
 		[ReadOnly] public Random Random;
 
@@ -1405,12 +1420,12 @@ public partial class DrawManagerSystem : SystemBase {
 
 		public TileDrawData GetTileData(LocalToWorld transform, TileDrawer drawer) {
 			var position = transform.Position + math.mul(transform.Rotation, drawer.Position);
-			var rotation = math.mul(transform.Rotation, drawer.Rotation);
+			var rotation = math.mul(transform.Rotation, drawer.Rotation.ToQuaternion());
 			var scale    = new float3(1f, 1f, 1f);
 			var pivot    = new float3(0f, 0f, 0f);
 			var tiling   = new float2(1f, 1f);
 			var offset   = new float2(0f, 0f);
-			var flip	 = drawer.FlipRandomly ? Random.NextBool2() : drawer.Flip;
+			var flip	 = drawer.FlipRandom ? Random.NextBool2() : drawer.Flip;
 
 			var tileBit   = ((uint)drawer.Tile + 1u) << 22;
 			var sampleBit = ((uint)0u          + 1u) <<  0;
@@ -1451,10 +1466,10 @@ public partial class DrawManagerSystem : SystemBase {
 		const float SampleRate = DrawManager.SampleRate;
 		[NativeDisableParallelForRestriction] public NativeArray<SpriteDrawData> DrawDataArray;
 		[ReadOnly] public NativeArray<Entity> EntityArray;
-		[ReadOnly] public NativeArray<int   > LengthArray;
+		[ReadOnly] public NativeArray<int>    LengthArray;
 		[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
-		[ReadOnly] public BufferLookup   <SpriteDrawer> DrawerLookup;
-		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public BufferLookup<SpriteDrawer>    DrawerLookup;
+		[ReadOnly] public NativeHashMap<uint, uint>      LUTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
 		[ReadOnly] public float YawGlobal;
 
@@ -1543,10 +1558,10 @@ public partial class DrawManagerSystem : SystemBase {
 		const float SampleRate = DrawManager.SampleRate;
 		[NativeDisableParallelForRestriction] public NativeArray<ShadowDrawData> DrawDataArray;
 		[ReadOnly] public NativeArray<Entity> EntityArray;
-		[ReadOnly] public NativeArray<int   > LengthArray;
+		[ReadOnly] public NativeArray<int>    LengthArray;
 		[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
-		[ReadOnly] public BufferLookup   <ShadowDrawer> DrawerLookup;
-		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public BufferLookup<ShadowDrawer>    DrawerLookup;
+		[ReadOnly] public NativeHashMap<uint, uint>      LUTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
 		[ReadOnly] public float YawGlobal;
 
@@ -1624,10 +1639,10 @@ public partial class DrawManagerSystem : SystemBase {
 		const float SampleRate = DrawManager.SampleRate;
 		[NativeDisableParallelForRestriction] public NativeArray<UIDrawData> DrawDataArray;
 		[ReadOnly] public NativeArray<Entity> EntityArray;
-		[ReadOnly] public NativeArray<int   > LengthArray;
+		[ReadOnly] public NativeArray<int>    LengthArray;
 		[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
-		[ReadOnly] public BufferLookup   <UIDrawer    > DrawerLookup;
-		[ReadOnly] public NativeHashMap<uint, uint     > LUTable;
+		[ReadOnly] public BufferLookup<UIDrawer>        DrawerLookup;
+		[ReadOnly] public NativeHashMap<uint, uint>      LUTable;
 		[ReadOnly] public NativeHashMap<uint, AtlasData> DataMap;
 		[ReadOnly] public Random Random;
 

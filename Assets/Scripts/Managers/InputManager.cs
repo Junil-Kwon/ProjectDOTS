@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -57,28 +57,28 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(InputManager))]
-		class InputManagerEditor : EditorExtensions {
-			InputManager I => target as InputManager;
-			public override void OnInspectorGUI() {
-				Begin("Input Manager");
+	[CustomEditor(typeof(InputManager))]
+	class InputManagerEditor : EditorExtensions {
+		InputManager I => target as InputManager;
+		public override void OnInspectorGUI() {
+			Begin("Input Manager");
 
-				if (!InputActionAsset) {
-					var t0 = "No input action asset found.";
-					var t1 = "Please assign an Input Action Asset to the Player Input component.";
-					HelpBox($"{t0}\n{t1}", MessageType.Warning);
-					Space();
-				}
-				LabelField("Debug", EditorStyles.boldLabel);
-				BeginDisabledGroup();
-				var actionMap = Application.isPlaying ? PlayerInput.currentActionMap.name : "None";
-				TextField("Action Map", actionMap);
-				EndDisabledGroup();
+			if (!InputActionAsset) {
+				var t0 = "No input action asset found.";
+				var t1 = "Please assign an Input Action Asset to the Player Input component.";
+				HelpBox($"{t0}\n{t1}", MessageType.Warning);
 				Space();
-
-				End();
 			}
+			LabelField("Debug", EditorStyles.boldLabel);
+			BeginDisabledGroup();
+			var actionMap = Application.isPlaying ? PlayerInput.currentActionMap.name : "None";
+			TextField("Action Map", actionMap);
+			EndDisabledGroup();
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -86,7 +86,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Constants
 
 	const string SensitivityKey = "MouseSensitivity";
-	const float  SensitivityValue = 0.2f;
+	const float SensitivityValue = 0.2f;
 
 
 
@@ -95,6 +95,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	PlayerInput m_PlayerInput;
 
 	float m_MouseSensitivity;
+
 	uint m_KeyNext;
 	uint m_KeyPrev;
 	Vector2 m_LookDirection;
@@ -176,9 +177,10 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
 					KeyAction.ScrollWheel => callback => ScrollWheel   = callback.ReadValue<Vector2>(),
 					KeyAction.Navigate    => callback => Navigate      = callback.ReadValue<Vector2>(),
-					_ => callback => _ = callback.action.IsPressed() ?
-						KeyNext |=  (1u << index) :
-						KeyNext &= ~(1u << index),
+					_ => callback => _ = callback.action.IsPressed() switch {
+						true  => KeyNext |=  (1u << index),
+						false => KeyNext &= ~(1u << index),
+					},
 				};
 				inputAction.started  += callback => KeyNext |=  (1u << index);
 				inputAction.canceled += callback => KeyNext &= ~(1u << index);
@@ -266,7 +268,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Key Record Methods
 
 	public static void BeginRecordKey() => KeyPressed = "";
-	public static void EndRecordKey  () => KeyPressed = null;
+	public static void EndRecordKey() => KeyPressed = null;
 
 	static void RegisterKeyRecord() {
 		InputSystem.onAnyButtonPress.Call(inputControl => {

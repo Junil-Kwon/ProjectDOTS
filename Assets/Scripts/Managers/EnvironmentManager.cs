@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -17,30 +17,30 @@ public sealed class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(EnvironmentManager))]
-		class EnvironmentManagerEditor : EditorExtensions {
-			EnvironmentManager I => target as EnvironmentManager;
-			public override void OnInspectorGUI() {
-				Begin("Environment Manager");
+	[CustomEditor(typeof(EnvironmentManager))]
+	class EnvironmentManagerEditor : EditorExtensions {
+		EnvironmentManager I => target as EnvironmentManager;
+		public override void OnInspectorGUI() {
+			Begin("Environment Manager");
 
-				if (!DirectionalLight) {
-					var t0 = "No light found.";
-					var t1 = "Please add a light to child object.";
-					HelpBox($"{t0}\n{t1}", MessageType.Warning);
-					Space();
-				} else {
-					LabelField("Directional Light", EditorStyles.boldLabel);
-					Intensity = FloatField("Intensity",   Intensity);
-					TimeOfDay = FloatField("Time of Day", TimeOfDay);
-					Space();
-				}
-				LabelField("Point Light", EditorStyles.boldLabel);
-				LightPrefab = ObjectField("Light Prefab", LightPrefab);
+			if (!DirectionalLight) {
+				var t0 = "No light found.";
+				var t1 = "Please add a light to child object.";
+				HelpBox($"{t0}\n{t1}", MessageType.Warning);
 				Space();
-
-				End();
+			} else {
+				LabelField("Directional Light", EditorStyles.boldLabel);
+				Intensity = FloatField("Intensity",   Intensity);
+				TimeOfDay = FloatField("Time of Day", TimeOfDay);
+				Space();
 			}
+			LabelField("Point Light", EditorStyles.boldLabel);
+			LightPrefab = ObjectField("Light Prefab", LightPrefab);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 

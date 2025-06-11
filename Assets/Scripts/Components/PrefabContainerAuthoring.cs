@@ -7,16 +7,16 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
 
-// ━
+// Prefab Names
 
 public enum Prefab : ushort {
+	Dummy,
 	Player,
-	Temp,
 
 	SmokeMini,
 	SmokeTiny,
@@ -35,15 +35,15 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(PrefabContainerAuthoring))]
-		class PrefabContainerAuthoringEditor : EditorExtensions {
-			PrefabContainerAuthoring I => target as PrefabContainerAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Prefab Container Authoring");
+	[CustomEditor(typeof(PrefabContainerAuthoring))]
+	class PrefabContainerAuthoringEditor : EditorExtensions {
+		PrefabContainerAuthoring I => target as PrefabContainerAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Prefab Container Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

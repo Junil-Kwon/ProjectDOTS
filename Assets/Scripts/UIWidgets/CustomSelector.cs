@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,31 +21,32 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CustomSelector))]
-		class CustomSelectorEditor : EditorExtensionsSelectable {
-			CustomSelector I => target as CustomSelector;
-			public override void OnInspectorGUI() {
-				Begin("Custom Selector");
+	[CustomEditor(typeof(CustomSelector))]
+	class CustomSelectorEditor : EditorExtensionsSelectable {
+		CustomSelector I => target as CustomSelector;
+		public override void OnInspectorGUI() {
+			Begin("Custom Selector");
 
-				LabelField("Selectable", EditorStyles.boldLabel);
-				base.OnInspectorGUI();
-				Space();
-				LabelField("Selector", EditorStyles.boldLabel);
-				I.Template      = ObjectField("Template",       I.Template);
-				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
-				Space();
-				PropertyField("m_Elements");
-				I.Default     = IntField("Default",      I.Default);
-				I.Value       = IntField("Value",        I.Value);
-				I.MultiSelect = Toggle  ("Multi Select", I.MultiSelect);
-				Space();
-				PropertyField("m_OnStateUpdated");
-				PropertyField("m_OnValueChanged");
-				Space();
+			LabelField("Selectable", EditorStyles.boldLabel);
+			base.OnInspectorGUI();
+			Space();
+			LabelField("Selector", EditorStyles.boldLabel);
+			I.Template      = ObjectField("Template",       I.Template);
+			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
+			Space();
+			PropertyField("m_Elements");
+			Space();
+			I.Default     = IntField("Default",      I.Default);
+			I.Value       = IntField("Value",        I.Value);
+			I.MultiSelect = Toggle  ("Multi Select", I.MultiSelect);
+			Space();
+			PropertyField("m_OnStateUpdated");
+			PropertyField("m_OnValueChanged");
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -53,15 +54,16 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	// Fields
 
 	[SerializeField] RectTransform m_Template;
-	[SerializeField] GameObject m_RestoreButton;
+	[SerializeField] GameObject    m_RestoreButton;
 
 	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
-	[SerializeField] bool m_MultiSelect = false;
-	[SerializeField] int  m_Default = 0;
-	[SerializeField] int  m_Value   = 0;
+
+	[SerializeField] int  m_Default;
+	[SerializeField] int  m_Value;
+	[SerializeField] bool m_MultiSelect;
 
 	[SerializeField] UnityEvent<CustomSelector> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent<int           > m_OnValueChanged = new();
+	[SerializeField] UnityEvent<int>            m_OnValueChanged = new();
 
 
 
@@ -81,12 +83,15 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	public string[] Elements {
 		get => m_Elements;
 		set {
-			m_Elements = value;
-			Default = Default;
-			Value = Value;
-			Refresh();
+			if (m_Elements != value) {
+				m_Elements = value;
+				Default = Default;
+				Value = Value;
+				Refresh();
+			}
 		}
 	}
+
 	public int Default {
 		get => m_Default;
 		set {
@@ -119,15 +124,14 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		set {
 			if (m_MultiSelect != value) {
 				m_MultiSelect = value;
-				Default = 0;
-				Value = 0;
+				Value = Default = 0;
 				Refresh();
 			}
 		}
 	}
 
 	public UnityEvent<CustomSelector> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<int           > OnValueChanged => m_OnValueChanged;
+	public UnityEvent<int>            OnValueChanged => m_OnValueChanged;
 
 
 
@@ -154,8 +158,10 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		for (int i = 0; i < Elements.Length; i++) {
 			var width = (transform as RectTransform).rect.width / Elements.Length;
 			var child = transform.GetChild(templateIndex + 1 + i) as RectTransform;
-			child.offsetMin = new Vector2((                  0 + i) *  width, 0f);
-			child.offsetMax = new Vector2((Elements.Length - 1 - i) * -width, 0f);
+			var min = i * width;
+			var max = (Elements.Length - 1 - i) * -width;
+			child.offsetMin = new Vector2(min, 0f);
+			child.offsetMax = new Vector2(max, 0f);
 		}
 	}
 

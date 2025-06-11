@@ -6,8 +6,8 @@ using Unity.Entities;
 using Unity.NetCode;
 
 #if UNITY_EDITOR
-	using UnityEditor;
-	using UnityEditor.Compilation;
+using UnityEditor;
+using UnityEditor.Compilation;
 #endif
 
 
@@ -32,27 +32,27 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(GameManager))]
-		class GameManagerEditor : EditorExtensions {
-			GameManager I => target as GameManager;
-			public override void OnInspectorGUI() {
-				Begin("Game Manager");
+	[CustomEditor(typeof(GameManager))]
+	class GameManagerEditor : EditorExtensions {
+		GameManager I => target as GameManager;
+		public override void OnInspectorGUI() {
+			Begin("Game Manager");
 
-				LabelField("Setup", EditorStyles.boldLabel);
-				BeginDisabledGroup(Application.isPlaying);
-				GameScene     = SceneField("Game Scene",     GameScene);
-				StartDirectly = Toggle    ("Start Directly", StartDirectly);
-				EndDisabledGroup();
-				Space();
-				LabelField("Debug", EditorStyles.boldLabel);
-				BeginDisabledGroup();
-				TextField("Game State", $"{GameState}");
-				EndDisabledGroup();
-				Space();
+			LabelField("Setup", EditorStyles.boldLabel);
+			BeginDisabledGroup(Application.isPlaying);
+			GameScene     = SceneField("Game Scene",     GameScene);
+			StartDirectly = Toggle    ("Start Directly", StartDirectly);
+			EndDisabledGroup();
+			Space();
+			LabelField("Debug", EditorStyles.boldLabel);
+			BeginDisabledGroup();
+			TextField("Game State", $"{GameState}");
+			EndDisabledGroup();
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -60,7 +60,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	// Constants
 
 	const string MaxFrameRateKey = "MaxFrameRate";
-	const int    MaxFrameRateValue = 60;
+	const int MaxFrameRateValue = 60;
 
 
 
@@ -75,7 +75,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	readonly List<CreatureCore> m_Players = new();
 
 	readonly List<BaseEvent> m_ActiveEvents = new();
-	readonly List<float    > m_EventElapsed = new();
+	readonly List<float>     m_EventElapsed = new();
 	readonly List<BaseEvent> m_Temp = new();
 
 
@@ -127,7 +127,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 
 	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
-	static List<float    > EventElapsed => Instance.m_EventElapsed;
+	static List<float>     EventElapsed => Instance.m_EventElapsed;
 	static List<BaseEvent> Temp => Instance.m_Temp;
 
 
@@ -182,26 +182,23 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 		MaxFrameRate = MaxFrameRate;
 		var startDirectly = false;
 		#if UNITY_EDITOR
-			startDirectly = StartDirectly;
+		startDirectly = StartDirectly;
 		#endif
-		if (startDirectly == false) {
-			SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
-		} else {
-			UIManager.OpenGame();
-		}
+		if (startDirectly) UIManager.OpenGame();
+		else SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 	}
 
 	#if UNITY_EDITOR
-		[UnityEngine.Scripting.Preserve]
-		public class AutoConnectBootstrap : ClientServerBootstrap {
-			public override bool Initialize(string defaultWorldName) {
-				if (StartDirectly) {
-					AutoConnectPort = 7979;
-					return base.Initialize(defaultWorldName);
-				}
-				return false;
+	[UnityEngine.Scripting.Preserve]
+	public class AutoConnectBootstrap : ClientServerBootstrap {
+		public override bool Initialize(string defaultWorldName) {
+			if (StartDirectly) {
+				AutoConnectPort = 7979;
+				return base.Initialize(defaultWorldName);
 			}
+			return false;
 		}
+	}
 	#endif
 
 

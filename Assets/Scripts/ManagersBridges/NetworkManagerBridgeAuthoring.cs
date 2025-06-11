@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class NetworkManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(NetworkManagerBridgeAuthoring))]
-		class NetworkManagerBridgeAuthoringEditor : EditorExtensions {
-			NetworkManagerBridgeAuthoring I => target as NetworkManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Network Manager Bridge Authoring");
+	[CustomEditor(typeof(NetworkManagerBridgeAuthoring))]
+	class NetworkManagerBridgeAuthoringEditor : EditorExtensions {
+		NetworkManagerBridgeAuthoring I => target as NetworkManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Network Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -73,8 +73,27 @@ public struct NetworkManagerBridge : IComponentData {
 		get => m_NetworkState;
 		set => m_NetworkState = value;
 	}
-	public bool IsHost   => m_NetworkState == NetworkState.ConnectedAsRelayHost;
-	public bool IsClient => m_NetworkState == NetworkState.ConnectedAsRelayClient;
+
+	public bool IsHost => NetworkState switch {
+		NetworkState.ConnectedAsRelayHost => true,
+		NetworkState.ConnectedAsLocalHost => true,
+		_ => false,
+	};
+	public bool IsClient => NetworkState switch {
+		NetworkState.ConnectedAsRelayClient => true,
+		NetworkState.ConnectedAsLocalClient => true,
+		_ => false,
+	};
+	public bool IsRelay => NetworkState switch {
+		NetworkState.ConnectedAsRelayHost   => true,
+		NetworkState.ConnectedAsRelayClient => true,
+		_ => false,
+	};
+	public bool IsLocal => NetworkState switch {
+		NetworkState.ConnectedAsLocalHost   => true,
+		NetworkState.ConnectedAsLocalClient => true,
+		_ => false,
+	};
 }
 
 

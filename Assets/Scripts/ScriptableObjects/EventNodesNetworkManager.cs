@@ -6,9 +6,9 @@ using System.Linq;
 using Unity.Mathematics;
 
 #if UNITY_EDITOR
-	using UnityEditor;
-	using UnityEditor.UIElements;
-	using UnityEditor.Experimental.GraphView;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEditor.Experimental.GraphView;
 #endif
 
 
@@ -23,25 +23,25 @@ public class IsHostEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-		public class IsHostEventNode : BaseEventNode {
-			IsHostEvent I => target as IsHostEvent;
+	public class IsHostEventNode : BaseEventNode {
+		IsHostEvent I => target as IsHostEvent;
 
-			public IsHostEventNode() : base() {
-				mainContainer.style.width = DefaultNodeWidth;
-				var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
-				titleContainer.style.backgroundColor = purple;
-			}
-
-			public override void ConstructPort() {
-				CreatePort(Direction.Input);
-				var @true  = CreatePort(Direction.Output);
-				var @false = CreatePort(Direction.Output);
-				@true .portName = "True";
-				@false.portName = "False";
-				RefreshExpandedState();
-				RefreshPorts();
-			}
+		public IsHostEventNode() : base() {
+			mainContainer.style.width = DefaultNodeWidth;
+			var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
+			titleContainer.style.backgroundColor = purple;
 		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			var pass = CreatePort(Direction.Output);
+			var fail = CreatePort(Direction.Output);
+			pass.portName = "True";
+			fail.portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
 	#endif
 
 
@@ -70,25 +70,25 @@ public class IsClientEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-		public class IsClientEventNode : BaseEventNode {
-			IsClientEvent I => target as IsClientEvent;
+	public class IsClientEventNode : BaseEventNode {
+		IsClientEvent I => target as IsClientEvent;
 
-			public IsClientEventNode() : base() {
-				mainContainer.style.width = DefaultNodeWidth;
-				var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
-				titleContainer.style.backgroundColor = purple;
-			}
-
-			public override void ConstructPort() {
-				CreatePort(Direction.Input);
-				var @true  = CreatePort(Direction.Output);
-				var @false = CreatePort(Direction.Output);
-				@true .portName = "True";
-				@false.portName = "False";
-				RefreshExpandedState();
-				RefreshPorts();
-			}
+		public IsClientEventNode() : base() {
+			mainContainer.style.width = DefaultNodeWidth;
+			var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
+			titleContainer.style.backgroundColor = purple;
 		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			var pass = CreatePort(Direction.Output);
+			var fail = CreatePort(Direction.Output);
+			pass.portName = "True";
+			fail.portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
 	#endif
 
 
@@ -117,25 +117,25 @@ public class IsRelayEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-		public class IsRelayEventNode : BaseEventNode {
-			IsRelayEvent I => target as IsRelayEvent;
+	public class IsRelayEventNode : BaseEventNode {
+		IsRelayEvent I => target as IsRelayEvent;
 
-			public IsRelayEventNode() : base() {
-				mainContainer.style.width = DefaultNodeWidth;
-				var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
-				titleContainer.style.backgroundColor = purple;
-			}
-
-			public override void ConstructPort() {
-				CreatePort(Direction.Input);
-				var @true  = CreatePort(Direction.Output);
-				var @false = CreatePort(Direction.Output);
-				@true .portName = "True";
-				@false.portName = "False";
-				RefreshExpandedState();
-				RefreshPorts();
-			}
+		public IsRelayEventNode() : base() {
+			mainContainer.style.width = DefaultNodeWidth;
+			var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
+			titleContainer.style.backgroundColor = purple;
 		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			var pass = CreatePort(Direction.Output);
+			var fail = CreatePort(Direction.Output);
+			pass.portName = "True";
+			fail.portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
 	#endif
 
 
@@ -164,25 +164,25 @@ public class IsLocalEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-		public class IsLocalEventNode : BaseEventNode {
-			IsLocalEvent I => target as IsLocalEvent;
+	public class IsLocalEventNode : BaseEventNode {
+		IsLocalEvent I => target as IsLocalEvent;
 
-			public IsLocalEventNode() : base() {
-				mainContainer.style.width = DefaultNodeWidth;
-				var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
-				titleContainer.style.backgroundColor = purple;
-			}
-
-			public override void ConstructPort() {
-				CreatePort(Direction.Input);
-				var @true  = CreatePort(Direction.Output);
-				var @false = CreatePort(Direction.Output);
-				@true .portName = "True";
-				@false.portName = "False";
-				RefreshExpandedState();
-				RefreshPorts();
-			}
+		public IsLocalEventNode() : base() {
+			mainContainer.style.width = DefaultNodeWidth;
+			var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
+			titleContainer.style.backgroundColor = purple;
 		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			var pass = CreatePort(Direction.Output);
+			var fail = CreatePort(Direction.Output);
+			pass.portName = "True";
+			fail.portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
 	#endif
 
 

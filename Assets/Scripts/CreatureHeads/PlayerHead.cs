@@ -14,7 +14,7 @@ using Unity.NetCode;
 
 public struct PlayerHead : IComponentData {
 
-	public byte temp;
+	public byte Data;
 }
 
 
@@ -28,14 +28,14 @@ public struct PlayerHead : IComponentData {
 partial struct PlayerHeadSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
-		state.RequireForUpdate<InputManagerBridge >();
+		state.RequireForUpdate<InputManagerBridge>();
 		state.RequireForUpdate<CameraManagerBridge>();
 		state.RequireForUpdate<PlayerHead>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new PlayerHeadSimulationJob() {
-			InputManager  = SystemAPI.GetSingleton<InputManagerBridge >(),
+			InputManager  = SystemAPI.GetSingleton<InputManagerBridge>(),
 			CameraManager = SystemAPI.GetSingleton<CameraManagerBridge>(),
 		}.ScheduleParallel(state.Dependency);
 	}
@@ -44,13 +44,12 @@ partial struct PlayerHeadSystem : ISystem {
 	partial struct PlayerHeadSimulationJob : IJobEntity {
 		[ReadOnly] public InputManagerBridge  InputManager;
 		[ReadOnly] public CameraManagerBridge CameraManager;
-
 		public void Execute(
+			in CreatureCore core,
 			ref CreatureInput input,
-			in  CreatureCore  core,
-			ref PlayerHead    head) {
+			ref PlayerHead head) {
 
-			input.Key = (ushort)InputManager.KeyNext;
+			input.Key = InputManager.KeyNext;
 			float3 moveDirection = new(InputManager.MoveDirection.x, 0f, InputManager.MoveDirection.y);
 			float3 eulerRotation = new(0f, CameraManager.Yaw * math.TORADIANS, 0f);
 			input.MoveVector = math.mul(quaternion.Euler(eulerRotation), moveDirection);

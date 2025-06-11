@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class GameManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(GameManagerBridgeAuthoring))]
-		class GameManagerBridgeAuthoringEditor : EditorExtensions {
-			GameManagerBridgeAuthoring I => target as GameManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Game Manager Bridge Authoring");
+	[CustomEditor(typeof(GameManagerBridgeAuthoring))]
+	class GameManagerBridgeAuthoringEditor : EditorExtensions {
+		GameManagerBridgeAuthoring I => target as GameManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Game Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

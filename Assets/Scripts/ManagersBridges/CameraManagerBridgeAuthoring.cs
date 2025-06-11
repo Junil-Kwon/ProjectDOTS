@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class CameraManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CameraManagerBridgeAuthoring))]
-		class CameraManagerBridgeAuthoringEditor : EditorExtensions {
-			CameraManagerBridgeAuthoring I => target as CameraManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Camera Manager Bridge Authoring");
+	[CustomEditor(typeof(CameraManagerBridgeAuthoring))]
+	class CameraManagerBridgeAuthoringEditor : EditorExtensions {
+		CameraManagerBridgeAuthoring I => target as CameraManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Camera Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

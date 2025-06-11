@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -17,43 +17,45 @@ public class MultiplayerCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(MultiplayerCanvas))]
-		class MultiplayerCanvasEditor : EditorExtensions {
-			MultiplayerCanvas I => target as MultiplayerCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Multiplayer Canvas");
+	[CustomEditor(typeof(MultiplayerCanvas))]
+	class MultiplayerCanvasEditor : EditorExtensions {
+		MultiplayerCanvas I => target as MultiplayerCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Multiplayer Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-				LabelField("Layout", EditorStyles.boldLabel);
-				PropertyField("m_JoinRelayServerLayout");
-				PropertyField("m_CreateRelayHostLayout");
-				PropertyField("m_JoinLocalServerLayout");
-				PropertyField("m_CreateLocalHostLayout");
-				Space();
-				LabelField("Switch Navigation", EditorStyles.boldLabel);
-				PropertyField("m_TopSelectables");
-				for (int i = 0; i < I.SelectOnDown.Length; i++) {
-					I.SelectOnDown[i] = ObjectField($"Select On Down [{i}]", I.SelectOnDown[i]);
-				}
-				PropertyField("m_BottomSelectables");
-				for (int i = 0; i < I.SelectOnUp.Length; i++) {
-					I.SelectOnUp[i] = ObjectField($"Select On Up [{i}]", I.SelectOnUp[i]);
-				}
-				Space();
-				LabelField("Connection", EditorStyles.boldLabel);
-				PropertyField("m_JoinRelayServerJoinCodeInputfield");
-				PropertyField("m_CreateRelayHostMaxPlayersSlider");
-				PropertyField("m_JoinLocalServerIPAddressInputfield");
-				PropertyField("m_JoinLocalServerPortInputfield");
-				PropertyField("m_CreateLocalHostMaxPlayersSlider");
-				PropertyField("m_CreateLocalHostPortInputfield");
-				Space();
-
-				End();
 			}
+			LabelField("Layout", EditorStyles.boldLabel);
+			PropertyField("m_JoinRelayServerLayout");
+			PropertyField("m_CreateRelayHostLayout");
+			PropertyField("m_JoinLocalServerLayout");
+			PropertyField("m_CreateLocalHostLayout");
+			Space();
+			LabelField("Switch Navigation", EditorStyles.boldLabel);
+			PropertyField("m_TopSelectables");
+			for (int i = 0; i < I.SelectOnDown.Length; i++) {
+				I.SelectOnDown[i] = ObjectField($"Select On Down [{i}]", I.SelectOnDown[i]);
+			}
+			PropertyField("m_BottomSelectables");
+			for (int i = 0; i < I.SelectOnUp.Length; i++) {
+				I.SelectOnUp[i] = ObjectField($"Select On Up [{i}]", I.SelectOnUp[i]);
+			}
+			Space();
+			LabelField("Connection", EditorStyles.boldLabel);
+			PropertyField("m_JoinRelayServerJoinCodeInputfield");
+			PropertyField("m_CreateRelayHostMaxPlayersSlider");
+			PropertyField("m_JoinLocalServerIPAddressInputfield");
+			PropertyField("m_JoinLocalServerPortInputfield");
+			PropertyField("m_CreateLocalHostMaxPlayersSlider");
+			PropertyField("m_CreateLocalHostPortInputfield");
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -70,8 +72,8 @@ public class MultiplayerCanvas : BaseCanvas {
 	[SerializeField] Selectable[] m_BottomSelectables;
 	[SerializeField] Selectable[] m_SelectOnUp = new Selectable[4];
 
-	[SerializeField] CustomSlider m_CreateRelayHostMaxPlayersSlider;
-	[SerializeField] CustomSlider m_CreateLocalHostMaxPlayersSlider;
+	[SerializeField] CustomSlider     m_CreateRelayHostMaxPlayersSlider;
+	[SerializeField] CustomSlider     m_CreateLocalHostMaxPlayersSlider;
 	[SerializeField] CustomInputfield m_JoinRelayServerJoinCodeInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerIPAddressInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerPortInputfield;

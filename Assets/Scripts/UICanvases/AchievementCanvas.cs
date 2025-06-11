@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,19 +16,20 @@ public class AchievementCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(AchievementCanvas))]
-		class AchievementCanvasEditor : EditorExtensions {
-			AchievementCanvas I => target as AchievementCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Achievement Canvas");
+	[CustomEditor(typeof(AchievementCanvas))]
+	class AchievementCanvasEditor : EditorExtensions {
+		AchievementCanvas I => target as AchievementCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Achievement Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-
-				End();
 			}
+			End();
 		}
+	}
 	#endif
 
 

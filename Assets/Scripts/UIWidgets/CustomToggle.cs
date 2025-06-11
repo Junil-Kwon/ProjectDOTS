@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,69 +21,69 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CustomToggle))]
-		class CustomToggleEditor : EditorExtensionsSelectable {
-			CustomToggle I => target as CustomToggle;
-			public override void OnInspectorGUI() {
-				Begin("Custom Toggle");
+	[CustomEditor(typeof(CustomToggle))]
+	class CustomToggleEditor : EditorExtensionsSelectable {
+		CustomToggle I => target as CustomToggle;
+		public override void OnInspectorGUI() {
+			Begin("Custom Toggle");
 
-				LabelField("Selectable", EditorStyles.boldLabel);
-				base.OnInspectorGUI();
-				Space();
-				LabelField("Toggle", EditorStyles.boldLabel);
-				I.PositiveImage    = ObjectField("Positive Image",     I.PositiveImage);
-				I.NegativeImage    = ObjectField("Negative Image",     I.NegativeImage);
-				I.PositiveTextUGUI = ObjectField("Positive Text UGUI", I.PositiveTextUGUI);
-				I.NegativeTextUGUI = ObjectField("Negative Text UGUI", I.NegativeTextUGUI);
-				I.RestoreButton    = ObjectField("Restore Button",     I.RestoreButton);
-				Space();
-				I.Default = Toggle("Default", I.Default);
-				I.Value   = Toggle("Value",   I.Value);
-				Space();
-				PropertyField("m_OnStateUpdated");
-				PropertyField("m_OnValueChanged");
-				Space();
+			LabelField("Selectable", EditorStyles.boldLabel);
+			base.OnInspectorGUI();
+			Space();
+			LabelField("Toggle", EditorStyles.boldLabel);
+			I.NegativeImage    = ObjectField("Negative Image",     I.NegativeImage);
+			I.PositiveImage    = ObjectField("Positive Image",     I.PositiveImage);
+			I.NegativeTextUGUI = ObjectField("Negative Text UGUI", I.NegativeTextUGUI);
+			I.PositiveTextUGUI = ObjectField("Positive Text UGUI", I.PositiveTextUGUI);
+			I.RestoreButton    = ObjectField("Restore Button",     I.RestoreButton);
+			Space();
+			I.Default = Toggle("Default", I.Default);
+			I.Value   = Toggle("Value",   I.Value);
+			Space();
+			PropertyField("m_OnStateUpdated");
+			PropertyField("m_OnValueChanged");
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
 
 	// Fields
 
-	[SerializeField] GameObject m_PositiveImage;
-	[SerializeField] GameObject m_NegativeImage;
-	[SerializeField] TextMeshProUGUI m_PositiveTextUGUI;
+	[SerializeField] GameObject      m_NegativeImage;
+	[SerializeField] GameObject      m_PositiveImage;
 	[SerializeField] TextMeshProUGUI m_NegativeTextUGUI;
-	[SerializeField] GameObject m_RestoreButton;
+	[SerializeField] TextMeshProUGUI m_PositiveTextUGUI;
+	[SerializeField] GameObject      m_RestoreButton;
 
-	[SerializeField] bool m_Default = false;
-	[SerializeField] bool m_Value   = false;
+	[SerializeField] bool m_Default;
+	[SerializeField] bool m_Value;
 
 	[SerializeField] UnityEvent<CustomToggle> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent<bool        > m_OnValueChanged = new();
+	[SerializeField] UnityEvent<bool>         m_OnValueChanged = new();
 
 
 
 	// Properties
 
-	GameObject PositiveImage {
-		get => m_PositiveImage;
-		set => m_PositiveImage = value;
-	}
 	GameObject NegativeImage {
 		get => m_NegativeImage;
 		set => m_NegativeImage = value;
 	}
-	TextMeshProUGUI PositiveTextUGUI {
-		get => m_PositiveTextUGUI;
-		set => m_PositiveTextUGUI = value;
+	GameObject PositiveImage {
+		get => m_PositiveImage;
+		set => m_PositiveImage = value;
 	}
 	TextMeshProUGUI NegativeTextUGUI {
 		get => m_NegativeTextUGUI;
 		set => m_NegativeTextUGUI = value;
+	}
+	TextMeshProUGUI PositiveTextUGUI {
+		get => m_PositiveTextUGUI;
+		set => m_PositiveTextUGUI = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
@@ -113,18 +113,18 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	}
 
 	public UnityEvent<CustomToggle> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<bool        > OnValueChanged => m_OnValueChanged;
+	public UnityEvent<bool>         OnValueChanged => m_OnValueChanged;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (PositiveImage) PositiveImage.SetActive( Value);
-		if (NegativeImage) NegativeImage.SetActive(!Value);
-		if (PositiveTextUGUI) PositiveTextUGUI.gameObject.SetActive( Value);
+		if (NegativeImage)    NegativeImage.SetActive(!Value);
+		if (PositiveImage)    PositiveImage.SetActive( Value);
 		if (NegativeTextUGUI) NegativeTextUGUI.gameObject.SetActive(!Value);
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
+		if (PositiveTextUGUI) PositiveTextUGUI.gameObject.SetActive( Value);
+		if (RestoreButton)    RestoreButton.SetActive(Value != Default);
 		OnStateUpdated.Invoke(this);
 	}
 

@@ -14,9 +14,7 @@ using Unity.NetCode;
 
 public struct PlayerBody : IComponentData {
 
-	// Fields
-
-	byte data;
+	public byte Data;
 }
 
 
@@ -36,23 +34,27 @@ partial struct PlayerBodySimulationSystem : ISystem {
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new PlayerBodySimulationJob {
 		}.ScheduleParallel(state.Dependency);
+
+		foreach (var input in SystemAPI.Query<RefRO<CreatureInput>>().WithAll<Simulate>()) {
+			if (input.ValueRO.GetKey(KeyAction.Ability1)) {
+				var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>();
+				var prefab = prefabContainer.Reinterpret<Entity>()[(int)Prefab.Dummy];
+				var entity = state.EntityManager.Instantiate(prefab);
+				var transform = LocalTransform.FromPosition(new float3(0f, 2f, 0f));
+				state.EntityManager.SetComponentData(entity, transform);
+			}
+		}
 	}
 
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct PlayerBodySimulationJob : IJobEntity {
 		public void Execute(
-			ref LocalTransform  transform,
-			in  CreatureInput   input,
-			ref CreatureCore    core,
-			ref PlayerBody      body,
+			in CreatureInput input,
+			ref CreatureCore core,
+			ref PlayerBody body,
+			ref LocalTransform transform,
 			ref PhysicsVelocity velocity) {
 
-			if (!core.HasFlag(Flag.Piercing) && input.GetKey(KeyAction.Ability1)) {
-				core.SetFlag(Flag.Piercing, true);
-			}
-			if (core.HasFlag(Flag.Piercing) && !input.GetKey(KeyAction.Ability1)) {
-				core.SetFlag(Flag.Piercing, false);
-			}
 			switch (core.MotionX) {
 				case Motion.None:
 					core.MotionX = Motion.Idle;
@@ -63,19 +65,18 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					velocity.Linear.z = 0f;
 					core.MotionXTick++;
 					if (0f < input.MoveFactor) core.MotionX = Motion.Move;
-					if (input.GetKey(KeyAction.Jump) && core.IsGrounded()) core.MotionX = Motion.Jump;
+					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Move:
-					if (0 < input.MoveFactor) {
+					if (0f < input.MoveFactor) {
 						transform.Rotation = quaternion.LookRotationSafe(-input.MoveVector, math.up());
 						velocity.Linear.x = 5f * input.MoveVector.x;
 						velocity.Linear.z = 5f * input.MoveVector.z;
-
 					}
 					core.MotionXTick++;
 					if (input.MoveFactor == 0f) core.MotionX = Motion.Idle;
-					if (input.GetKey(KeyAction.Jump) && core.IsGrounded()) core.MotionX = Motion.Jump;
+					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Jump:
@@ -83,7 +84,7 @@ partial struct PlayerBodySimulationSystem : ISystem {
 					velocity.Linear.z = 5f * input.MoveVector.z;
 					if (core.MotionXTick != 10) core.MotionXTick++;
 					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.4f, 0f);
-					if (core.MotionXTick == 10 && core.IsGrounded()) core.MotionXTick++;
+					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
 					if (15 < core.MotionXTick) core.MotionX = Motion.Idle;
 					break;
 			}

@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using System.Collections;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -18,19 +19,20 @@ public class SettingsCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(SettingsCanvas))]
-		class SettingsCanvasEditor : EditorExtensions {
-			SettingsCanvas I => target as SettingsCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Settings Canvas");
+	[CustomEditor(typeof(SettingsCanvas))]
+	class SettingsCanvasEditor : EditorExtensions {
+		SettingsCanvas I => target as SettingsCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Settings Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-
-				End();
 			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -64,10 +66,16 @@ public class SettingsCanvas : BaseCanvas {
 	}
 
 	public void UpdateFullScreenToggle(CustomToggle toggle) {
-		toggle.Value = Screen.fullScreen;
+		StartCoroutine(UpdateFullScreenToggleCoroutine(toggle));
+	}
+	IEnumerator UpdateFullScreenToggleCoroutine(CustomToggle toggle) {
+		float timeStartChange = Time.realtimeSinceStartup;
+		while (Time.realtimeSinceStartup - timeStartChange < 0.5f) {
+			toggle.Value = Screen.fullScreenMode == FullScreenMode.FullScreenWindow;
+			yield return null;
+		}
 	}
 	public void SetFullScreenValue(bool value) {
-		Screen.fullScreen = value;
 		Screen.fullScreenMode = value ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
 	}
 
@@ -79,13 +87,6 @@ public class SettingsCanvas : BaseCanvas {
 				elements[i] = $"{resolution.x}x{resolution.y}";
 			}
 			stepper.Elements = elements;
-		}
-		for (int i = 0; i < stepper.Elements.Length; i++) {
-			var resolution = $"{Screen.width}x{Screen.height}";
-			if (stepper.Elements[i].Equals(resolution)) {
-				stepper.Value = i;
-				return;
-			}
 		}
 	}
 	public void SetScreenResolutionValue(int value) {
@@ -138,10 +139,10 @@ public class SettingsCanvas : BaseCanvas {
 
 	public void ResetAllData() {
 		UIManager.ConfirmResetAllData();
-		UIManager.GetConfirmEvent().AddListener(() => {
+		UIManager.OnConfirmationConfirmed.AddListener(() => {
 			RestoreDefaults();
 			PlayerPrefs.DeleteAll();
-			UIManager.OnBackCompleted.AddListener(() => UIManager.AlertAllDataReset());
+			UIManager.OnBackCompleted.AddListener(UIManager.AlertAllDataReset);
 		});
 	}
 

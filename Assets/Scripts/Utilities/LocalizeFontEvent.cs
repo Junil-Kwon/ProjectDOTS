@@ -13,16 +13,10 @@ using TMPro;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Localization/Asset/Localize Font Event")]
-public class LocalizedFontEvent : LocalizedAssetEvent<TMP_FontAsset, LocalizedFont, UnityEventFont> {
-
-}
+public class LocalizedFontEvent : LocalizedAssetEvent<TMP_FontAsset, LocalizedFont, UnityEventFont> { }
 
 [Serializable]
-public class LocalizedFont : LocalizedAsset<TMP_FontAsset> {
-
-}
+public class LocalizedFont : LocalizedAsset<TMP_FontAsset> { }
 
 [Serializable]
-public class UnityEventFont : UnityEvent<TMP_FontAsset> {
-
-}
+public class UnityEventFont : UnityEvent<TMP_FontAsset> { }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.AI.Navigation;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,22 +21,22 @@ public sealed class NavigationManager : MonoSingleton<NavigationManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(NavigationManager))]
-		class NavigationManagerEditor : EditorExtensions {
-			NavigationManager I => target as NavigationManager;
-			public override void OnInspectorGUI() {
-				Begin("Navigation Manager");
+	[CustomEditor(typeof(NavigationManager))]
+	class NavigationManagerEditor : EditorExtensions {
+		NavigationManager I => target as NavigationManager;
+		public override void OnInspectorGUI() {
+			Begin("Navigation Manager");
 
-				LabelField("Navigation", EditorStyles.boldLabel);
-				BeginHorizontal();
-				PrefixLabel("Bake NavMesh");
-				if (Button("Clear All")) ClearAll();
-				if (Button("Bake All" )) BakeAll ();
-				EndHorizontal();
+			LabelField("Navigation", EditorStyles.boldLabel);
+			BeginHorizontal();
+			PrefixLabel("Bake NavMesh");
+			if (Button("Clear All")) ClearAll();
+			if (Button("Bake All" )) BakeAll();
+			EndHorizontal();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

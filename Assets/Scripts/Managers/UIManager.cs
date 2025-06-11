@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -20,21 +20,21 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(UIManager))]
-		class UIManagerEditor : EditorExtensions {
-			UIManager I => target as UIManager;
-			public override void OnInspectorGUI() {
-				Begin("UI Manager");
+	[CustomEditor(typeof(UIManager))]
+	class UIManagerEditor : EditorExtensions {
+		UIManager I => target as UIManager;
+		public override void OnInspectorGUI() {
+			Begin("UI Manager");
 
-				LabelField("Debug", EditorStyles.boldLabel);
-				BeginDisabledGroup();
-				TextField("Current Canvas", $"{(Application.isPlaying ? CurrentCanvas : "None")}");
-				EndDisabledGroup();
-				Space();
+			LabelField("Debug", EditorStyles.boldLabel);
+			BeginDisabledGroup();
+			TextField("Current Canvas", $"{(Application.isPlaying ? CurrentCanvas : "None")}");
+			EndDisabledGroup();
+			Space();
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 
@@ -52,7 +52,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	};
 
 	const string DisplayDebugScreenKey = "DisplayDebugScreen";
-	const bool   DisplayDebugScreenValue = false;
+	const bool DisplayDebugScreenValue = false;
 
 
 
@@ -162,7 +162,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 			Instance.m_DisplayDebugScreen;
 		set {
 			PlayerPrefs.SetInt(DisplayDebugScreenKey, (Instance.m_DisplayDebugScreen = value) ? 1 : 0);
-			SetDebug(value);
+			SetDebugScreen(value);
 		}
 	}
 
@@ -191,11 +191,11 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 				OpenMenu();
 				break;
 			case global::ConfirmationCanvas:
-				ConfirmationCanvas.CancelEvent.Invoke();
+				ConfirmationCanvas.OnCancelled.Invoke();
 				popOverlay = true;
 				break;
 			case global::AlertCanvas:
-				AlertCanvas.CloseEvent.Invoke();
+				AlertCanvas.OnClosed.Invoke();
 				popOverlay = true;
 				break;
 			default:
@@ -216,7 +216,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	// Canvas Methods
 
 	public static void OpenTitle() => OpenMainCanvas(TitleCanvas);
-	public static void OpenGame () => OpenMainCanvas(GameCanvas);
+	public static void OpenGame()  => OpenMainCanvas(GameCanvas);
 
 	static void OpenMainCanvas(BaseCanvas mainCanvas) {
 		if (mainCanvas == CurrentCanvas) return;
@@ -227,13 +227,13 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		OnCanvasChanged();
 	}
 
-	public static void OpenMultiplayer () => OpenOverlayCanvas(MultiplayerCanvas);
-	public static void OpenDialogue    () => OpenOverlayCanvas(DialogueCanvas);
-	public static void OpenMenu        () => OpenOverlayCanvas(MenuCanvas);
-	public static void OpenAchievement () => OpenOverlayCanvas(AchievementCanvas);
-	public static void OpenSettings    () => OpenOverlayCanvas(SettingsCanvas);
+	public static void OpenMultiplayer()  => OpenOverlayCanvas(MultiplayerCanvas);
+	public static void OpenDialogue()     => OpenOverlayCanvas(DialogueCanvas);
+	public static void OpenMenu()         => OpenOverlayCanvas(MenuCanvas);
+	public static void OpenAchievement()  => OpenOverlayCanvas(AchievementCanvas);
+	public static void OpenSettings()     => OpenOverlayCanvas(SettingsCanvas);
 	public static void OpenConfirmation() => OpenOverlayCanvas(ConfirmationCanvas);
-	public static void OpenAlert       () => OpenOverlayCanvas(AlertCanvas);
+	public static void OpenAlert()        => OpenOverlayCanvas(AlertCanvas);
 
 	static void OpenOverlayCanvas(BaseCanvas overlayCanvas) {
 		if (overlayCanvas == CurrentCanvas) return;
@@ -259,8 +259,8 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Confirmation Canvas Methods
 
-	public static UnityEvent GetConfirmEvent() => ConfirmationCanvas.ConfirmEvent;
-	public static UnityEvent GetCancelEvent () => ConfirmationCanvas.CancelEvent;
+	public static UnityEvent OnConfirmationConfirmed => ConfirmationCanvas.OnConfirmed;
+	public static UnityEvent OnConfirmationCancelled => ConfirmationCanvas.OnCancelled;
 
 	public static void ConfirmReturnToLobby() {
 		OpenConfirmation();
@@ -268,7 +268,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		ConfirmationCanvas.ContentKey = "Confirmation_ReturnToLobbyContent";
 		ConfirmationCanvas.ConfirmKey = "Confirmation_ReturnToLobbyConfirm";
 		ConfirmationCanvas.CancelKey  = "Confirmation_ReturnToLobbyCancel";
-		ConfirmationCanvas.ConfirmEvent.AddListener(() => {
+		ConfirmationCanvas.OnConfirmed.AddListener(() => {
 			NetworkManager.Connect();
 			OnBackCompleted.AddListener(() => OpenGame());
 		});
@@ -281,9 +281,9 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		ConfirmationCanvas.ConfirmKey = "Confirmation_QuitGameConfirm";
 		ConfirmationCanvas.CancelKey  = "Confirmation_QuitGameCancel";
 		#if UNITY_EDITOR
-			ConfirmationCanvas.ConfirmEvent.AddListener(() => EditorApplication.isPlaying = false);
+		ConfirmationCanvas.OnConfirmed.AddListener(() => EditorApplication.isPlaying = false);
 		#else
-			ConfirmationCanvas.ConfirmEvent.AddListener(() => Application.Quit());
+		ConfirmationCanvas.OnConfirmed.AddListener(() => Application.Quit());
 		#endif
 	}
 
@@ -299,6 +299,8 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 
 	// Alert Canvas Methods
+
+	public static UnityEvent OnAlertClosed => AlertCanvas.OnClosed;
 
 	public static void AlertServerConnectionLost() {
 		OpenAlert();
@@ -316,18 +318,23 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Fade Canvas Methods
 
-	public static void FadeIn() { }
-	public static void FadeOut() { }
+	public static void FadeIn() {
+
+	}
+
+	public static void FadeOut() {
+		
+	}
 
 
 
 	// Debug Canvas Methods
 
-	public static void ShowDebug() => DebugCanvas.gameObject.SetActive(true);
-	public static void HideDebug() => DebugCanvas.gameObject.SetActive(false);
+	public static void ShowDebugScreen() => DebugCanvas.gameObject.SetActive(true);
+	public static void HideDebugScreen() => DebugCanvas.gameObject.SetActive(false);
 
-	public static bool GetDebug() => DebugCanvas.gameObject.activeSelf;
-	public static void SetDebug(bool value) => DebugCanvas.gameObject.SetActive(value);
+	public static bool GetDebugScreen() => DebugCanvas.gameObject.activeSelf;
+	public static void SetDebugScreen(bool value) => DebugCanvas.gameObject.SetActive(value);
 
 
 

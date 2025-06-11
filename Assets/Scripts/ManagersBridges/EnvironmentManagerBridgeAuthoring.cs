@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Burst;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,15 +21,15 @@ public class EnvironmentManagerBridgeAuthoring : MonoBehaviour {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(EnvironmentManagerBridgeAuthoring))]
-		class EnvironmentManagerBridgeAuthoringEditor : EditorExtensions {
-			EnvironmentManagerBridgeAuthoring I => target as EnvironmentManagerBridgeAuthoring;
-			public override void OnInspectorGUI() {
-				Begin("Environment Manager Bridge Authoring");
+	[CustomEditor(typeof(EnvironmentManagerBridgeAuthoring))]
+	class EnvironmentManagerBridgeAuthoringEditor : EditorExtensions {
+		EnvironmentManagerBridgeAuthoring I => target as EnvironmentManagerBridgeAuthoring;
+		public override void OnInspectorGUI() {
+			Begin("Environment Manager Bridge Authoring");
 
-				End();
-			}
+			End();
 		}
+	}
 	#endif
 
 

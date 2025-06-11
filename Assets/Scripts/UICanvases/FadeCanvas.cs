@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,15 +16,20 @@ public class FadeCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(FadeCanvas))]
-		class FadeCanvasEditor : EditorExtensions {
-			FadeCanvas I => target as FadeCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Fade Canvas");
+	[CustomEditor(typeof(FadeCanvas))]
+	class FadeCanvasEditor : EditorExtensions {
+		FadeCanvas I => target as FadeCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Fade Canvas");
 
-				End();
+			if (I.Raycaster) {
+				LabelField("Selected", EditorStyles.boldLabel);
+				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
+				Space();
 			}
+			End();
 		}
+	}
 	#endif
 
 }

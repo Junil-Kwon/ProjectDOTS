@@ -30,7 +30,9 @@ public abstract class BaseCanvas : MonoBehaviour {
 		set => m_LastSelected = value;
 	}
 
-	GraphicRaycaster Raycaster => m_Raycaster || TryGetComponent(out m_Raycaster) ? m_Raycaster : null;
+	protected GraphicRaycaster Raycaster =>
+		m_Raycaster || TryGetComponent(out m_Raycaster) ?
+		m_Raycaster : null;
 
 
 
@@ -45,6 +47,7 @@ public abstract class BaseCanvas : MonoBehaviour {
 			};
 		}
 	}
+
 	public virtual void Hide(bool keepState = false) {
 		gameObject.SetActive(false);
 		if (Raycaster.enabled) {

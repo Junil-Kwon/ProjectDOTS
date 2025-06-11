@@ -1,7 +1,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -16,19 +16,20 @@ public class MenuCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(MenuCanvas))]
-		class MenuCanvasEditor : EditorExtensions {
-			MenuCanvas I => target as MenuCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Menu Canvas");
+	[CustomEditor(typeof(MenuCanvas))]
+	class MenuCanvasEditor : EditorExtensions {
+		MenuCanvas I => target as MenuCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Menu Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-
-				End();
 			}
+			End();
 		}
+	}
 	#endif
 
 }

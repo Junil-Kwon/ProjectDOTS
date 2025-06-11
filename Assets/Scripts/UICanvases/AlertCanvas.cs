@@ -3,7 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.Localization.Components;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -18,23 +18,25 @@ public class AlertCanvas : BaseCanvas {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(AlertCanvas))]
-		class TitleCanvasEditor : EditorExtensions {
-			AlertCanvas I => target as AlertCanvas;
-			public override void OnInspectorGUI() {
-				Begin("Alert Canvas");
+	[CustomEditor(typeof(AlertCanvas))]
+	class TitleCanvasEditor : EditorExtensions {
+		AlertCanvas I => target as AlertCanvas;
+		public override void OnInspectorGUI() {
+			Begin("Alert Canvas");
 
+			if (I.Raycaster) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
-				LabelField("Localize Event", EditorStyles.boldLabel);
-				I.ContentText = ObjectField("Content Text", I.ContentText);
-				I.CloseButton = ObjectField("Close Button", I.CloseButton);
-				Space();
-
-				End();
 			}
+			LabelField("Localize Event", EditorStyles.boldLabel);
+			I.ContentText = ObjectField("Content Text", I.ContentText);
+			I.CloseButton = ObjectField("Close Button", I.CloseButton);
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -44,7 +46,7 @@ public class AlertCanvas : BaseCanvas {
 	[SerializeField] LocalizeStringEvent m_ContentText;
 	[SerializeField] LocalizeStringEvent m_CloseButton;
 
-	readonly UnityEvent m_CloseEvent = new();
+	readonly UnityEvent m_OnClosed = new();
 
 
 
@@ -68,7 +70,7 @@ public class AlertCanvas : BaseCanvas {
 		set => CloseButton.StringReference.SetReference(UIManager.LocalizationTable, value);
 	}
 
-	public UnityEvent CloseEvent => m_CloseEvent;
+	public UnityEvent OnClosed => m_OnClosed;
 
 
 
@@ -77,12 +79,12 @@ public class AlertCanvas : BaseCanvas {
 	public override void Hide(bool keepState = false) {
 		base.Hide(keepState);
 		if (!keepState) {
-			CloseEvent.RemoveAllListeners();
+			OnClosed.RemoveAllListeners();
 		}
 	}
 
 	public void OnCloseButtonClick() {
-		CloseEvent.Invoke();
+		OnClosed.Invoke();
 		UIManager.Back();
 	}
 }

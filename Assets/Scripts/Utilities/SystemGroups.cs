@@ -7,7 +7,7 @@ using Unity.NetCode;
 // Singleton Bridge System Group
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// (Local World | Server World), (Local World | Client World | Thin Client World)
+// (Local World | Client World), (Local World | Client World | Thin Client World)
 [WorldSystemFilter((WorldSystemFilterFlags)0x500u, (WorldSystemFilterFlags)0xD00u)]
 [UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
 [UpdateBefore(typeof(EndInitializationEntityCommandBufferSystem))]
@@ -35,3 +35,13 @@ public partial class DOTSSimulationSystemGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
 public partial class DOTSPresentationSystemGroup : ComponentSystemGroup { }
+
+// (Local World | Server World)
+[WorldSystemFilter((WorldSystemFilterFlags)0x300u)]
+[UpdateAfter(typeof(DOTSSimulationSystemGroup))]
+public partial class DOTSServerSimulationSystemGroup : ComponentSystemGroup { }
+
+// (Local World | Client World | Thin Client World)
+[WorldSystemFilter((WorldSystemFilterFlags)0x500u, (WorldSystemFilterFlags)0xD00u)]
+[UpdateAfter(typeof(DOTSSimulationSystemGroup))]
+public partial class DOTSClientSimulationSystemGroup : ComponentSystemGroup { }

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
 
@@ -21,57 +21,43 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	// Editor
 
 	#if UNITY_EDITOR
-		[CustomEditor(typeof(CustomInputfield))]
-		class CustomInputfieldEditor : EditorExtensionsSelectable {
-			CustomInputfield I => target as CustomInputfield;
-			public override void OnInspectorGUI() {
-				Begin("Custom Inputfield");
+	[CustomEditor(typeof(CustomInputfield))]
+	class CustomInputfieldEditor : EditorExtensionsSelectable {
+		CustomInputfield I => target as CustomInputfield;
+		public override void OnInspectorGUI() {
+			Begin("Custom Inputfield");
 
-				LabelField("Selectable", EditorStyles.boldLabel);
-				base.OnInspectorGUI();
-				Space();
-				LabelField("Inputfield", EditorStyles.boldLabel);
-				I.AreaRect      = ObjectField("Area Rect",      I.AreaRect);
-				I.HideToggle    = ObjectField("Hide Toggle",    I.HideToggle);
-				I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
-				Space();
-				I.PlaceHolderUGUI = ObjectField("Place Holder UGUI", I.PlaceHolderUGUI);
-				if (I.PlaceHolderUGUI) {
-					I.PlaceHolder = TextField("Place Holder", I.PlaceHolder);
-					BeginHorizontal();
-					PrefixLabel("Place Holder Alignment");
-					if (Button("Left"  )) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.PlaceHolderUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
-				I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-				if (I.TextUGUI) {
-					I.TextSelectionColor = ColorField("Text Selection Color", I.TextSelectionColor);
-					BeginHorizontal();
-					PrefixLabel("Text Alignment");
-					if (Button("Left"  )) I.TextUGUI.alignment = TextAlignmentOptions.Left;
-					if (Button("Center")) I.TextUGUI.alignment = TextAlignmentOptions.Center;
-					if (Button("Right" )) I.TextUGUI.alignment = TextAlignmentOptions.Right;
-					EndHorizontal();
-				}
-				Space();
-				I.Default = TextField ("Default", I.Default);
-				I.Value   = TextField ("Value",   I.Value);
+			LabelField("Selectable", EditorStyles.boldLabel);
+			base.OnInspectorGUI();
+			Space();
+			LabelField("Inputfield", EditorStyles.boldLabel);
+			I.TextViewport  = ObjectField("Text Viewport",  I.TextViewport);
+			I.HideToggle    = ObjectField("Hide Toggle",    I.HideToggle);
+			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
+			Space();
+			I.PlaceHolderUGUI = ObjectField("Place Holder UGUI", I.PlaceHolderUGUI);
+			if (I.PlaceHolderUGUI) I.PlaceHolder = TextField("Place Holder", I.PlaceHolder);
+			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
+			if (I.TextUGUI) {
 				I.contentType = ContentType.Custom;
-				I.ValueLimit      = IntField ("Value Limit",      I.ValueLimit);
-				I.ValueValidation = EnumField("Value Validation", I.ValueValidation);
-				if (I.ValueValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
-				I.MaskValue = Toggle("Mask Value", I.MaskValue);
-				Space();
-				PropertyField("m_OnStateUpdated");
-				PropertyField("m_OnValueChanged");
-				PropertyField("m_OnEndEdit");
-				Space();
-
-				End();
+				I.TextLengthLimit = IntField ("Text Length Limit", I.TextLengthLimit);
+				I.TextValidation  = EnumField("Text Validation",   I.TextValidation);
+				if (I.TextValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
+				I.TextSelectionColor = ColorField("Text Selection Color", I.TextSelectionColor);
 			}
+			Space();
+			I.Default = TextField("Default", I.Default);
+			I.Value   = TextField("Value",   I.Value);
+			I.Mask    = Toggle   ("Mask",    I.Mask);
+			Space();
+			PropertyField("m_OnStateUpdated");
+			PropertyField("m_OnValueChanged");
+			PropertyField("m_OnEndEdit");
+			Space();
+
+			End();
 		}
+	}
 	#endif
 
 
@@ -79,9 +65,9 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	// Fields
 
 	[SerializeField] CustomToggle m_HideToggle;
-	[SerializeField] GameObject m_RestoreButton;
+	[SerializeField] GameObject   m_RestoreButton;
 
-	[SerializeField] string m_Default = string.Empty;
+	[SerializeField] string m_Default;
 
 	[SerializeField] UnityEvent<CustomInputfield> m_OnStateUpdated = new();
 
@@ -89,7 +75,7 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 
 	// Properties
 
-	RectTransform AreaRect {
+	RectTransform TextViewport {
 		get => m_TextViewport;
 		set => m_TextViewport = value;
 	}
@@ -114,6 +100,14 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	TextMeshProUGUI TextUGUI {
 		get => m_TextComponent as TextMeshProUGUI;
 		set => m_TextComponent = value;
+	}
+	int TextLengthLimit {
+		get => characterLimit;
+		set => characterLimit = value;
+	}
+	CharacterValidation TextValidation {
+		get => characterValidation;
+		set => characterValidation = value;
 	}
 	Color TextSelectionColor {
 		get => selectionColor;
@@ -140,19 +134,10 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 			}
 		}
 	}
-	public int ValueLimit {
-		get => characterLimit;
-		set => characterLimit = value;
-	}
-	public CharacterValidation ValueValidation {
-		get => characterValidation;
-		set => characterValidation = value;
-	}
-
-	public bool MaskValue {
+	public bool Mask {
 		get => inputType == InputType.Password;
 		set {
-			if (MaskValue != value) {
+			if (Mask != value) {
 				inputType = value ? InputType.Password : InputType.Standard;
 				UpdateLabel();
 			}
@@ -160,15 +145,15 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	}
 
 	public UnityEvent<CustomInputfield> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<string          > OnValueChanged => onValueChanged;
-	public UnityEvent<string          > OnEndEdit      => onEndEdit;
+	public UnityEvent<string>           OnValueChanged => onValueChanged;
+	public UnityEvent<string>           OnEndEdit      => onEndEdit;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (HideToggle) HideToggle.Value = MaskValue;
+		if (HideToggle)    HideToggle.Value = Mask;
 		if (RestoreButton) RestoreButton.SetActive(Value != Default);
 		OnStateUpdated.Invoke(this);
 	}
