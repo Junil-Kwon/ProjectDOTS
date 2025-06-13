@@ -32,21 +32,20 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 			Begin("Camera Manager");
 
 			if (!MainCamera) {
-				var t0 = "No camera found.";
-				var t1 = "Please add a camera to child object.";
-				HelpBox($"{t0}\n{t1}", MessageType.Warning);
+				var text = "No camera found.\nPlease add a camera to child object.";
+				HelpBox(text, MessageType.Warning);
 				Space();
 			} else {
 				LabelField("Camera", EditorStyles.boldLabel);
 				RenderTextureSize = Vector2Field("Render Texture Size", RenderTextureSize);
-				FocusDistance     = Slider      ("Focus Distance",      FocusDistance, 0f, 255f);
-				FieldOfView       = FloatField  ("Field Of View",       FieldOfView);
-				OrthographicSize  = FloatField  ("Orthographic Size",   OrthographicSize);
-				Projection        = Slider      ("Projection",          Projection, 0f, 1f);
+				FocusDistance = Slider("Focus Distance", FocusDistance, 0f, 255f);
+				FieldOfView = FloatField("Field Of View", FieldOfView);
+				OrthographicSize = FloatField("Orthographic Size", OrthographicSize);
+				Projection = Slider("Projection", Projection, 0f, 1f);
 				BeginHorizontal();
 				PrefixLabel(" ");
-				var l = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleLeft  };
-				var r = new GUIStyle(GUI.skin.label) { alignment  = TextAnchor.MiddleRight };
+				var l = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft };
+				var r = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
 				var s = new GUIStyle(GUI.skin.label) { fixedWidth = 50 };
 				GUILayout.Label("< Perspective ", l);
 				GUILayout.Label("Orthographic >", r);
@@ -135,8 +134,8 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 		get {
 			var target = MainCamera.targetTexture;
 			return (target != null) switch {
-				false => new Vector2(Screen.width, Screen.height),
 				true  => new Vector2(target.width, target.height),
+				false => new Vector2(Screen.width, Screen.height),
 			};
 		}
 		set {
@@ -177,17 +176,17 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 		set {
 			value = Mathf.Clamp(value, 0f, 1f);
 			Instance.m_Projection = value;
-			float aspect =  MainCamera.aspect;
-			float near   =  MainCamera.nearClipPlane;
-			float far    =  MainCamera. farClipPlane;
-			float left   = -OrthographicSize * aspect;
-			float right  =  OrthographicSize * aspect;
+			float aspect = MainCamera.aspect;
+			float near = MainCamera.nearClipPlane;
+			float far = MainCamera.farClipPlane;
+			float left = -OrthographicSize * aspect;
+			float right = OrthographicSize * aspect;
 			float bottom = -OrthographicSize;
-			float top    =  OrthographicSize;
-			var matrix = MainCamera.projectionMatrix;
+			float top = OrthographicSize;
 			var a = Matrix4x4.Perspective(FieldOfView, aspect, near, far);
 			var b = Matrix4x4.Ortho(left, right, bottom, top, near, far);
 			var t = Mathf.Pow(Mathf.Max(0.01f, value), 0.03f);
+			var matrix = MainCamera.projectionMatrix;
 			for (int i = 0; i < 16; i++) matrix[i] = Mathf.Lerp(a[i], b[i], t);
 			MainCamera.projectionMatrix = matrix;
 		}
@@ -237,10 +236,10 @@ public partial class CameraManagerSystem : SystemBase {
 
 			var point = transform.ValueRO.Position;
 			var ray = new RaycastInput {
-				Start = point + new float3(0f,  0.5f, 0f),
+				Start = point + new float3(0f, +0.5f, 0f),
 				End   = point + new float3(0f, -5.0f, 0f),
 				Filter = new CollisionFilter {
-					BelongsTo    = ~(0u),
+					BelongsTo = ~(0u),
 					CollidesWith = ~(1u << (int)PhysicsCategory.Creature),
 				}
 			};

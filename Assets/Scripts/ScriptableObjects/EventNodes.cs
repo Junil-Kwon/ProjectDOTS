@@ -354,7 +354,7 @@ public class OnceThenEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = !value ? 0 : 1;
+		int index = !value ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -423,7 +423,7 @@ public class RepeatEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = value++ < count ? 0 : 1;
+		int index = value++ < count ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -453,7 +453,7 @@ public class RandomizeEvent : BaseEvent {
 			var root = new VisualElement();
 			mainContainer.Add(root);
 			for (int i = 0; i < I.weights.Count; i++) {
-				var index = i;
+				int index = i;
 
 				var element = new VisualElement();
 				element.style.flexDirection = FlexDirection.Row;
@@ -496,8 +496,8 @@ public class RandomizeEvent : BaseEvent {
 		}
 
 		void UpdateProbability() {
-			var sum = 0f;
-			foreach (var weight in I.weights) sum += weight;
+			float sum = 0f;
+			foreach (float weight in I.weights) sum += weight;
 			if (sum == 0f) sum = 1f;
 			var ports = outputContainer.Children().OfType<Port>().ToList();
 			for (int i = 0; i < ports.Count; i++) {
@@ -527,10 +527,10 @@ public class RandomizeEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var sum = 0f;
-		foreach (var weight in weights) sum += weight;
-		var random = Random.Range(0f, sum);
-		var index = weights.FindIndex(weight => (random -= weight) <= 0f);
+		float sum = 0f;
+		foreach (float weight in weights) sum += weight;
+		float random = Random.Range(0f, sum);
+		int index = weights.FindIndex(weight => (random -= weight) <= 0f);
 		if (index == -1) index = weights.Count - 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
@@ -585,8 +585,8 @@ public class ObjectEvent : BaseEvent {
 
 	public override void CopyFrom(BaseEvent data) {
 		base.CopyFrom(data);
-		if (data is ObjectEvent @object) {
-			instance = @object.instance;
+		if (data is ObjectEvent gameObject) {
+			instance = gameObject.instance;
 		}
 	}
 
@@ -608,18 +608,18 @@ public class InstantiateObjectEvent : BaseEvent {
 	// Node
 
 	#if UNITY_EDITOR
-	public class ObjectInstantiationEventNode : BaseEventNode {
+	public class InstantiateObjectEventNode : BaseEventNode {
 		InstantiateObjectEvent I => target as InstantiateObjectEvent;
 
-		public ObjectInstantiationEventNode() : base() {
+		public InstantiateObjectEventNode() : base() {
 			mainContainer.style.width = ExtendedNodeWidth;
 			var skyblue = new StyleColor(color.HSVtoRGB(200f, 0.75f, 0.60f));
 			titleContainer.style.backgroundColor = skyblue;
 		}
 
 		public override void ConstructData() {
-			var prefab = new ObjectField ("Prefab") { value = I.prefab };
-			var anchor = new ObjectField ("Anchor") { value = I.anchor };
+			var prefab = new  ObjectField("Prefab") { value = I.prefab };
+			var anchor = new  ObjectField("Anchor") { value = I.anchor };
 			var offset = new Vector3Field("Offset") { value = I.offset };
 			prefab.labelElement.style.minWidth = prefab.labelElement.style.maxWidth = 56f;
 			anchor.labelElement.style.minWidth = anchor.labelElement.style.maxWidth = 56f;
@@ -633,7 +633,7 @@ public class InstantiateObjectEvent : BaseEvent {
 		}
 
 		public override void ConstructPort() {
-			CreatePort(Direction.Input );
+			CreatePort(Direction.Input);
 			CreatePort(Direction.Output);
 			CreatePort(Direction.Output, PortType.Object);
 			RefreshExpandedState();
@@ -648,7 +648,7 @@ public class InstantiateObjectEvent : BaseEvent {
 
 	public GameObject prefab;
 	public GameObject anchor;
-	public Vector3    offset;
+	public Vector3 offset;
 
 	GameObject instance;
 
@@ -690,8 +690,8 @@ public class InstantiateObjectEvent : BaseEvent {
 		const float Height = 0.1f;
 		float sin(float f) => Mathf.Sin(f) * Radius;
 		float cos(float f) => Mathf.Cos(f) * Radius;
-		var segments = Mathf.Max(3, Mathf.RoundToInt(Sample * 2f * Mathf.PI * Radius));
-		var step = 2f * Mathf.PI / segments;
+		int segments = Mathf.Max(3, Mathf.RoundToInt(Sample * 2f * Mathf.PI * Radius));
+		float step = 2f * Mathf.PI / segments;
 
 		var position = anchor ? anchor.transform.position : default;
 		var prev = position + offset + new Vector3(cos(0), Height, sin(0));

@@ -29,19 +29,23 @@ partial struct PlayerBodySimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<PlayerBody>();
+		state.RequireForUpdate<NetworkTime>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
 		state.Dependency = new PlayerBodySimulationJob {
 		}.ScheduleParallel(state.Dependency);
 
-		foreach (var input in SystemAPI.Query<RefRO<CreatureInput>>().WithAll<Simulate>()) {
-			if (input.ValueRO.GetKey(KeyAction.Ability1)) {
-				var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>();
-				var prefab = prefabContainer.Reinterpret<Entity>()[(int)Prefab.Dummy];
-				var entity = state.EntityManager.Instantiate(prefab);
-				var transform = LocalTransform.FromPosition(new float3(0f, 2f, 0f));
-				state.EntityManager.SetComponentData(entity, transform);
+		var networkTime = SystemAPI.GetSingleton<NetworkTime>();
+		if (networkTime.IsFirstTimeFullyPredictingTick) {
+			foreach (var input in SystemAPI.Query<RefRO<CreatureInput>>().WithAll<Simulate>()) {
+				if (input.ValueRO.GetKey(KeyAction.Ability1)) {
+					var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>();
+					var prefab = prefabContainer.Reinterpret<Entity>()[(int)Prefab.Dummy];
+					var entity = state.EntityManager.Instantiate(prefab);
+					var transform = LocalTransform.FromPosition(new float3(0f, 2f, 0f));
+					state.EntityManager.SetComponentData(entity, transform);
+				}
 			}
 		}
 	}

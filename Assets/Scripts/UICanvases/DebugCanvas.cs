@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Text;
 
 using TMPro;
 
@@ -24,13 +25,13 @@ public class DebugCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Debug Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
 			}
-			LabelField("Elements", EditorStyles.boldLabel);
-			I.FrameRateText = ObjectField("Frame Rate Text", I.FrameRateText);
+			LabelField("Content", EditorStyles.boldLabel);
+			I.TextUGUI = ObjectField("TextUGUI", I.TextUGUI);
 			Space();
 
 			End();
@@ -42,28 +43,45 @@ public class DebugCanvas : BaseCanvas {
 
 	// Fields
 
-	[SerializeField] TextMeshProUGUI m_FrameRateText;
-	float m_Delta;
+	[SerializeField] TextMeshProUGUI m_TextUGUI;
+	StringBuilder m_StringBuilder = new();
+
+	float m_DeltaTime;
 
 
 
 	// Properties
 
-	public TextMeshProUGUI FrameRateText {
-		get => m_FrameRateText;
-		set => m_FrameRateText = value;
+	public TextMeshProUGUI TextUGUI {
+		get => m_TextUGUI;
+		set => m_TextUGUI = value;
 	}
-	float Delta {
-		get => m_Delta;
-		set => m_Delta = value;
+	StringBuilder StringBuilder {
+		get => m_StringBuilder;
+		set => m_StringBuilder = value;
+	}
+
+	float DeltaTime {
+		get => m_DeltaTime;
+		set => m_DeltaTime = value;
 	}
 
 
 
 	// Lifecycle
 
-	void Update() {
-		Delta += (Time.unscaledDeltaTime - Delta) * 0.1f;
-		FrameRateText.text = string.Format("FPS: {0:0.}", 1f / Delta);
+	void LateUpdate() {
+		StringBuilder.Clear();
+
+		DeltaTime += (Time.unscaledDeltaTime - DeltaTime) * 0.1f;
+		StringBuilder.Append("FPS: ");
+		StringBuilder.Append((1f / DeltaTime).ToString("F1"));
+		StringBuilder.AppendLine();
+
+		StringBuilder.Append("Entities: ");
+		StringBuilder.Append(GameManager.NumCreatures);
+		StringBuilder.AppendLine();
+
+		TextUGUI.text = StringBuilder.ToString();
 	}
 }

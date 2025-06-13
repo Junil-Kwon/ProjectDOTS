@@ -237,6 +237,42 @@ MonoBehaviour:
     m_Localized: Max Frame Rate
     m_Metadata:
       m_Items: []
+  - m_Id: 5554549154504704
+    m_Localized: Restore Defaults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554691848921088
+    m_Localized: Are you sure you want to restore settings to default?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554716880527360
+    m_Localized: Restore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554749793230848
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5565775318212608
+    m_Localized: Return To Main Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566563679592448
+    m_Localized: Are you sure you want to return to the Main Menu?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566584516894720
+    m_Localized: Return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566602447544320
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5574891084308480
+    m_Localized: Return To Main Menu
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

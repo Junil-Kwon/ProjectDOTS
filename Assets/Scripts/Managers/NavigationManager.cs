@@ -31,7 +31,7 @@ public sealed class NavigationManager : MonoSingleton<NavigationManager> {
 			BeginHorizontal();
 			PrefixLabel("Bake NavMesh");
 			if (Button("Clear All")) ClearAll();
-			if (Button("Bake All" )) BakeAll();
+			if (Button("Bake All")) BakeAll();
 			EndHorizontal();
 
 			End();

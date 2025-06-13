@@ -40,18 +40,33 @@ public abstract class BaseCanvas : MonoBehaviour {
 
 	public virtual void Show() {
 		gameObject.SetActive(true);
-		if (Raycaster.enabled) {
-			UIManager.Selected = UIManager.IsPointerClicked switch {
-				false => LastSelected ? LastSelected : FirstSelected,
-				true  => null,
+		if (Raycaster && Raycaster.enabled) {
+			UIManager.Selected = !InputManager.IsPointing switch {
+				true  => LastSelected ? LastSelected : FirstSelected,
+				false => null,
 			};
 		}
 	}
 
 	public virtual void Hide(bool keepState = false) {
 		gameObject.SetActive(false);
-		if (Raycaster.enabled) {
+		if (Raycaster && Raycaster.enabled) {
 			LastSelected = UIManager.Selected;
+		}
+	}
+
+	public virtual void Back() {
+		UIManager.PopOverlay();
+	}
+
+
+
+	// Lifecycle
+
+	protected virtual void Update() {
+		if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
+		if (InputManager.Navigate != Vector2.zero && !UIManager.Selected) {
+			UIManager.Selected = FirstSelected;
 		}
 	}
 }

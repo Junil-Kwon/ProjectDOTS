@@ -31,21 +31,20 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 			base.OnInspectorGUI();
 			Space();
 			LabelField("Dropdown", EditorStyles.boldLabel);
-			I.HighlightImage = ObjectField("HighlightImage", I.HighlightImage);
-			I.RestoreButton  = ObjectField("Restore Button", I.RestoreButton);
-			I.Template       = ObjectField("Template",       I.Template);
-			I.FadeDuration   = FloatField ("Fade Duration",  I.FadeDuration);
-			Space();
-			I.CaptionUGUI = ObjectField("Caption UGUI", I.CaptionUGUI);
-			I.ItemUGUI    = ObjectField("Item UGUI",    I.ItemUGUI);
+			I.HighlightImage = ObjectField("Highlight Image", I.HighlightImage);
+			I.TextUGUI       = ObjectField("Text UGUI",       I.TextUGUI);
+			I.ItemUGUI       = ObjectField("Item UGUI",       I.ItemUGUI);
+			I.RestoreButton  = ObjectField("Restore Button",  I.RestoreButton);
+			I.Template       = ObjectField("Template",        I.Template);
+			I.FadeDuration   = FloatField("Fade Duration",    I.FadeDuration);
 			Space();
 			PropertyField("m_Elements");
 			Space();
-			I.Default = IntField("Default", I.Default);
-			I.Value   = IntField("Value",   I.Value);
+			I.DefaultValue = IntField("Default Value", I.DefaultValue);
+			I.CurrentValue = IntField("Current Value", I.CurrentValue);
 			Space();
-			PropertyField("m_OnStateUpdated");
 			PropertyField("m_OnValueChanged");
+			PropertyField("m_OnRefreshed");
 			Space();
 
 			End();
@@ -60,11 +59,11 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	[SerializeField] GameObject m_HighlightImage;
 	[SerializeField] GameObject m_RestoreButton;
 
-	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
+	[SerializeField] string[] m_Elements = new[] { "Element 1", "Element 2", "Element 3", };
 
-	[SerializeField] int m_Default;
+	[SerializeField] int m_DefaultValue;
 
-	[SerializeField] UnityEvent<CustomDropdown> m_OnStateUpdated = new();
+	[SerializeField] UnityEvent<CustomDropdown> m_OnRefreshed = new();
 
 
 
@@ -82,18 +81,17 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 		get => template;
 		set => template = value;
 	}
-	float FadeDuration {
-		get => alphaFadeSpeed;
-		set => alphaFadeSpeed = value;
-	}
-
-	TextMeshProUGUI CaptionUGUI {
+	TextMeshProUGUI TextUGUI {
 		get => captionText as TextMeshProUGUI;
 		set => captionText = value;
 	}
 	TextMeshProUGUI ItemUGUI {
 		get => itemText as TextMeshProUGUI;
 		set => itemText = value;
+	}
+	float FadeDuration {
+		get => alphaFadeSpeed;
+		set => alphaFadeSpeed = value;
 	}
 	
 
@@ -105,24 +103,24 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 				m_Elements = value;
 				options.Clear();
 				foreach (var element in value) options.Add(new OptionData(element));
-				Default = Default;
-				Value = Value;
+				DefaultValue = DefaultValue;
+				CurrentValue = CurrentValue;
 				Refresh();
 			}
 		}
 	}
 
-	public int Default {
-		get => m_Default;
+	public int DefaultValue {
+		get => m_DefaultValue;
 		set {
 			value = Mathf.Max(0, Mathf.Min(value, Elements.Length - 1));
-			if (m_Default != value) {
-				m_Default = value;
-				Value = value;
+			if (m_DefaultValue != value) {
+				m_DefaultValue = value;
+				CurrentValue = value;
 			}
 		}
 	}
-	public int Value {
+	public int CurrentValue {
 		get => value;
 		set {
 			value = Mathf.Max(0, Mathf.Min(value, Elements.Length - 1));
@@ -134,20 +132,20 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 		}
 	}
 
-	public UnityEvent<CustomDropdown> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<int>            OnValueChanged => onValueChanged;
+	public UnityEvent<int> OnValueChanged => onValueChanged;
+	public UnityEvent<CustomDropdown> OnRefreshed => m_OnRefreshed;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
-		OnStateUpdated.Invoke(this);
+		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
+		OnRefreshed.Invoke(this);
 	}
 
 	public void Restore() {
-		if (RestoreButton) Value = Default;
+		if (RestoreButton) CurrentValue = DefaultValue;
 	}
 
 

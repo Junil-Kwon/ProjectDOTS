@@ -15,8 +15,8 @@ public class Track : IEnumerable<(Vector3 point, bool curve)> {
 	// Fields
 
 	[SerializeField] List<Vector3> point = new();
-	[SerializeField] List<bool>    curve = new();
-	[SerializeField] List<float>   cache = new();
+	[SerializeField] List<bool> curve = new();
+	[SerializeField] List<float> cache = new();
 
 	bool isDirty = false;
 

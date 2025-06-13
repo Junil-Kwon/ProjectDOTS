@@ -24,9 +24,8 @@ public sealed class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 			Begin("Environment Manager");
 
 			if (!DirectionalLight) {
-				var t0 = "No light found.";
-				var t1 = "Please add a light to child object.";
-				HelpBox($"{t0}\n{t1}", MessageType.Warning);
+				var message = "No directional light found.\nPlease add a light to child object.";
+				HelpBox(message, MessageType.Warning);
 				Space();
 			} else {
 				LabelField("Directional Light", EditorStyles.boldLabel);

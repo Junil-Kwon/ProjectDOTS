@@ -22,7 +22,7 @@ public class GameCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Game Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -61,4 +61,15 @@ public class GameCanvas : BaseCanvas {
 
 	// Methods
 
+	public override void Back() {
+		UIManager.OpenMenu();
+	}
+
+
+
+	// Lifecycle
+
+	protected override void Update(){
+		if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
+	}
 }

@@ -53,6 +53,15 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
     attribute: m_Sprite
+    path: Slider/Fill
+    classID: 114
+    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+    flags: 2
+  - serializedVersion: 2
+    curve:
+    - time: 0
+      value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
+    attribute: m_Sprite
     path: Background/PositiveImage
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -63,15 +72,6 @@ AnimationClip:
       value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
     attribute: m_Sprite
     path: Background/NegativeImage
-    classID: 114
-    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-    flags: 2
-  - serializedVersion: 2
-    curve:
-    - time: 0
-      value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
-    attribute: m_Sprite
-    path: Slider/Fill
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -92,6 +92,15 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
+      path: 1302462018
+      attribute: 2015549526
+      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+      typeID: 114
+      customType: 0
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
       path: 3778643365
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -102,15 +111,6 @@ AnimationClip:
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 1209479187
-      attribute: 2015549526
-      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-      typeID: 114
-      customType: 0
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 1302462018
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -231,6 +231,15 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: d3bf9e4b4dd26c041868dde7c6bbf2d4, type: 3}
     attribute: m_Sprite
+    path: Slider/Fill
+    classID: 114
+    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+    flags: 2
+  - serializedVersion: 2
+    curve:
+    - time: 0
+      value: {fileID: 21300000, guid: d3bf9e4b4dd26c041868dde7c6bbf2d4, type: 3}
+    attribute: m_Sprite
     path: Background/NegativeImage
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -241,15 +250,6 @@ AnimationClip:
       value: {fileID: 21300000, guid: d3bf9e4b4dd26c041868dde7c6bbf2d4, type: 3}
     attribute: m_Sprite
     path: Background/PositiveImage
-    classID: 114
-    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-    flags: 2
-  - serializedVersion: 2
-    curve:
-    - time: 0
-      value: {fileID: 21300000, guid: d3bf9e4b4dd26c041868dde7c6bbf2d4, type: 3}
-    attribute: m_Sprite
-    path: Slider/Fill
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -270,6 +270,15 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
+      path: 1302462018
+      attribute: 2015549526
+      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+      typeID: 114
+      customType: 0
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
       path: 1209479187
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -280,15 +289,6 @@ AnimationClip:
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
       path: 3778643365
-      attribute: 2015549526
-      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-      typeID: 114
-      customType: 0
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 1302462018
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -409,7 +409,7 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: 290a33b01e92caf4f8c92a7c44a4a96f, type: 3}
     attribute: m_Sprite
-    path: Background/PositiveImage
+    path: Slider/Fill
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -427,7 +427,7 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: 290a33b01e92caf4f8c92a7c44a4a96f, type: 3}
     attribute: m_Sprite
-    path: Slider/Fill
+    path: Background/PositiveImage
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -448,7 +448,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3778643365
+      path: 1302462018
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -466,7 +466,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1302462018
+      path: 3778643365
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -789,6 +789,15 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
+      value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
+    attribute: m_Sprite
+    path: Slider/Fill
+    classID: 114
+    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+    flags: 2
+  - serializedVersion: 2
+    curve:
+    - time: 0
       value: {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
     attribute: m_Sprite
     path: Background/NegativeImage
@@ -804,15 +813,6 @@ AnimationClip:
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
-  - serializedVersion: 2
-    curve:
-    - time: 0
-      value: {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
-    attribute: m_Sprite
-    path: Slider/Fill
-    classID: 114
-    script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-    flags: 2
   m_SampleRate: 60
   m_WrapMode: 0
   m_Bounds:
@@ -822,6 +822,15 @@ AnimationClip:
     genericBindings:
     - serializedVersion: 2
       path: 2073732236
+      attribute: 2015549526
+      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+      typeID: 114
+      customType: 0
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 1302462018
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -848,15 +857,6 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1302462018
-      attribute: 2015549526
-      script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-      typeID: 114
-      customType: 0
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
       path: 1265195671
       attribute: 304273561
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -867,9 +867,9 @@ AnimationClip:
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
     - {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
-    - {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
-    - {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
     - {fileID: 21300000, guid: ce95a655b3b4dd24ab2cbba422ace94d, type: 3}
+    - {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
+    - {fileID: 21300000, guid: 3b80ca064c9e4b74285bd4e7676042a5, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -969,7 +969,7 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: 461b642c9b481c54baf4a74597688aec, type: 3}
     attribute: m_Sprite
-    path: Background/PositiveImage
+    path: Slider/Fill
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -987,7 +987,7 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: 461b642c9b481c54baf4a74597688aec, type: 3}
     attribute: m_Sprite
-    path: Slider/Fill
+    path: Background/PositiveImage
     classID: 114
     script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
     flags: 2
@@ -1008,7 +1008,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3778643365
+      path: 1302462018
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114
@@ -1026,7 +1026,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1302462018
+      path: 3778643365
       attribute: 2015549526
       script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
       typeID: 114

@@ -27,7 +27,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1099671027965952
-    m_Localized: Host
+    m_Localized: "Anfitri\xF3n"
     m_Metadata:
       m_Items: []
   - m_Id: 1099728032751616
@@ -147,11 +147,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1185973664604160
-    m_Localized: Reiniciar todos los datos
+    m_Localized: Restablecer todos los datos
     m_Metadata:
       m_Items: []
   - m_Id: 1188071894540288
-    m_Localized: Reiniciar
+    m_Localized: Restablecer
     m_Metadata:
       m_Items: []
   - m_Id: 1172035820445696
@@ -183,11 +183,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 905173689819136
-    m_Localized: "\xBFEst\xE1s seguro de que quieres volver al vest\xEDbulo?"
+    m_Localized: "\xBFEst\xE1s seguro de que quieres volver al lobby?"
     m_Metadata:
       m_Items: []
   - m_Id: 905194329989120
-    m_Localized: Regresar
+    m_Localized: Volver
     m_Metadata:
       m_Items: []
   - m_Id: 905221311946752
@@ -234,6 +234,43 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 4400027371692032
     m_Localized: "Tasa de fotogramas m\xE1xima"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554549154504704
+    m_Localized: Restaurar predeterminados
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554749793230848
+    m_Localized: Cancelar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554716880527360
+    m_Localized: Restaurar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554691848921088
+    m_Localized: "\xBFEst\xE1s seguro de que deseas restaurar la configuraci\xF3n
+      predeterminada?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5565775318212608
+    m_Localized: "Volver al Men\xFA Principal"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566563679592448
+    m_Localized: "\xBFEst\xE1s seguro de que quieres volver al men\xFA principal?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566584516894720
+    m_Localized: Volver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566602447544320
+    m_Localized: Cancelar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5574891084308480
+    m_Localized: "Volver al Men\xFA Principal"
     m_Metadata:
       m_Items: []
   references:

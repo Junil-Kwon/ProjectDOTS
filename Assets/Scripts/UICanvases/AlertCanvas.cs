@@ -1,6 +1,7 @@
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,12 +20,12 @@ public class AlertCanvas : BaseCanvas {
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(AlertCanvas))]
-	class TitleCanvasEditor : EditorExtensions {
+	class AlertCanvasEditor : EditorExtensions {
 		AlertCanvas I => target as AlertCanvas;
 		public override void OnInspectorGUI() {
 			Begin("Alert Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -46,7 +47,7 @@ public class AlertCanvas : BaseCanvas {
 	[SerializeField] LocalizeStringEvent m_ContentText;
 	[SerializeField] LocalizeStringEvent m_CloseButton;
 
-	readonly UnityEvent m_OnClosed = new();
+	Action m_OnClosed;
 
 
 
@@ -61,30 +62,29 @@ public class AlertCanvas : BaseCanvas {
 		set => m_CloseButton = value;
 	}
 
-	public string ContentKey {
-		get => ContentText.StringReference.GetLocalizedString();
-		set => ContentText.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString ContentReference {
+		get => ContentText.StringReference;
+		set => ContentText.StringReference = value;
 	}
-	public string CloseKey {
-		get => CloseButton.StringReference.GetLocalizedString();
-		set => CloseButton.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString CloseReference {
+		get => CloseButton.StringReference;
+		set => CloseButton.StringReference = value;
 	}
 
-	public UnityEvent OnClosed => m_OnClosed;
+	public Action OnClosed {
+		get => m_OnClosed;
+		set => m_OnClosed = value;
+	}
 
 
 
 	// Methods
 
-	public override void Hide(bool keepState = false) {
-		base.Hide(keepState);
-		if (!keepState) {
-			OnClosed.RemoveAllListeners();
-		}
-	}
+	public override void Back() => Close();
 
-	public void OnCloseButtonClick() {
-		OnClosed.Invoke();
-		UIManager.Back();
+	public void Close() {
+		UIManager.PopOverlay();
+		OnClosed?.Invoke();
+		OnClosed = null;
 	}
 }

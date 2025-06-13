@@ -387,12 +387,12 @@ MonoBehaviour:
   m_PositiveTextUGUI: {fileID: 0}
   m_NegativeTextUGUI: {fileID: 0}
   m_RestoreButton: {fileID: 0}
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
+  m_DefaultValue: 0
+  m_CurrentValue: 0
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &7284726030407767564
@@ -619,12 +619,12 @@ MonoBehaviour:
   m_PositiveTextUGUI: {fileID: 0}
   m_NegativeTextUGUI: {fileID: 0}
   m_RestoreButton: {fileID: 0}
-  m_Default: 0
-  m_Value: 1
-  m_OnStateUpdated:
+  m_DefaultValue: 0
+  m_CurrentValue: 0
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &3054749204696235085
@@ -926,12 +926,12 @@ MonoBehaviour:
   m_PositiveTextUGUI: {fileID: 0}
   m_NegativeTextUGUI: {fileID: 0}
   m_RestoreButton: {fileID: 0}
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
+  m_DefaultValue: 0
+  m_CurrentValue: 0
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &31031588070960232
@@ -1158,12 +1158,12 @@ MonoBehaviour:
   m_PositiveTextUGUI: {fileID: 0}
   m_NegativeTextUGUI: {fileID: 0}
   m_RestoreButton: {fileID: 0}
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
+  m_DefaultValue: 0
+  m_CurrentValue: 0
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &858606472413605996
@@ -1314,16 +1314,16 @@ MonoBehaviour:
   m_Template: {fileID: 1455672997540813924}
   m_RestoreButton: {fileID: 3427631895324438180}
   m_Elements:
-  - Option 1
-  - Option 2
-  - Option 3
+  - Element 1
+  - Element 2
+  - Element 3
+  m_DefaultValue: 0
+  m_CurrentValue: 0
   m_MultiSelect: 0
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1001 &628031692084044165

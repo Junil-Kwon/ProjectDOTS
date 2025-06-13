@@ -96,6 +96,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	float m_MouseSensitivity;
 
+	bool m_IsPointing;
 	uint m_KeyNext;
 	uint m_KeyPrev;
 	Vector2 m_LookDirection;
@@ -125,6 +126,10 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		set => PlayerPrefs.SetFloat(SensitivityKey, Instance.m_MouseSensitivity = value);
 	}
 
+	public static bool IsPointing {
+		get         => Instance.m_IsPointing;
+		private set => Instance.m_IsPointing = value;
+	}
 	public static uint KeyNext {
 		get         => Instance.m_KeyNext;
 		private set => Instance.m_KeyNext = value;
@@ -187,27 +192,34 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 			}
 		}
 		InputSystem.onBeforeUpdate += () => KeyPrev = KeyNext;
+		InputSystem.onActionChange += (obj, change) => {
+			if (change != InputActionChange.ActionPerformed) return;
+			var inputAction = obj as InputAction;
+			if (inputAction?.activeControl == null) return;
+			var device = inputAction.activeControl.device;
+			IsPointing = device is Pointer;
+		};
 	}
 
 	static bool GetKeyNext(KeyAction key) => (KeyNext & (1u << (int)key)) != 0u;
 	static bool GetKeyPrev(KeyAction key) => (KeyPrev & (1u << (int)key)) != 0u;
 
-	public static bool GetKey    (KeyAction key) =>  GetKeyNext(key);
-	public static bool GetKeyDown(KeyAction key) =>  GetKeyNext(key) && !GetKeyPrev(key);
-	public static bool GetKeyUp  (KeyAction key) => !GetKeyNext(key) &&  GetKeyPrev(key);
+	public static bool GetKey(KeyAction key) => GetKeyNext(key);
+	public static bool GetKeyDown(KeyAction key) => GetKeyNext(key) && !GetKeyPrev(key);
+	public static bool GetKeyUp(KeyAction key) => !GetKeyNext(key) && GetKeyPrev(key);
 
 	public static void SwitchActionMap(ActionMap actionMap, bool hideCursor = false) {
 		if (InputActionAsset == null) return;
 		PlayerInput.currentActionMap = InputActionAsset.FindActionMap(actionMap.ToString());
-		KeyNext = 0u;
+		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
+		Cursor.visible = !hideCursor;
 		KeyPrev = 0u;
+		KeyNext = 0u;
 		LookDirection = Vector2.zero;
 		MoveDirection = Vector2.zero;
 		PointPosition = Vector2.zero;
 		ScrollWheel   = Vector2.zero;
 		Navigate      = Vector2.zero;
-		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
-		Cursor.visible = !hideCursor;
 	}
 
 
@@ -248,17 +260,17 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		if (inputAction != null) {
 			for (int i = inputAction.bindings.Count - 1; -1 < i; i--) {
 				bool isComposite = inputAction.bindings[i].isComposite;
-				bool is2DVector  = inputAction.bindings[i].name.Equals("2DVector");
+				bool is2DVector = inputAction.bindings[i].name.Equals("2DVector");
 				if (isComposite && is2DVector) inputAction.ChangeBinding(i).Erase();
 			}
 			var composite = inputAction.AddCompositeBinding("2DVector");
-			var keysUp    = GetKeysBinding(KeyAction.MoveUp   );
-			var keysLeft  = GetKeysBinding(KeyAction.MoveLeft );
-			var keysDown  = GetKeysBinding(KeyAction.MoveDown );
+			var keysUp = GetKeysBinding(KeyAction.MoveUp);
+			var keysLeft = GetKeysBinding(KeyAction.MoveLeft);
+			var keysDown = GetKeysBinding(KeyAction.MoveDown);
 			var keysRight = GetKeysBinding(KeyAction.MoveRight);
-			foreach (var key in keysUp   ) composite.With("Up",    "<Keyboard>/" + key);
-			foreach (var key in keysLeft ) composite.With("Left",  "<Keyboard>/" + key);
-			foreach (var key in keysDown ) composite.With("Down",  "<Keyboard>/" + key);
+			foreach (var key in keysUp) composite.With("Up", "<Keyboard>/" + key);
+			foreach (var key in keysLeft) composite.With("Left", "<Keyboard>/" + key);
+			foreach (var key in keysDown) composite.With("Down", "<Keyboard>/" + key);
 			foreach (var key in keysRight) composite.With("Right", "<Keyboard>/" + key);
 		}
 	}*/

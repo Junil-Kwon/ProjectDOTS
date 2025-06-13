@@ -56,13 +56,13 @@ public struct CameraManagerBridge : IComponentData {
 
 	// Fields
 
-	public float3      m_Position;
-	public quaternion  m_Rotation;
+	public float3 m_Position;
+	public quaternion m_Rotation;
 	public constraints m_Constraints;
-	public float       m_FocusDistance;
-	public float       m_FieldOfView;
-	public float       m_OrthographicSize;
-	public float       m_Projection;
+	public float m_FocusDistance;
+	public float m_FieldOfView;
+	public float m_OrthographicSize;
+	public float m_Projection;
 
 	public uint Flag;
 

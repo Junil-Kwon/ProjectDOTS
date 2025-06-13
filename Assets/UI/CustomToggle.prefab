@@ -40,7 +40,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1, y: 16}
+  m_SizeDelta: {x: 128, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &64675669469403965
 MonoBehaviour:
@@ -83,17 +83,17 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 0}
-  m_NegativeImage: {fileID: 7087615885759367531}
   m_PositiveImage: {fileID: 8757008959911219628}
-  m_NegativeTextUGUI: {fileID: 7891291502863579392}
+  m_NegativeImage: {fileID: 7087615885759367531}
   m_PositiveTextUGUI: {fileID: 3650776857991431495}
+  m_NegativeTextUGUI: {fileID: 7891291502863579392}
   m_RestoreButton: {fileID: 7586036631338222463}
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
+  m_DefaultValue: 0
+  m_CurrentValue: 0
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &6490108575332940828
@@ -303,10 +303,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2790163679882967134}
   - {fileID: 3573917458443377870}
-  - {fileID: 529339085463331021}
+  - {fileID: 2790163679882967134}
   - {fileID: 6373089273204415626}
+  - {fileID: 529339085463331021}
   m_Father: {fileID: 8758492240674731540}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

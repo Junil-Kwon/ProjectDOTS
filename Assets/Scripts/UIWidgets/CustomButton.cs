@@ -34,8 +34,8 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
 			if (I.TextUGUI) I.Text = TextField("Text", I.Text);
 			Space();
-			PropertyField("m_OnStateUpdated");
 			PropertyField("m_OnClick");
+			PropertyField("m_OnRefreshed");
 			Space();
 
 			End();
@@ -49,8 +49,8 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
 
-	[SerializeField] UnityEvent<CustomButton> m_OnStateUpdated = new();
 	[SerializeField] UnityEvent m_OnClick = new();
+	[SerializeField] UnityEvent<CustomButton> m_OnRefreshed = new();
 
 
 
@@ -67,15 +67,15 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 
 
-	public UnityEvent<CustomButton> OnStateUpdated => m_OnStateUpdated;
 	public UnityEvent OnClick => m_OnClick;
+	public UnityEvent<CustomButton> OnRefreshed => m_OnRefreshed;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		OnStateUpdated.Invoke(this);
+		OnRefreshed.Invoke(this);
 	}
 
 	public void Restore() { }
@@ -85,12 +85,10 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
-		UIManager.IsPointerClicked = true;
 		if (interactable) OnClick.Invoke();
 	}
 
 	public void OnSubmit(BaseEventData eventData) {
-		UIManager.IsPointerClicked = false;
 		if (interactable) OnClick.Invoke();
 	}
 

@@ -23,7 +23,7 @@ public class MultiplayerCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Multiplayer Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -72,8 +72,8 @@ public class MultiplayerCanvas : BaseCanvas {
 	[SerializeField] Selectable[] m_BottomSelectables;
 	[SerializeField] Selectable[] m_SelectOnUp = new Selectable[4];
 
-	[SerializeField] CustomSlider     m_CreateRelayHostMaxPlayersSlider;
-	[SerializeField] CustomSlider     m_CreateLocalHostMaxPlayersSlider;
+	[SerializeField] CustomSlider m_CreateRelayHostMaxPlayersSlider;
+	[SerializeField] CustomSlider m_CreateLocalHostMaxPlayersSlider;
 	[SerializeField] CustomInputfield m_JoinRelayServerJoinCodeInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerIPAddressInputfield;
 	[SerializeField] CustomInputfield m_JoinLocalServerPortInputfield;
@@ -116,33 +116,33 @@ public class MultiplayerCanvas : BaseCanvas {
 
 
 
-	int CreateRelayHostMaxPlayers => (int)m_CreateRelayHostMaxPlayersSlider.Value;
-	int CreateLocalHostMaxPlayers => (int)m_CreateLocalHostMaxPlayersSlider.Value;
+	int CreateRelayHostMaxPlayers => (int)m_CreateRelayHostMaxPlayersSlider.CurrentValue;
+	int CreateLocalHostMaxPlayers => (int)m_CreateLocalHostMaxPlayersSlider.CurrentValue;
 
 	string JoinRelayServerJoinCode {
 		get {
-			string text = m_JoinRelayServerJoinCodeInputfield.Value;
+			string text = m_JoinRelayServerJoinCodeInputfield.CurrentValue;
 			if (string.IsNullOrEmpty(text)) text = m_JoinRelayServerJoinCodeInputfield.PlaceHolder;
 			return text;
 		}
 	}
 	ushort CreateLocalHostPort {
 		get {
-			string text = m_CreateLocalHostPortInputfield.Value;
+			string text = m_CreateLocalHostPortInputfield.CurrentValue;
 			if (string.IsNullOrEmpty(text)) text = m_CreateLocalHostPortInputfield.PlaceHolder;
 			return ushort.TryParse(text, out ushort port) ? port : default;
 		}
 	}
 	string JoinLocalServerIPAddress {
 		get {
-			string text = m_JoinLocalServerIPAddressInputfield.Value;
+			string text = m_JoinLocalServerIPAddressInputfield.CurrentValue;
 			if (string.IsNullOrEmpty(text)) text = m_JoinLocalServerIPAddressInputfield.PlaceHolder;
 			return text;
 		}
 	}
 	ushort JoinLocalServerPort {
 		get {
-			string text = m_JoinLocalServerPortInputfield.Value;
+			string text = m_JoinLocalServerPortInputfield.CurrentValue;
 			if (string.IsNullOrEmpty(text)) text = m_JoinLocalServerPortInputfield.PlaceHolder;
 			return ushort.TryParse(text, out ushort port) ? port : default;
 		}
@@ -159,21 +159,29 @@ public class MultiplayerCanvas : BaseCanvas {
 	};
 
 	public void SwitchConnection(bool value) => LayoutIndex = value switch {
-		false => (LayoutIndex % 2 == 0) ? 0 : 1,
 		true  => (LayoutIndex % 2 == 0) ? 2 : 3,
+		false => (LayoutIndex % 2 == 0) ? 0 : 1,
 	};
 
 	public void CreateRelayHost() {
 		NetworkManager.CreateRelayHost(CreateRelayHostMaxPlayers);
+		UIManager.Back();
 	}
 	public void JoinRelayServer() {
 		NetworkManager.JoinRelayServer(JoinRelayServerJoinCode);
+		UIManager.Back();
 	}
 	public void CreateLocalHost() {
 		NetworkManager.CreateLocalHost(CreateLocalHostPort, CreateLocalHostMaxPlayers);
+		UIManager.Back();
 	}
 	public void JoinLocalServer() {
 		NetworkManager.JoinLocalServer(JoinLocalServerIPAddress, JoinLocalServerPort);
+		UIManager.Back();
+	}
+
+	public override void Back() {
+		UIManager.PopOverlay();
 	}
 
 

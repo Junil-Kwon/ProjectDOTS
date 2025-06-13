@@ -649,11 +649,11 @@ MonoBehaviour:
   m_HighlightImage: {fileID: 333906661178073311}
   m_RestoreButton: {fileID: 1676933648944077736}
   m_Elements:
-  - Option 1
-  - Option 2
-  - Option 3
-  m_Default: 0
-  m_OnStateUpdated:
+  - Element 1
+  - Element 2
+  - Element 3
+  m_DefaultValue: 0
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &5513277507497288067

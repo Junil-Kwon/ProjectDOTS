@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -25,7 +26,7 @@ public class ConfirmationCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Confirmation Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -51,8 +52,8 @@ public class ConfirmationCanvas : BaseCanvas {
 	[SerializeField] LocalizeStringEvent m_ConfirmButton;
 	[SerializeField] LocalizeStringEvent m_CancelButton;
 
-	readonly UnityEvent m_OnConfirmed = new();
-	readonly UnityEvent m_OnCancelled = new();
+	Action m_OnConfirmed;
+	Action m_OnCancelled;
 
 
 
@@ -75,50 +76,48 @@ public class ConfirmationCanvas : BaseCanvas {
 		set => m_CancelButton = value;
 	}
 
-	public string HeaderKey {
-		get => HeaderText.StringReference.GetLocalizedString();
-		set => HeaderText.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString HeaderReference {
+		get => HeaderText.StringReference;
+		set => HeaderText.StringReference = value;
 	}
-	public string ContentKey {
-		get => ContentText.StringReference.GetLocalizedString();
-		set => ContentText.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString ContentReference {
+		get => ContentText.StringReference;
+		set => ContentText.StringReference = value;
 	}
-	public string ConfirmKey {
-		get => ConfirmButton.StringReference.GetLocalizedString();
-		set => ConfirmButton.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString ConfirmReference {
+		get => ConfirmButton.StringReference;
+		set => ConfirmButton.StringReference = value;
 	}
-	public string CancelKey {
-		get => CancelButton.StringReference.GetLocalizedString();
-		set => CancelButton.StringReference.SetReference(UIManager.LocalizationTable, value);
+	public LocalizedString CancelReference {
+		get => CancelButton.StringReference;
+		set => CancelButton.StringReference = value;
 	}
 
-	public UnityEvent OnConfirmed => m_OnConfirmed;
-	public UnityEvent OnCancelled => m_OnCancelled;
+	public Action OnConfirmed {
+		get => m_OnConfirmed;
+		set => m_OnConfirmed = value;
+	}
+	public Action OnCancelled {
+		get => m_OnCancelled;
+		set => m_OnCancelled = value;
+	}
 
 
 
 	// Methods
 
-	public override void Hide(bool keepState = false) {
-		gameObject.SetActive(false);
-		if (!keepState) {
-			OnConfirmed.RemoveAllListeners();
-			OnCancelled.RemoveAllListeners();
-		}
-	}
+	public override void Back() => Cancel();
 
-	public void OnConfirmButtonClick() {
-		OnConfirmed.Invoke();
-		UIManager.Back();
+	public void Confirm() {
+		UIManager.PopOverlay();
+		OnConfirmed?.Invoke();
+		OnConfirmed = null;
+		OnCancelled = null;
 	}
-	public void OnCancelButtonClick() {
-		OnCancelled.Invoke();
-		UIManager.Back();
-	}
-
-	public void SetSelectedCancel() {
-		if (CancelButton.TryGetComponent(out Selectable cancel)) {
-			if (!UIManager.IsPointerClicked) UIManager.Selected = cancel;
-		}
+	public void Cancel() {
+		UIManager.PopOverlay();
+		OnCancelled?.Invoke();
+		OnConfirmed = null;
+		OnCancelled = null;
 	}
 }

@@ -56,9 +56,9 @@ public struct InputManagerBridge : IComponentData {
 
 	// Fields
 
-	public float  m_MouseSensitivity;
-	public uint   m_KeyPrev;
-	public uint   m_KeyNext;
+	public float m_MouseSensitivity;
+	public uint m_KeyPrev;
+	public uint m_KeyNext;
 	public float2 m_LookDirection;
 	public float2 m_MoveDirection;
 	public float2 m_PointPosition;
@@ -112,9 +112,9 @@ public struct InputManagerBridge : IComponentData {
 	bool GetKeyNext(KeyAction key) => (KeyNext & (1u << (int)key)) != 0u;
 	bool GetKeyPrev(KeyAction key) => (KeyPrev & (1u << (int)key)) != 0u;
 
-	public bool GetKey    (KeyAction key) =>  GetKeyNext(key);
-	public bool GetKeyDown(KeyAction key) =>  GetKeyNext(key) && !GetKeyPrev(key);
-	public bool GetKeyUp  (KeyAction key) => !GetKeyNext(key) &&  GetKeyPrev(key);
+	public bool GetKey(KeyAction key) => GetKeyNext(key);
+	public bool GetKeyDown(KeyAction key) => GetKeyNext(key) && !GetKeyPrev(key);
+	public bool GetKeyUp(KeyAction key) => !GetKeyNext(key) && GetKeyPrev(key);
 }
 
 

@@ -31,17 +31,17 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			base.OnInspectorGUI();
 			Space();
 			LabelField("Selector", EditorStyles.boldLabel);
-			I.Template      = ObjectField("Template",       I.Template);
+			I.Template = ObjectField("Template", I.Template);
 			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 			Space();
 			PropertyField("m_Elements");
 			Space();
-			I.Default     = IntField("Default",      I.Default);
-			I.Value       = IntField("Value",        I.Value);
-			I.MultiSelect = Toggle  ("Multi Select", I.MultiSelect);
+			I.DefaultValue = IntField("Default Value", I.DefaultValue);
+			I.CurrentValue = IntField("Current Value", I.CurrentValue);
+			I.MultiSelect = Toggle("Multi Select", I.MultiSelect);
 			Space();
-			PropertyField("m_OnStateUpdated");
 			PropertyField("m_OnValueChanged");
+			PropertyField("m_OnRefreshed");
 			Space();
 
 			End();
@@ -54,16 +54,16 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	// Fields
 
 	[SerializeField] RectTransform m_Template;
-	[SerializeField] GameObject    m_RestoreButton;
+	[SerializeField] GameObject m_RestoreButton;
 
-	[SerializeField] string[] m_Elements = new[] { "Option 1", "Option 2", "Option 3", };
+	[SerializeField] string[] m_Elements = new[] { "Element 1", "Element 2", "Element 3", };
 
-	[SerializeField] int  m_Default;
-	[SerializeField] int  m_Value;
+	[SerializeField] int m_DefaultValue;
+	[SerializeField] int m_CurrentValue;
 	[SerializeField] bool m_MultiSelect;
 
-	[SerializeField] UnityEvent<CustomSelector> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent<int>            m_OnValueChanged = new();
+	[SerializeField] UnityEvent<int> m_OnValueChanged = new();
+	[SerializeField] UnityEvent<CustomSelector> m_OnRefreshed = new();
 
 
 
@@ -85,35 +85,35 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		set {
 			if (m_Elements != value) {
 				m_Elements = value;
-				Default = Default;
-				Value = Value;
+				DefaultValue = DefaultValue;
+				CurrentValue = CurrentValue;
 				Refresh();
 			}
 		}
 	}
 
-	public int Default {
-		get => m_Default;
+	public int DefaultValue {
+		get => m_DefaultValue;
 		set {
 			value = MultiSelect switch {
+				true  => Mathf.Max(0, Mathf.Min(value, (1 << Elements.Length) - 1)),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
-				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 			};
-			if (m_Default != value) {
-				m_Default = value;
-				Value = value;
+			if (m_DefaultValue != value) {
+				m_DefaultValue = value;
+				CurrentValue = value;
 			}
 		}
 	}
-	public int Value {
-		get => m_Value;
+	public int CurrentValue {
+		get => m_CurrentValue;
 		set {
 			value = MultiSelect switch {
+				true  => Mathf.Max(0, Mathf.Min(value, (1 << Elements.Length) - 1)),
 				false => Mathf.Max(0, Mathf.Min(value, Elements.Length - 1)),
-				true  => Mathf.Clamp(value, 0, (1 << Elements.Length) - 1),
 			};
-			if (m_Value != value) {
-				m_Value = value;
+			if (m_CurrentValue != value) {
+				m_CurrentValue = value;
 				OnValueChanged.Invoke(value);
 				Refresh();
 			}
@@ -124,14 +124,15 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		set {
 			if (m_MultiSelect != value) {
 				m_MultiSelect = value;
-				Value = Default = 0;
+				DefaultValue = 0;
+				CurrentValue = 0;
 				Refresh();
 			}
 		}
 	}
 
-	public UnityEvent<CustomSelector> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<int>            OnValueChanged => m_OnValueChanged;
+	public UnityEvent<int> OnValueChanged => m_OnValueChanged;
+	public UnityEvent<CustomSelector> OnRefreshed => m_OnRefreshed;
 
 
 
@@ -139,11 +140,11 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 
 	bool TryGetTemplateIndex(out int index) {
 		if (Template) for (int i = 0; i < transform.childCount; i++) {
-			if (transform.GetChild(i).gameObject == Template.gameObject) {
-				index = i;
-				return true;
+				if (transform.GetChild(i).gameObject == Template.gameObject) {
+					index = i;
+					return true;
+				}
 			}
-		}
 		index = -1;
 		return false;
 	}
@@ -156,10 +157,10 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			Instantiate(Template, transform).gameObject.SetActive(true);
 		}
 		for (int i = 0; i < Elements.Length; i++) {
-			var width = (transform as RectTransform).rect.width / Elements.Length;
 			var child = transform.GetChild(templateIndex + 1 + i) as RectTransform;
-			var min = i * width;
-			var max = (Elements.Length - 1 - i) * -width;
+			float width = (transform as RectTransform).rect.width / Elements.Length;
+			float min = i * width;
+			float max = (Elements.Length - 1 - i) * -width;
 			child.offsetMin = new Vector2(min, 0f);
 			child.offsetMax = new Vector2(max, 0f);
 		}
@@ -171,36 +172,34 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			for (int i = 0; i < Elements.Length; i++) {
 				var child = transform.GetChild(templateIndex + 1 + i);
 				if (child.TryGetComponent(out CustomToggle toggle)) {
-					toggle.interactable = interactable && (MultiSelect || i != Value);
-					toggle.Value = MultiSelect switch {
-						false => Value == i,
-						true  => (Value & (1 << i)) != 0,
+					toggle.interactable = interactable && (MultiSelect || i != CurrentValue);
+					toggle.CurrentValue = MultiSelect switch {
+						true  => (CurrentValue & (1 << i)) != 0,
+						false => CurrentValue == i,
 					};
-					if (Application.isPlaying) {
-						int index = i;
-						toggle.OnValueChanged.RemoveAllListeners();
-						toggle.OnValueChanged.AddListener(_ => {
-							if (!MultiSelect && !UIManager.IsPointerClicked) UIManager.Selected = this;
-						});
-						toggle.OnValueChanged.AddListener(MultiSelect switch {
-							true => value => Value = value switch {
-								false => Value & ~(1 << index),
-								true  => Value |  (1 << index),
-							},
-							false => value => {
-								if (value) Value = index;
-							},
-						});
-					}
+					int index = i;
+					toggle.OnValueChanged.RemoveAllListeners();
+					toggle.OnValueChanged.AddListener(MultiSelect switch {
+						true => value => {
+							CurrentValue = value switch {
+								true  => CurrentValue |  (1 << index),
+								false => CurrentValue & ~(1 << index),
+							};
+						},
+						false => value => {
+							UIManager.Selected = this;
+							if (value) CurrentValue = index;
+						},
+					});
 				}
 			}
 		}
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
-		OnStateUpdated.Invoke(this);
+		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
+		OnRefreshed.Invoke(this);
 	}
 
 	public void Restore() {
-		if (RestoreButton) Value = Default;
+		if (RestoreButton) CurrentValue = DefaultValue;
 	}
 
 

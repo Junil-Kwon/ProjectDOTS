@@ -22,7 +22,7 @@ public class FadeCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Fade Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();

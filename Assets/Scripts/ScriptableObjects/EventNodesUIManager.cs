@@ -62,7 +62,7 @@ public class DialogueEvent : BaseEvent {
 			var root = new VisualElement();
 			mainContainer.Add(root);
 			for (int i = 0; i < I.directives.Count; i++) {
-				var index = i;
+				int index = i;
 
 				var directive = new TextField() { value = I.directives[index], multiline = true };
 				directive.textEdition.placeholder = "Directive";
@@ -106,7 +106,7 @@ public class DialogueEvent : BaseEvent {
 	// Fields
 
 	public List<string> directives = new() { "", };
-	public List<string> keys       = new() { "", };
+	public List<string> keys = new() { "", };
 
 
 
@@ -146,7 +146,7 @@ public class BranchEvent : BaseEvent {
 			var root = new VisualElement();
 			mainContainer.Add(root);
 			for (int i = 0; i < I.keys.Count; i++) {
-				var index = i;
+				int index = i;
 
 				var element = new VisualElement();
 				element.style.flexDirection = FlexDirection.Row;
@@ -215,7 +215,7 @@ public class BranchEvent : BaseEvent {
 		list ??= new();
 		list.Clear();
 		// Get Index from UI Manager, User Selection
-		var index = 0;
+		int index = 0;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -255,7 +255,7 @@ public class FadeInEvent : BaseEvent {
 				root.Add(element);
 			}
 			var duration = new FloatField("Duration") { value = I.duration, };
-			var width = DefaultNodeWidth * 0.5f - 5f;
+			float width = DefaultNodeWidth * 0.5f - 5f;
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = width;
 			duration.ElementAt(1).style.minWidth = duration.ElementAt(1).style.maxWidth = width;
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);
@@ -315,7 +315,7 @@ public class FadeOutEvent : BaseEvent {
 				root.Add(element);
 			}
 			var duration = new FloatField("Duration") { value = I.duration, };
-			var width = DefaultNodeWidth * 0.5f - 5f;
+			float width = DefaultNodeWidth * 0.5f - 5f;
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = width;
 			duration.ElementAt(1).style.minWidth = duration.ElementAt(1).style.maxWidth = width;
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);

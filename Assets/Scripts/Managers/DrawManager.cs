@@ -1104,14 +1104,14 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 	// Lifecycle
 
 	#if UNITY_EDITOR
-	void OnEnable () {
+	void OnEnable() {
 		if (AutoDraw) ClearEditorMeshAll();
 	}
 	#endif
 
 	#if UNITY_EDITOR
 	void OnDisable() {
-		if (AutoDraw) DrawEditorMeshAll ();
+		if (AutoDraw) DrawEditorMeshAll();
 	}
 	#endif
 }

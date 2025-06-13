@@ -12,7 +12,7 @@ using UnityEditor;
 
 
 
-// ━
+// Texture Atlas Data
 
 [Serializable]
 public struct AtlasData {
@@ -45,11 +45,11 @@ public class AtlasMapSO : ScriptableObject {
 			Space();
 			LabelField("Atlas Map", EditorStyles.boldLabel);
 			I.PixelPerUnit = FloatField("Pixel Per Unit", I.PixelPerUnit);
-			I.Padding      = IntField  ("Padding",        I.Padding);
-			I.MaxSize      = IntField  ("Max Size",       I.MaxSize);
+			I.Padding = IntField("Padding",  I.Padding);
+			I.MaxSize = IntField("Max Size", I.MaxSize);
 			BeginHorizontal();
 			PrefixLabel("Generate Atlas Map");
-			if (Button("Clear"   )) I.ClearAtlasMap();
+			if (Button("Clear"))    I.ClearAtlasMap();
 			if (Button("Generate")) I.GenerateAtlasMap();
 			EndHorizontal();
 			Space();
@@ -80,9 +80,9 @@ public class AtlasMapSO : ScriptableObject {
 
 	[Serializable]
 	public class DataSet {
-		public string    SourceTexture = "Assets/Textures";
+		public string SourceTexture = "Assets/Textures";
 		public Texture2D TargetTexture = null;
-		public Color32   FallbackColor = Color.clear;
+		public Color32 FallbackColor = Color.clear;
 	}
 
 
@@ -91,9 +91,9 @@ public class AtlasMapSO : ScriptableObject {
 
 	[SerializeField] DataSet[] m_Data = new DataSet[] { new() };
 
-	[SerializeField] float   m_PixelPerUnit = 16f;
-	[SerializeField] int     m_Padding = 2;
-	[SerializeField] int     m_MaxSize = 16384;
+	[SerializeField] float m_PixelPerUnit = 16f;
+	[SerializeField] int m_Padding = 2;
+	[SerializeField] int m_MaxSize = 16384;
 	[SerializeField] HashMap m_AtlasMap = new();
 
 	bool m_IsDirty = false;
@@ -245,12 +245,12 @@ public class AtlasMapSO : ScriptableObject {
 				}
 			}
 
-			int width  = tempN.Select(t => t.width) .Max();
+			int width  = tempN.Select(t => t.width).Max();
 			int height = tempN.Select(t => t.height).Max();
 			for (int n = 0; n < N; n++) tempN[n] = ResizeTexture(tempN[n], width, height);
 			var merged = CreateTexture(width, height);
 			for (int n = 0; n < N; n++) {
-				var mPixels = merged  .GetPixels(0, 0, width, height);
+				var mPixels = merged.GetPixels(0, 0, width, height);
 				var tPixels = tempN[n].GetPixels(0, 0, width, height);
 				for (int i = 0; i < mPixels.Length; i++) mPixels[i] += tPixels[i];
 				merged.SetPixels(mPixels);
@@ -263,16 +263,18 @@ public class AtlasMapSO : ScriptableObject {
 			for (int y = 0; y < merged.height; y++) {
 				for (int x = 0; x < merged.width; x++) {
 					if (0f < pixels[x + y * merged.width].a) {
-						xmin = math.min(xmin, x);
+						xmin = math.min(x, xmin);
 						xmax = math.max(x, xmax);
-						ymin = math.min(ymin, y);
+						ymin = math.min(y, ymin);
 						ymax = math.max(y, ymax);
 					}
 				}
 			}
 			if (xmax < xmin || ymax < ymin) {
-				xmin = 0; xmax = 0;
-				ymin = 0; ymax = 0;
+				xmin = 0;
+				xmax = 0;
+				ymin = 0;
+				ymax = 0;
 			}
 			scaleM[m].x = xmax - xmin + 1;
 			scaleM[m].y = ymax - ymin + 1;
@@ -298,10 +300,10 @@ public class AtlasMapSO : ScriptableObject {
 
 			if (n == 0) {
 				for (int m = 0; m < M; m++) rectM[m] = rects[m];
-				foreach (var i in index2list) foreach (var j in i.Value) {
+				foreach (var i in index2list) foreach (int j in i.Value) {
 					scaleM[j] = scaleM[i.Key];
 					pivotM[j] = pivotM[i.Key];
-					rectM [j] = rectM [i.Key];
+					rectM[j]  = rectM[i.Key];
 				}
 			}
 		}
@@ -309,8 +311,8 @@ public class AtlasMapSO : ScriptableObject {
 		var inv = 1f / PixelPerUnit;
 		for (int m = 0; m < M; m++) {
 			AtlasMap.Add(sourceNM[0][m].name, new AtlasData {
-				scale  = scaleM[m] * inv,
-				pivot  = pivotM[m] * inv,
+				scale = scaleM[m] * inv,
+				pivot = pivotM[m] * inv,
 				tiling = new(rectM[m].width, rectM[m].height),
 				offset = new(rectM[m].x,     rectM[m].y),
 			});

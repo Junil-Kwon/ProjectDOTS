@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEngine.Events;
+using UnityEngine.Localization;
+using System;
 using System.Collections.Generic;
 
 #if UNITY_EDITOR
@@ -44,46 +45,45 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	public const string LocalizationTable = "UITable";
 
 	public static readonly Vector2Int[] ScreenResolution = new Vector2Int[] {
-		new( 640,  360),
-		new(1280,  720),
+		new(0640, 0360),
+		new(1280, 0720),
 		new(1920, 1080),
 		new(2560, 1440),
 		new(3840, 2160),
 	};
 
-	const string DisplayDebugScreenKey = "DisplayDebugScreen";
-	const bool DisplayDebugScreenValue = false;
+	const string DebugScreenKey = "DebugScreen";
+	const bool DebugScreenValue = false;
 
 
 
 	// Fields
 
-	TitleCanvas        m_TitleCanvas;
-	GameCanvas         m_GameCanvas;
-	MultiplayerCanvas  m_MultiplayerCanvas;
-	DialogueCanvas     m_DialogueCanvas;
-	MenuCanvas         m_MenuCanvas;
-	AchievementCanvas  m_AchievementCanvas;
-	SettingsCanvas     m_SettingsCanvas;
+	MainMenuCanvas m_MainMenuCanvas;
+	GameCanvas m_GameCanvas;
+	MultiplayerCanvas m_MultiplayerCanvas;
+	DialogueCanvas m_DialogueCanvas;
+	ChatCanvas m_ChatCanvas;
+	MenuCanvas m_MenuCanvas;
+	AchievementCanvas m_AchievementCanvas;
+	SettingsCanvas m_SettingsCanvas;
 	ConfirmationCanvas m_ConfirmationCanvas;
-	AlertCanvas        m_AlertCanvas;
-	FadeCanvas         m_FadeCanvas;
-	DebugCanvas        m_DebugCanvas;
+	AlertCanvas m_AlertCanvas;
+	FadeCanvas m_FadeCanvas;
+	DebugCanvas m_DebugCanvas;
 
 	BaseCanvas m_MainCanvas;
-	readonly Stack<BaseCanvas> m_OverlayCanvas = new();
-	readonly UnityEvent m_BackEvent = new();
-	bool m_IsPointerClicked;
+	Stack<BaseCanvas> m_OverlayCanvas = new();
 
-	bool m_DisplayDebugScreen;
+	bool m_DebugScreen;
 
 
 
 	// Properties
 
-	static TitleCanvas TitleCanvas =>
-		Instance.m_TitleCanvas || TryGetComponentInChildren(out Instance.m_TitleCanvas) ?
-		Instance.m_TitleCanvas : null;
+	static MainMenuCanvas MainMenuCanvas =>
+		Instance.m_MainMenuCanvas || TryGetComponentInChildren(out Instance.m_MainMenuCanvas) ?
+		Instance.m_MainMenuCanvas : null;
 
 	static GameCanvas GameCanvas =>
 		Instance.m_GameCanvas || TryGetComponentInChildren(out Instance.m_GameCanvas) ?
@@ -96,6 +96,10 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	static DialogueCanvas DialogueCanvas =>
 		Instance.m_DialogueCanvas || TryGetComponentInChildren(out Instance.m_DialogueCanvas) ?
 		Instance.m_DialogueCanvas : null;
+
+	static ChatCanvas ChatCanvas =>
+		Instance.m_ChatCanvas || TryGetComponentInChildren(out Instance.m_ChatCanvas) ?
+		Instance.m_ChatCanvas : null;
 
 	static MenuCanvas MenuCanvas =>
 		Instance.m_MenuCanvas || TryGetComponentInChildren(out Instance.m_MenuCanvas) ?
@@ -132,18 +136,13 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		set => Instance.m_MainCanvas = value;
 	}
 	static Stack<BaseCanvas> OverlayCanvas => Instance.m_OverlayCanvas;
+	public static BaseCanvas CurrentCanvas =>
+		OverlayCanvas.TryPeek(out var overlayCanvas) ?
+		overlayCanvas : MainCanvas;
 
-	public static BaseCanvas CurrentCanvas {
-		get => OverlayCanvas.TryPeek(out var overlayCanvas) ? overlayCanvas : MainCanvas;
-	}
 	public static bool IsUIActive => CurrentCanvas != GameCanvas;
 
-	public static UnityEvent OnBackCompleted => Instance.m_BackEvent;
 
-	public static bool IsPointerClicked {
-		get => Instance.m_IsPointerClicked;
-		set => Instance.m_IsPointerClicked = value;
-	}
 
 	static GameObject Temp {
 		get => EventSystem.current.currentSelectedGameObject;
@@ -156,12 +155,12 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 
 
-	public static bool DisplayDebugScreen {
-		get => Instance.m_DisplayDebugScreen == default ?
-			Instance.m_DisplayDebugScreen = PlayerPrefs.GetInt(DisplayDebugScreenKey, DisplayDebugScreenValue ? 1 : 0) != 0 :
-			Instance.m_DisplayDebugScreen;
+	public static bool DebugScreen {
+		get => Instance.m_DebugScreen == default ?
+			Instance.m_DebugScreen = PlayerPrefs.GetInt(DebugScreenKey, DebugScreenValue ? 1 : 0) != 0 :
+			Instance.m_DebugScreen;
 		set {
-			PlayerPrefs.SetInt(DisplayDebugScreenKey, (Instance.m_DisplayDebugScreen = value) ? 1 : 0);
+			PlayerPrefs.SetInt(DebugScreenKey, (Instance.m_DebugScreen = value) ? 1 : 0);
 			SetDebugScreen(value);
 		}
 	}
@@ -177,46 +176,22 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		}
 		MainCanvas = null;
 		OverlayCanvas.Clear();
-		OnBackCompleted.RemoveAllListeners();
-		Selected = null;
 	}
 
-	public static void Back() {
-		bool popOverlay = false;
-		switch (CurrentCanvas) {
-			case global::TitleCanvas:
-				ConfirmQuitGame();
-				break;
-			case global::GameCanvas:
-				OpenMenu();
-				break;
-			case global::ConfirmationCanvas:
-				ConfirmationCanvas.OnCancelled.Invoke();
-				popOverlay = true;
-				break;
-			case global::AlertCanvas:
-				AlertCanvas.OnClosed.Invoke();
-				popOverlay = true;
-				break;
-			default:
-				popOverlay = true;
-				break;
-		}
-		if (popOverlay) {
-			if (OverlayCanvas.TryPop (out var next)) next.Hide();
-			if (OverlayCanvas.TryPeek(out var prev)) prev.Show();
-			OnCanvasChanged();
-		}
-		OnBackCompleted.Invoke();
-		OnBackCompleted.RemoveAllListeners();
+	public static void Back() => CurrentCanvas?.Back();
+
+	public static void PopOverlay() {
+		if (OverlayCanvas.TryPop(out var next)) next.Hide();
+		if (OverlayCanvas.TryPeek(out var prev)) prev.Show();
+		OnCanvasChanged();
 	}
 
 
 
 	// Canvas Methods
 
-	public static void OpenTitle() => OpenMainCanvas(TitleCanvas);
-	public static void OpenGame()  => OpenMainCanvas(GameCanvas);
+	public static void OpenMainMenu() => OpenMainCanvas(MainMenuCanvas);
+	public static void OpenGame()     => OpenMainCanvas(GameCanvas);
 
 	static void OpenMainCanvas(BaseCanvas mainCanvas) {
 		if (mainCanvas == CurrentCanvas) return;
@@ -229,6 +204,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	public static void OpenMultiplayer()  => OpenOverlayCanvas(MultiplayerCanvas);
 	public static void OpenDialogue()     => OpenOverlayCanvas(DialogueCanvas);
+	public static void OpenChat()         => OpenOverlayCanvas(ChatCanvas);
 	public static void OpenMenu()         => OpenOverlayCanvas(MenuCanvas);
 	public static void OpenAchievement()  => OpenOverlayCanvas(AchievementCanvas);
 	public static void OpenSettings()     => OpenOverlayCanvas(SettingsCanvas);
@@ -259,59 +235,48 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Confirmation Canvas Methods
 
-	public static UnityEvent OnConfirmationConfirmed => ConfirmationCanvas.OnConfirmed;
-	public static UnityEvent OnConfirmationCancelled => ConfirmationCanvas.OnCancelled;
-
-	public static void ConfirmReturnToLobby() {
-		OpenConfirmation();
-		ConfirmationCanvas.HeaderKey  = "Confirmation_ReturnToLobbyHeader";
-		ConfirmationCanvas.ContentKey = "Confirmation_ReturnToLobbyContent";
-		ConfirmationCanvas.ConfirmKey = "Confirmation_ReturnToLobbyConfirm";
-		ConfirmationCanvas.CancelKey  = "Confirmation_ReturnToLobbyCancel";
-		ConfirmationCanvas.OnConfirmed.AddListener(() => {
-			NetworkManager.Connect();
-			OnBackCompleted.AddListener(() => OpenGame());
-		});
+	public static LocalizedString ConfirmationHeaderReference {
+		get => ConfirmationCanvas.HeaderReference;
+		set => ConfirmationCanvas.HeaderReference = value;
+	}
+	public static LocalizedString ConfirmationContentReference {
+		get => ConfirmationCanvas.ContentReference;
+		set => ConfirmationCanvas.ContentReference = value;
+	}
+	public static LocalizedString ConfirmationConfirmReference {
+		get => ConfirmationCanvas.ConfirmReference;
+		set => ConfirmationCanvas.ConfirmReference = value;
+	}
+	public static LocalizedString ConfirmationCancelReference {
+		get => ConfirmationCanvas.CancelReference;
+		set => ConfirmationCanvas.CancelReference = value;
 	}
 
-	public static void ConfirmQuitGame() {
-		OpenConfirmation();
-		ConfirmationCanvas.HeaderKey  = "Confirmation_QuitGameHeader";
-		ConfirmationCanvas.ContentKey = "Confirmation_QuitGameContent";
-		ConfirmationCanvas.ConfirmKey = "Confirmation_QuitGameConfirm";
-		ConfirmationCanvas.CancelKey  = "Confirmation_QuitGameCancel";
-		#if UNITY_EDITOR
-		ConfirmationCanvas.OnConfirmed.AddListener(() => EditorApplication.isPlaying = false);
-		#else
-		ConfirmationCanvas.OnConfirmed.AddListener(() => Application.Quit());
-		#endif
+	public static Action OnConfirmationConfirmed {
+		get => ConfirmationCanvas.OnConfirmed;
+		set => ConfirmationCanvas.OnConfirmed = value;
 	}
-
-	public static void ConfirmResetAllData() {
-		OpenConfirmation();
-		ConfirmationCanvas.SetSelectedCancel();
-		ConfirmationCanvas.HeaderKey  = "Confirmation_ResetAllDataHeader";
-		ConfirmationCanvas.ContentKey = "Confirmation_ResetAllDataContent";
-		ConfirmationCanvas.ConfirmKey = "Confirmation_ResetAllDataConfirm";
-		ConfirmationCanvas.CancelKey  = "Confirmation_ResetAllDataCancel";
+	public static Action OnConfirmationCancelled {
+		get => ConfirmationCanvas.OnCancelled;
+		set => ConfirmationCanvas.OnCancelled = value;
 	}
 
 
 
 	// Alert Canvas Methods
 
-	public static UnityEvent OnAlertClosed => AlertCanvas.OnClosed;
-
-	public static void AlertServerConnectionLost() {
-		OpenAlert();
-		AlertCanvas.ContentKey = "Alert_ServerConnectionLostContent";
-		AlertCanvas.CloseKey   = "Alert_ServerConnectionLostClose";
+	public static LocalizedString AlertContentReference {
+		get => AlertCanvas.ContentReference;
+		set => AlertCanvas.ContentReference = value;
+	}
+	public static LocalizedString AlertCloseReference {
+		get => AlertCanvas.CloseReference;
+		set => AlertCanvas.CloseReference = value;
 	}
 
-	public static void AlertAllDataReset() {
-		OpenAlert();
-		AlertCanvas.ContentKey = "Alert_AllDataResetContent";
-		AlertCanvas.CloseKey   = "Alert_AllDataResetClose";
+	public static Action OnAlertClosed {
+		get => AlertCanvas.OnClosed;
+		set => AlertCanvas.OnClosed = value;
 	}
 
 
@@ -330,11 +295,11 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	// Debug Canvas Methods
 
-	public static void ShowDebugScreen() => DebugCanvas.gameObject.SetActive(true);
-	public static void HideDebugScreen() => DebugCanvas.gameObject.SetActive(false);
-
 	public static bool GetDebugScreen() => DebugCanvas.gameObject.activeSelf;
 	public static void SetDebugScreen(bool value) => DebugCanvas.gameObject.SetActive(value);
+
+	public static void ShowDebugScreen() => SetDebugScreen(true);
+	public static void HideDebugScreen() => SetDebugScreen(false);
 
 
 
@@ -342,22 +307,10 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	void OnEnable() {
 		Initialize();
-		OpenTitle();
+		OpenMainMenu();
 	}
 
 	void Start() {
-		DisplayDebugScreen = DisplayDebugScreen;
-	}
-
-	void Update() {
-		if (IsUIActive) {
-			if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
-			if (InputManager.Navigate != Vector2.zero && !Selected) {
-				Selected = CurrentCanvas.FirstSelected;
-			}
-		} else {
-			if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
-			IsPointerClicked = true;
-		}
+		DebugScreen = DebugScreen;
 	}
 }

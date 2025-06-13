@@ -150,7 +150,7 @@ public class EventGraphView : GraphView {
 		this.AddManipulator(new ContentDragger());
 		this.AddManipulator(new SelectionDragger());
 		this.AddManipulator(new RectangleSelector());
-		contentZoomer.minScale =  0.1f;
+		contentZoomer.minScale = 00.1f;
 		contentZoomer.maxScale = 10.0f;
 
 		var grid = new GridBackground();
@@ -245,9 +245,9 @@ public class EventGraphView : GraphView {
 					var iPort = node_iPorts.IndexOf(edge.input);
 					var oPort = prev_oPorts.IndexOf(edge.output);
 					data.prev.Add(new BaseEvent.Connection {
-						data      = prev.target,
-						iPort     = iPort,
-						oPort     = oPort,
+						data = prev.target,
+						iPort = iPort,
+						oPort = oPort,
 						iPortType = (PortType)node_iPorts[iPort].userData,
 						oPortType = (PortType)prev_oPorts[oPort].userData,
 					});
@@ -260,9 +260,9 @@ public class EventGraphView : GraphView {
 					var iPort = next_iPorts.IndexOf(edge.input);
 					var oPort = node_oPorts.IndexOf(edge.output);
 					data.next.Add(new BaseEvent.Connection {
-						data      = next.target,
-						iPort     = iPort,
-						oPort     = oPort,
+						data = next.target,
+						iPort = iPort,
+						oPort = oPort,
 						iPortType = (PortType)next_iPorts[iPort].userData,
 						oPortType = (PortType)node_oPorts[oPort].userData,
 					});
@@ -312,9 +312,9 @@ public class EventGraphView : GraphView {
 			foreach (var connection in data.prev) {
 				if (connection.data == null) continue;
 				prev.Add(new() {
-					data      = cache[connection.data.guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
+					data = cache[connection.data.guid].target,
+					iPort = connection.iPort,
+					oPort = connection.oPort,
 					iPortType = connection.iPortType,
 					oPortType = connection.oPortType,
 				});
@@ -324,9 +324,9 @@ public class EventGraphView : GraphView {
 				foreach (var connection in data.next) {
 				if (connection.data == null) continue;
 				next.Add(new() {
-					data      = cache[connection.data.guid].target,
-					iPort     = connection.iPort,
-					oPort     = connection.oPort,
+					data = cache[connection.data.guid].target,
+					iPort = connection.iPort,
+					oPort = connection.oPort,
 					iPortType = connection.iPortType,
 					oPortType = connection.oPortType,
 				});

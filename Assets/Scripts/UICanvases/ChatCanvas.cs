@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Components;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,22 +10,22 @@ using UnityEditor;
 
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Title Canvas
+// Chat Canvas
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Title Canvas")]
-public class TitleCanvas : BaseCanvas {
+[AddComponentMenu("UI/Chat Canvas")]
+public class ChatCanvas : BaseCanvas {
 
 	// Editor
 
 	#if UNITY_EDITOR
-	[CustomEditor(typeof(TitleCanvas))]
-	class TitleCanvasEditor : EditorExtensions {
-		TitleCanvas I => target as TitleCanvas;
+	[CustomEditor(typeof(ChatCanvas))]
+	class ChatCanvasEditor : EditorExtensions {
+		ChatCanvas I => target as ChatCanvas;
 		public override void OnInspectorGUI() {
-			Begin("Title Canvas");
+			Begin("Chat Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -31,5 +34,4 @@ public class TitleCanvas : BaseCanvas {
 		}
 	}
 	#endif
-
 }

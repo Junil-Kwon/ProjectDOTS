@@ -32,26 +32,26 @@ public class SetFocusDistanceEvent : BaseEvent {
 		public override void ConstructData() {
 			var distance = new VisualElement();
 			distance.style.flexDirection = FlexDirection.Row;
-			var label  = new Label("Distance");
+			var label = new Label("Distance");
 			var slider = new Slider(0f, 255f) { value = I.distance };
-			var value  = new FloatField()     { value = I.distance };
-			label .style.marginTop  = 2f;
-			label .style.marginLeft = 3f;
-			label .style.minWidth = label .style.maxWidth = 56f;
+			var value = new FloatField() { value = I.distance };
+			label.style.marginTop = 2f;
+			label.style.marginLeft = 3f;
+			label.style.minWidth = label.style.maxWidth = 56f;
 			slider.style.minWidth = slider.style.maxWidth = ExtendedNodeWidth - 17f - 56f - 40f;
-			value .style.minWidth = value .style.maxWidth = 40f;
-			slider.RegisterValueChangedCallback(evt => I.distance = value .value = evt.newValue);
-			value .RegisterValueChangedCallback(evt => I.distance = slider.value = evt.newValue);
+			value.style.minWidth = value.style.maxWidth = 40f;
+			slider.RegisterValueChangedCallback(evt => I.distance = value.value = evt.newValue);
+			value.RegisterValueChangedCallback(evt => I.distance = slider.value = evt.newValue);
 			distance.Add(label);
 			distance.Add(slider);
 			distance.Add(value);
 
 			var duration = new FloatField("Duration") { value = I.duration };
-			var curve    = new CurveField("Curve"   ) { value = I.curve    };
+			var curve = new CurveField("Curve") { value = I.curve };
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = 56f;
-			curve   .labelElement.style.minWidth = curve   .labelElement.style.maxWidth = 56f;
+			curve.labelElement.style.minWidth = curve.labelElement.style.maxWidth = 56f;
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);
-			curve   .RegisterValueChangedCallback(evt => I.curve    = evt.newValue);
+			curve.RegisterValueChangedCallback(evt => I.curve = evt.newValue);
 			mainContainer.Add(distance);
 			mainContainer.Add(duration);
 			mainContainer.Add(curve);
@@ -64,7 +64,7 @@ public class SetFocusDistanceEvent : BaseEvent {
 	// Fields
 
 	public float distance = 48f;
-	public float duration =  0f;
+	public float duration = 0f;
 	public AnimationCurve curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
 
@@ -103,25 +103,25 @@ public class SetCameraProjectionEvent : BaseEvent {
 		public override void ConstructData() {
 			var projection = new VisualElement();
 			projection.style.flexDirection = FlexDirection.Row;
-			var label  = new Label("Projection");
+			var label = new Label("Projection");
 			var slider = new Slider(0f, 1f) { value = I.value };
-			var value  = new FloatField()   { value = I.value };
-			label .style.marginTop  = 2f;
-			label .style.marginLeft = 3f;
-			label .style.minWidth = label .style.maxWidth = 56f;
+			var value = new FloatField() { value = I.value };
+			label.style.marginTop = 2f;
+			label.style.marginLeft = 3f;
+			label.style.minWidth = label.style.maxWidth = 56f;
 			slider.style.minWidth = slider.style.maxWidth = ExtendedNodeWidth - 17f - 56f - 40f;
-			value .style.minWidth = value .style.maxWidth = 40f;
-			slider.RegisterValueChangedCallback(evt => I.value = value .value = evt.newValue);
-			value .RegisterValueChangedCallback(evt => I.value = slider.value = evt.newValue);
+			value.style.minWidth = value.style.maxWidth = 40f;
+			slider.RegisterValueChangedCallback(evt => I.value = value.value = evt.newValue);
+			value.RegisterValueChangedCallback(evt => I.value = slider.value = evt.newValue);
 			projection.Add(label);
 			projection.Add(slider);
 			projection.Add(value);
 
 			var description = new VisualElement();
 			description.style.flexDirection = FlexDirection.Row;
-			var persp = new Label(" < Perspective" );
+			var persp = new Label(" < Perspective");
 			var ortho = new Label("Orthographic > ");
-			persp.style.marginLeft  = 3f;
+			persp.style.marginLeft = 3f;
 			ortho.style.marginRight = 3f;
 			persp.style.minWidth = persp.style.maxWidth = ExtendedNodeWidth * 0.5f - 6f;
 			ortho.style.minWidth = ortho.style.maxWidth = ExtendedNodeWidth * 0.5f - 6f;
@@ -133,11 +133,11 @@ public class SetCameraProjectionEvent : BaseEvent {
 			description.Add(ortho);
 
 			var duration = new FloatField("Duration") { value = I.duration };
-			var curve    = new CurveField("Curve"   ) { value = I.curve    };
+			var curve = new CurveField("Curve") { value = I.curve };
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = 56f;
-			curve   .labelElement.style.minWidth = curve   .labelElement.style.maxWidth = 56f;
+			curve.labelElement.style.minWidth = curve.labelElement.style.maxWidth = 56f;
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);
-			curve   .RegisterValueChangedCallback(evt => I.curve    = evt.newValue);
+			curve.RegisterValueChangedCallback(evt => I.curve = evt.newValue);
 			mainContainer.Add(projection);
 			mainContainer.Add(description);
 			mainContainer.Add(duration);
@@ -150,7 +150,7 @@ public class SetCameraProjectionEvent : BaseEvent {
 
 	// Fields
 
-	public float value    = 1f;
+	public float value = 1f;
 	public float duration = 0f;
 	public AnimationCurve curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
@@ -193,7 +193,7 @@ public class LockCameraPositionEvent : BaseEvent {
 			mainContainer.Add(axis);
 			var label = new Label("Axis");
 			label.style.marginLeft = 3f;
-			label.style.marginTop  = 2f;
+			label.style.marginTop = 2f;
 			label.style.width = 60f;
 			axis.Add(label);
 			var xlabel = new Label("X");
@@ -272,7 +272,7 @@ public class LockCameraRotationEvent : BaseEvent {
 			mainContainer.Add(axis);
 			var label = new Label("Axis");
 			label.style.marginLeft = 3f;
-			label.style.marginTop  = 2f;
+			label.style.marginTop = 2f;
 			label.style.width = 60f;
 			axis.Add(label);
 			var xlabel = new Label("X");
@@ -354,7 +354,7 @@ public class MoveCameraEvent : BaseEvent {
 			};
 			track.style.marginTop = 2f;
 			for (int i = 0; i < I.track.Count; i++) {
-				var index = i;
+				int index = i;
 
 				var element = new VisualElement();
 				element.style.flexDirection = FlexDirection.Row;
@@ -362,7 +362,7 @@ public class MoveCameraEvent : BaseEvent {
 
 				var value = I.track[index];
 				var item1 = new Vector3Field() { value = value.Item1 };
-				var item2 = new Toggle      () { value = value.Item2 };
+				var item2 = new Toggle() { value = value.Item2 };
 				var x = item1.ElementAt(0).ElementAt(0);
 				var y = item1.ElementAt(0).ElementAt(1);
 				var z = item1.ElementAt(0).ElementAt(2);
@@ -370,7 +370,7 @@ public class MoveCameraEvent : BaseEvent {
 				if (y != null) y.style.minWidth = y.style.maxWidth = 48f;
 				if (z != null) z.style.minWidth = z.style.maxWidth = 48f;
 				item1.style.minWidth = item1.style.maxWidth = 155f;
-				item2.style.minWidth = item2.style.maxWidth =  14f;
+				item2.style.minWidth = item2.style.maxWidth = 14f;
 				item1.RegisterValueChangedCallback(evt => {
 					value.Item1 = evt.newValue;
 					I.track[index] = value;
@@ -386,7 +386,8 @@ public class MoveCameraEvent : BaseEvent {
 					mainContainer.Remove(root);
 					I.track.RemoveAt(index);
 					ConstructData();
-				}) { text = "-" };
+				})
+				{ text = "-" };
 				removeButton.style.width = 18f;
 				element.Add(removeButton);
 			}
@@ -394,18 +395,19 @@ public class MoveCameraEvent : BaseEvent {
 				mainContainer.Remove(root);
 				I.track.Add();
 				ConstructData();
-			}) { text = "Add" };
+			})
+			{ text = "Add" };
 			track.Add(addButton);
 
-			var anchor   = new ObjectField("Anchor"  ) { value = I.anchor   };
-			var duration = new FloatField ("Duration") { value = I.duration };
-			var curve    = new CurveField ("Curve"   ) { value = I.curve    };
-			anchor  .labelElement.style.minWidth = anchor  .labelElement.style.maxWidth = 56f;
+			var anchor = new ObjectField("Anchor") { value = I.anchor };
+			var duration = new FloatField("Duration") { value = I.duration };
+			var curve = new CurveField("Curve") { value = I.curve };
+			anchor.labelElement.style.minWidth = anchor.labelElement.style.maxWidth = 56f;
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = 56f;
-			curve   .labelElement.style.minWidth = curve   .labelElement.style.maxWidth = 56f;
-			anchor  .RegisterValueChangedCallback(evt => I.anchor   = evt.newValue as GameObject);
+			curve.labelElement.style.minWidth = curve.labelElement.style.maxWidth = 56f;
+			anchor.RegisterValueChangedCallback(evt => I.anchor = evt.newValue as GameObject);
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);
-			curve   .RegisterValueChangedCallback(evt => I.curve    = evt.newValue);
+			curve.RegisterValueChangedCallback(evt => I.curve = evt.newValue);
 			root.Add(anchor);
 			root.Add(track);
 			root.Add(duration);
@@ -503,7 +505,7 @@ public class ShakeCameraEvent : BaseEvent {
 			mainContainer.Add(axis);
 			var label = new Label("Axis");
 			label.style.marginLeft = 3f;
-			label.style.marginTop  = 2f;
+			label.style.marginTop = 2f;
 			label.style.width = 60f;
 			axis.Add(label);
 			var xlabel = new Label("X");
@@ -543,7 +545,7 @@ public class ShakeCameraEvent : BaseEvent {
 		if (data is ShakeCameraEvent shakeCamera) {
 			strength = shakeCamera.strength;
 			duration = shakeCamera.duration;
-			axis     = shakeCamera.axis;
+			axis = shakeCamera.axis;
 		}
 	}
 }
@@ -568,15 +570,15 @@ public class AimCameraEvent : BaseEvent {
 		}
 
 		public override void ConstructData() {
-			var target   = new ObjectField("Target"  ) { value = I.target   };
-			var duration = new FloatField ("Duration") { value = I.duration };
-			var curve    = new CurveField ("Curve"   ) { value = I.curve    };
-			target  .labelElement.style.minWidth = target  .labelElement.style.maxWidth = 56f;
+			var target = new ObjectField("Target") { value = I.target };
+			var duration = new FloatField("Duration") { value = I.duration };
+			var curve = new CurveField("Curve") { value = I.curve };
+			target.labelElement.style.minWidth = target.labelElement.style.maxWidth = 56f;
 			duration.labelElement.style.minWidth = duration.labelElement.style.maxWidth = 56f;
-			curve   .labelElement.style.minWidth = curve   .labelElement.style.maxWidth = 56f;
-			target  .RegisterValueChangedCallback(evt => I.target   = evt.newValue as GameObject);
+			curve.labelElement.style.minWidth = curve.labelElement.style.maxWidth = 56f;
+			target.RegisterValueChangedCallback(evt => I.target = evt.newValue as GameObject);
 			duration.RegisterValueChangedCallback(evt => I.duration = evt.newValue);
-			curve   .RegisterValueChangedCallback(evt => I.curve    = evt.newValue);
+			curve.RegisterValueChangedCallback(evt => I.curve = evt.newValue);
 			mainContainer.Add(target);
 			mainContainer.Add(duration);
 			mainContainer.Add(curve);

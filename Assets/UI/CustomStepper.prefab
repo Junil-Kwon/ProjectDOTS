@@ -83,21 +83,21 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 0}
   m_BodyRect: {fileID: 1681466626615864472}
-  m_LeftArrowImage: {fileID: 5482549637485786228}
-  m_RightArrowImage: {fileID: 4420915703564558460}
-  m_RestoreButton: {fileID: 5708034164097352369}
+  m_PrevArrowImage: {fileID: 5482549637485786228}
+  m_NextArrowImage: {fileID: 4420915703564558460}
   m_TextUGUI: {fileID: 91870501744090677}
+  m_RestoreButton: {fileID: 5708034164097352369}
   m_Elements:
-  - Option 1
-  - Option 2
-  - Option 3
-  m_Default: 0
-  m_Value: 0
+  - Element 1
+  - Element 2
+  - Element 3
+  m_DefaultValue: 0
+  m_CurrentValue: 0
   m_Loop: 0
-  m_OnStateUpdated:
+  m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_OnValueChanged:
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &7900307596634338329
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 5241679845742822375}
   - component: {fileID: 5225108296991489176}
   m_Layer: 5
-  m_Name: RightArrowImage
+  m_Name: NextArrowImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -286,7 +286,7 @@ GameObject:
   - component: {fileID: 6199088707821314613}
   - component: {fileID: 2081186613744217843}
   m_Layer: 5
-  m_Name: LeftArrowImage
+  m_Name: PrevArrowImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

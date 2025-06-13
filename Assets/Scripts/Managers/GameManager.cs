@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
@@ -40,8 +41,9 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 			LabelField("Setup", EditorStyles.boldLabel);
 			BeginDisabledGroup(Application.isPlaying);
-			GameScene     = SceneField("Game Scene",     GameScene);
-			StartDirectly = Toggle    ("Start Directly", StartDirectly);
+			GameScene = SceneField("Game Scene", GameScene);
+			StartDirectly = Toggle("Start Directly", StartDirectly);
+			PropertyField("m_OnDirectStarted");
 			EndDisabledGroup();
 			Space();
 			LabelField("Debug", EditorStyles.boldLabel);
@@ -68,15 +70,17 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 	int m_MaxFrameRate;
 
-	[SerializeField] int  m_GameScene;
+	[SerializeField] int m_GameScene;
 	[SerializeField] bool m_StartDirectly;
+	[SerializeField] UnityEvent m_OnDirectStarted;
 	GameState m_GameState;
 
 	readonly List<CreatureCore> m_Players = new();
+	int m_NumCreatures;
 
-	readonly List<BaseEvent> m_ActiveEvents = new();
-	readonly List<float>     m_EventElapsed = new();
 	readonly List<BaseEvent> m_Temp = new();
+	readonly List<BaseEvent> m_ActiveEvents = new();
+	readonly List<float> m_EventElapsed = new();
 
 
 
@@ -88,7 +92,9 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			Instance.m_MaxFrameRate;
 		set {
 			PlayerPrefs.SetInt(MaxFrameRateKey, Instance.m_MaxFrameRate = Mathf.Max(60, value));
-			if (Application.isPlaying) Application.targetFrameRate = Instance.m_MaxFrameRate;
+			//#if !UNITY_EDITOR
+			//if (Application.isPlaying) Application.targetFrameRate = Instance.m_MaxFrameRate;
+			//#endif
 		}
 	}
 
@@ -107,6 +113,8 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			}
 		}
 	}
+	public static UnityEvent OnDirectStarted => Instance.m_OnDirectStarted;
+
 	public static GameState GameState {
 		get => Instance.m_GameState;
 		set {
@@ -124,11 +132,16 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 	public static List<CreatureCore> Players => Instance.m_Players;
 
+	public static int NumCreatures {
+		get => Instance.m_NumCreatures;
+		set => Instance.m_NumCreatures = value;
+	}
 
 
-	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
-	static List<float>     EventElapsed => Instance.m_EventElapsed;
+
 	static List<BaseEvent> Temp => Instance.m_Temp;
+	static List<BaseEvent> ActiveEvents => Instance.m_ActiveEvents;
+	static List<float> EventElapsed => Instance.m_EventElapsed;
 
 
 
@@ -184,7 +197,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 		#if UNITY_EDITOR
 		startDirectly = StartDirectly;
 		#endif
-		if (startDirectly) UIManager.OpenGame();
+		if (startDirectly) OnDirectStarted.Invoke();
 		else SceneManager.LoadSceneAsync(GameScene, LoadSceneMode.Single);
 	}
 
@@ -250,5 +263,7 @@ public partial class GameManagerClientSystem : SystemBase {
 			.WithAll<PlayerHead>().WithNone<GhostOwnerIsLocal>()) {
 			GameManager.Players.Add(core.ValueRO);
 		}
+		var query = SystemAPI.QueryBuilder().WithAll<CreatureCore>().Build();
+		GameManager.NumCreatures = query.CalculateEntityCount();
 	}
 }

@@ -181,10 +181,10 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
-  m_HideToggle: {fileID: 5192512335660055015}
+  m_MaskToggle: {fileID: 4904825681849174011}
   m_RestoreButton: {fileID: 2415139723139730294}
-  m_Default: 
-  m_OnStateUpdated:
+  m_DefaultValue: 
+  m_OnRefreshed:
     m_PersistentCalls:
       m_Calls: []
 --- !u!95 &1554394177647435035
@@ -411,7 +411,7 @@ GameObject:
   - component: {fileID: 5192512335660055015}
   - component: {fileID: 1367751802096967366}
   m_Layer: 5
-  m_Name: MaskValueToggle
+  m_Name: MaskToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -484,17 +484,29 @@ MonoBehaviour:
   m_PositiveTextUGUI: {fileID: 0}
   m_NegativeTextUGUI: {fileID: 0}
   m_RestoreButton: {fileID: 0}
-  m_Default: 0
-  m_Value: 0
-  m_OnStateUpdated:
-    m_PersistentCalls:
-      m_Calls: []
+  m_DefaultValue: 0
+  m_CurrentValue: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8944688098003867633}
         m_TargetAssemblyTypeName: CustomInputfield, Assembly-CSharp
-        m_MethodName: set_MaskValue
+        m_MethodName: set_Mask
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_OnRefreshed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8944688098003867633}
+        m_TargetAssemblyTypeName: CustomInputfield, Assembly-CSharp
+        m_MethodName: RefreshMaskToggle
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -721,6 +733,10 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7393595207893134357, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5953536644339088721, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
     m_RemovedGameObjects: []
@@ -833,7 +849,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7108191828769479701, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
       propertyPath: m_Name
-      value: Value
+      value: Text
       objectReference: {fileID: 0}
     - target: {fileID: 7393595207893134357, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
       propertyPath: m_text
@@ -854,6 +870,10 @@ PrefabInstance:
     - target: {fileID: 7393595207893134357, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
       propertyPath: m_HorizontalAlignment
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7393595207893134357, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5953536644339088721, guid: 24a9cfeb2e33ac0429c2559eb165d369, type: 3}

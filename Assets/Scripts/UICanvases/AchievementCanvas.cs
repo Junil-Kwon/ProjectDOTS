@@ -22,7 +22,7 @@ public class AchievementCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Achievement Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
@@ -31,13 +31,5 @@ public class AchievementCanvas : BaseCanvas {
 		}
 	}
 	#endif
-
-
-
-	// Fields
-
-
-
-	// Methods
 
 }

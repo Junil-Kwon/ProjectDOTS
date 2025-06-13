@@ -34,10 +34,8 @@ public class IsHostEvent : BaseEvent {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			var pass = CreatePort(Direction.Output);
-			var fail = CreatePort(Direction.Output);
-			pass.portName = "True";
-			fail.portName = "False";
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -51,7 +49,7 @@ public class IsHostEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = NetworkManager.IsHost ? 0 : 1;
+		int index = NetworkManager.IsHost ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -81,10 +79,8 @@ public class IsClientEvent : BaseEvent {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			var pass = CreatePort(Direction.Output);
-			var fail = CreatePort(Direction.Output);
-			pass.portName = "True";
-			fail.portName = "False";
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -98,7 +94,7 @@ public class IsClientEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = NetworkManager.IsClient ? 0 : 1;
+		int index = NetworkManager.IsClient ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -128,10 +124,8 @@ public class IsRelayEvent : BaseEvent {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			var pass = CreatePort(Direction.Output);
-			var fail = CreatePort(Direction.Output);
-			pass.portName = "True";
-			fail.portName = "False";
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -145,7 +139,7 @@ public class IsRelayEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = NetworkManager.IsRelay ? 0 : 1;
+		int index = NetworkManager.IsRelay ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}
@@ -175,10 +169,8 @@ public class IsLocalEvent : BaseEvent {
 
 		public override void ConstructPort() {
 			CreatePort(Direction.Input);
-			var pass = CreatePort(Direction.Output);
-			var fail = CreatePort(Direction.Output);
-			pass.portName = "True";
-			fail.portName = "False";
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
 			RefreshExpandedState();
 			RefreshPorts();
 		}
@@ -192,7 +184,7 @@ public class IsLocalEvent : BaseEvent {
 	public override void GetNext(List<BaseEvent> list) {
 		list ??= new();
 		list.Clear();
-		var index = NetworkManager.IsLocal ? 0 : 1;
+		int index = NetworkManager.IsLocal ? 0 : 1;
 		foreach (var next in next) if (next.oPortType == PortType.Default) {
 			if (next.oPort == index) list.Add(next.data);
 		}

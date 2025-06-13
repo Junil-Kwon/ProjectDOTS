@@ -34,23 +34,21 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 			I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
 			I.FillRect      = ObjectField("Fill Rect",      I.FillRect);
 			I.HandleRect    = ObjectField("Handle Rect",    I.HandleRect);
+			I.TextUGUI      = ObjectField("Text UGUI",      I.TextUGUI);
 			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 			Space();
-			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-			if (I.TextUGUI) {
-				I.TextFormat = TextField("Text Format", I.TextFormat);
-				LabelField(" ", "{0} = Value, {1} = Min Value, {2} = Max Value");
-			}
+			I.TextFormat = TextField("Text Format", I.TextFormat);
+			LabelField(" ", "{0} = Value, {1} = Min Value, {2} = Max Value");
 			Space();
 			I.MinValue = FloatField("Min Value", I.MinValue);
 			I.MaxValue = FloatField("Max Value", I.MaxValue);
-			I.Step     = Slider("Step",    I.Step,    0f,         I.MaxValue - I.MinValue);
-			I.Default  = Slider("Default", I.Default, I.MinValue, I.MaxValue);
-			I.Value    = Slider("Value",   I.Value,   I.MinValue, I.MaxValue);
-			I.Integer  = Toggle("Integer", I.Integer);
+			I.Step = Slider("Step", I.Step, 0f, I.MaxValue - I.MinValue);
+			I.DefaultValue = Slider("Default Value", I.DefaultValue, I.MinValue, I.MaxValue);
+			I.CurrentValue = Slider("Current Value", I.CurrentValue, I.MinValue, I.MaxValue);
+			I.Integer = Toggle("Integer", I.Integer);
 			Space();
-			PropertyField("m_OnStateUpdated");
 			PropertyField("m_OnValueChanged");
+			PropertyField("m_OnRefreshed");
 			Space();
 
 			End();
@@ -65,20 +63,20 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	[SerializeField] RectTransform m_BodyRect;
 	[SerializeField] RectTransform m_FillRect;
 	[SerializeField] RectTransform m_HandleRect;
-	[SerializeField] GameObject    m_RestoreButton;
-
 	[SerializeField] TextMeshProUGUI m_TextUGUI;
+	[SerializeField] GameObject m_RestoreButton;
+
 	[SerializeField] string m_TextFormat = "{0:P0}";
 
-	[SerializeField] float m_MinValue = 0.00f;
-	[SerializeField] float m_MaxValue = 1.00f;
-	[SerializeField] float m_Step     = 0.10f;
-	[SerializeField] float m_Default  = 0.50f;
-	[SerializeField] float m_Value    = 0.50f;
-	[SerializeField] bool  m_Integer  = false;
+	[SerializeField] float m_MinValue = 0f;
+	[SerializeField] float m_MaxValue = 1f;
+	[SerializeField] float m_Step = 0.1f;
+	[SerializeField] float m_DefaultValue = 0.5f;
+	[SerializeField] float m_CurrentValue = 0.5f;
+	[SerializeField] bool m_Integer = false;
 
-	[SerializeField] UnityEvent<CustomSlider> m_OnStateUpdated = new();
-	[SerializeField] UnityEvent<float>        m_OnValueChanged = new();
+	[SerializeField] UnityEvent<float> m_OnValueChanged = new();
+	[SerializeField] UnityEvent<CustomSlider> m_OnRefreshed = new();
 
 
 
@@ -96,26 +94,20 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_HandleRect;
 		set => m_HandleRect = value;
 	}
-	float Ratio => (Value - MinValue) / (MaxValue - MinValue);
-	float Width => Ratio * (BodyRect.rect.width - HandleRect.rect.width);
-
+	TextMeshProUGUI TextUGUI {
+		get => m_TextUGUI;
+		set => m_TextUGUI = value;
+	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
 		set => m_RestoreButton = value;
 	}
 
-	TextMeshProUGUI TextUGUI {
-		get => m_TextUGUI;
-		set => m_TextUGUI = value;
-	}
 	public string TextFormat {
 		get => m_TextFormat;
 		set {
 			m_TextFormat = value;
-			try {
-				var text = string.Format(TextFormat, Value, MinValue, MaxValue);
-				if (TextUGUI.text != text) TextUGUI.text = text;
-			} catch { }
+			Refresh();
 		}
 	}
 
@@ -125,14 +117,14 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_MinValue;
 		set {
 			value = Integer switch {
-				false => Mathf.Min(value, MaxValue - float.Epsilon),
 				true  => Mathf.Round(Mathf.Min(value, MaxValue - 1f)),
+				false => Mathf.Min(value, MaxValue - float.Epsilon),
 			};
 			if (m_MinValue != value) {
 				m_MinValue = value;
 				Step = Step;
-				Default = Default;
-				Value = Value;
+				DefaultValue = DefaultValue;
+				CurrentValue = CurrentValue;
 				Refresh();
 			}
 		}
@@ -141,14 +133,14 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_MaxValue;
 		set {
 			value = Integer switch {
-				false => Mathf.Max(value, MinValue + float.Epsilon),
 				true  => Mathf.Round(Mathf.Max(value, MinValue + 1f)),
+				false => Mathf.Max(value, MinValue + float.Epsilon),
 			};
 			if (m_MaxValue != value) {
 				m_MaxValue = value;
 				Step = Step;
-				Default = Default;
-				Value = Value;
+				DefaultValue = DefaultValue;
+				CurrentValue = CurrentValue;
 				Refresh();
 			}
 		}
@@ -157,36 +149,36 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_Step;
 		set {
 			value = Integer switch {
-				false => Mathf.Max(float.Epsilon, Mathf.Min(value, MaxValue - MinValue)),
 				true  => Mathf.Round(Mathf.Max(1f, Mathf.Min(value, MaxValue - MinValue))),
+				false => Mathf.Max(float.Epsilon, Mathf.Min(value, MaxValue - MinValue)),
 			};
 			if (m_Step != value) {
 				m_Step = value;
 			}
 		}
 	}
-	public float Default {
-		get => m_Default;
+	public float DefaultValue {
+		get => m_DefaultValue;
 		set {
 			value = Integer switch {
-				false => Mathf.Clamp(value, MinValue, MaxValue),
 				true  => Mathf.Round(Mathf.Clamp(value, MinValue, MaxValue)),
+				false => Mathf.Clamp(value, MinValue, MaxValue),
 			};
-			if (m_Default != value) {
-				m_Default = value;
-				Value = value;
+			if (m_DefaultValue != value) {
+				m_DefaultValue = value;
+				CurrentValue = value;
 			}
 		}
 	}
-	public float Value {
-		get => m_Value;
+	public float CurrentValue {
+		get => m_CurrentValue;
 		set {
 			value = Integer switch {
-				false => Mathf.Clamp(value, MinValue, MaxValue),
 				true  => Mathf.Round(Mathf.Clamp(value, MinValue, MaxValue)),
+				false => Mathf.Clamp(value, MinValue, MaxValue),
 			};
-			if (m_Value != value) {
-				m_Value = value;
+			if (m_CurrentValue != value) {
+				m_CurrentValue = value;
 				OnValueChanged.Invoke(value);
 				Refresh();
 			}
@@ -200,15 +192,15 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 				MinValue = MinValue;
 				MaxValue = MaxValue;
 				Step = Step;
-				Default = Default;
-				Value = Value;
+				DefaultValue = DefaultValue;
+				CurrentValue = CurrentValue;
 				Refresh();
 			}
 		}
 	}
 
-	public UnityEvent<CustomSlider> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<float>        OnValueChanged => m_OnValueChanged;
+	public UnityEvent<float> OnValueChanged => m_OnValueChanged;
+	public UnityEvent<CustomSlider> OnRefreshed => m_OnRefreshed;
 
 
 
@@ -216,24 +208,27 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	// Methods
 
 	public void Refresh() {
-		if (Integer) Value = Mathf.Round(Value);
 		if (BodyRect && HandleRect) {
+			float ratio = (CurrentValue - MinValue) / (MaxValue - MinValue);
+			float width = ratio * (BodyRect.rect.width - HandleRect.rect.width);
 			if (FillRect) {
 				var sizeDelta = FillRect.sizeDelta;
-				sizeDelta.x = HandleRect.rect.width / 2 + Width;
+				sizeDelta.x = HandleRect.rect.width / 2 + width;
 				FillRect.sizeDelta = sizeDelta;
 			}
 			var anchoredPosition = HandleRect.anchoredPosition;
-			anchoredPosition.x = BodyRect.anchoredPosition.x + Width;
+			anchoredPosition.x = BodyRect.anchoredPosition.x + width;
 			HandleRect.anchoredPosition = anchoredPosition;
 		}
-		if (TextUGUI) TextFormat = TextFormat;
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
-		OnStateUpdated.Invoke(this);
+		if (TextUGUI) try {
+			TextUGUI.text = string.Format(TextFormat, CurrentValue, MinValue, MaxValue);
+		} catch { }
+		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
+		OnRefreshed.Invoke(this);
 	}
 
 	public void Restore() {
-		if (RestoreButton) Value = Default;
+		if (RestoreButton) CurrentValue = DefaultValue;
 	}
 
 
@@ -241,34 +236,31 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	// Event Handlers
 
 	public void OnPointerClick(PointerEventData eventData) {
-		UIManager.IsPointerClicked = true;
 		if (interactable && !eventData.dragging) {
 			var point = HandleRect.InverseTransformPoint(eventData.position);
 			point.x -= HandleRect.rect.width * 0.5f;
-			if (point.x < HandleRect.rect.width * -0.25f) Value -= Step;
-			if (HandleRect.rect.width * +0.25f < point.x) Value += Step;
+			if (point.x < HandleRect.rect.width * -0.25f) CurrentValue -= Step;
+			if (HandleRect.rect.width * +0.25f < point.x) CurrentValue += Step;
 		}
 	}
 
 	public void OnDrag(PointerEventData eventData) {
-		UIManager.IsPointerClicked = true;
 		if (interactable) {
-			var a = HandleRect.rect.width * +0.5f;
-			var b = HandleRect.rect.width * -0.5f + BodyRect.rect.width;
 			var point = BodyRect.InverseTransformPoint(eventData.position);
-			Value = MinValue + (MaxValue - MinValue) * Mathf.InverseLerp(a, b, point.x);
+			float inset = HandleRect.rect.width * 0.5f;
+			float min = inset;
+			float max = BodyRect.rect.width - inset;
+			CurrentValue = MinValue + (MaxValue - MinValue) * Mathf.InverseLerp(min, max, point.x);
 		}
 	}
 
 	public override void OnMove(AxisEventData eventData) {
 		if (interactable) switch (eventData.moveDir) {
 			case MoveDirection.Left:
-				UIManager.IsPointerClicked = false;
-				Value -= Step;
+				CurrentValue -= Step;
 				return;
 			case MoveDirection.Right:
-				UIManager.IsPointerClicked = false;
-				Value += Step;
+				CurrentValue += Step;
 				return;
 		}
 		base.OnMove(eventData);

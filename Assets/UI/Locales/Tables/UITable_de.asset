@@ -83,7 +83,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 97242318000128
-    m_Localized: "Men\xFA"
+    m_Localized: "Men\xFC"
     m_Metadata:
       m_Items: []
   - m_Id: 5770654666752
@@ -155,7 +155,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1172035820445696
-    m_Localized: Standard wiederherstellen
+    m_Localized: "Auf Standard zur\xFCcksetzen"
     m_Metadata:
       m_Items: []
   - m_Id: 135187141906432
@@ -187,7 +187,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 905194329989120
-    m_Localized: "Zur\xFCckkehren"
+    m_Localized: "Zur\xFCck"
     m_Metadata:
       m_Items: []
   - m_Id: 905221311946752
@@ -234,6 +234,43 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 4400027371692032
     m_Localized: Maximale Bildfrequenz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554549154504704
+    m_Localized: Standard wiederherstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554691848921088
+    m_Localized: "M\xF6chten Sie die Einstellungen wirklich auf die Standardwerte
+      zur\xFCcksetzen?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554716880527360
+    m_Localized: Wiederherstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554749793230848
+    m_Localized: Abbrechen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5565775318212608
+    m_Localized: "Zum Hauptmen\xFC zur\xFCckkehren"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566563679592448
+    m_Localized: "M\xF6chten Sie wirklich zum Hauptmen\xFC zur\xFCckkehren?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566584516894720
+    m_Localized: "Zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566602447544320
+    m_Localized: Abbrechen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5574891084308480
+    m_Localized: "Zum Hauptmen\xFC zur\xFCckkehren"
     m_Metadata:
       m_Items: []
   references:

@@ -153,7 +153,9 @@ public static class CreaturePhysics {
 	public const float PinnedMass  = 1f * 1000000f;
 	public const float GravityMultiplier =  -9.81f * NetworkManager.Ticktime;
 	public const float KnockMultiplier   = 256.00f * NetworkManager.Ticktime;
-	public const float DustThreshold = -0.4f;
+	public const float DustThreshold  = -3.2f;
+	public const float Dust2Threshold = -6.4f;
+	public const float Dust3Threshold = -9.6f;
 }
 
 
@@ -177,12 +179,12 @@ public class CreatureAuthoring : MonoBehaviour {
 			Begin("Creature Authoring");
 
 			LabelField("Local Data", EditorStyles.boldLabel);
-			I.Radius    = FloatField ("Radius",     I.Radius);
-			I.Height    = FloatField ("Height",     I.Height);
+			I.Radius = FloatField("Radius", I.Radius);
+			I.Height = FloatField("Height", I.Height);
 			I.MaxShield = UShortField("Max Shield", I.MaxShield);
 			I.MaxHealth = UShortField("Max Health", I.MaxHealth);
 			I.MaxEnergy = UShortField("Max Energy", I.MaxEnergy);
-			I.Tag       = (byte)FlagField<Tag>("Tag", I.Tag);
+			I.Tag = (byte)FlagField<Tag>("Tag", I.Tag);
 			if (foldout = Foldout("Immunity", foldout)) {
 				IntentLevel++;
 				int a = 0;
@@ -202,12 +204,12 @@ public class CreatureAuthoring : MonoBehaviour {
 			BeginHorizontal();
 			PrefixLabel("Head Component");
 			I.HeadText = TextField(I.HeadText);
-			I.Head       = EnumField(I.Head);
+			I.Head     = EnumField(I.Head);
 			EndHorizontal();
 			BeginHorizontal();
 			PrefixLabel("Body Component");
 			I.BodyText = TextField(I.BodyText);
-			I.Body       = EnumField(I.Body);
+			I.Body     = EnumField(I.Body);
 			EndHorizontal();
 			I.Flag = FlagField<Flag>("Flag", I.Flag);
 			I.Team = FlagField<Team>("Team", I.Team);
@@ -228,18 +230,18 @@ public class CreatureAuthoring : MonoBehaviour {
 
 	// Fields
 
-	[SerializeField] float  m_Radius;
-	[SerializeField] float  m_Height;
+	[SerializeField] float m_Radius;
+	[SerializeField] float m_Height;
 	[SerializeField] ushort m_MaxEnergy;
 	[SerializeField] ushort m_MaxShield;
 	[SerializeField] ushort m_MaxHealth;
-	[SerializeField] byte   m_Tag;
-	[SerializeField] uint   m_Immunity;
+	[SerializeField] byte m_Tag;
+	[SerializeField] uint m_Immunity;
 
 	[SerializeField] string m_HeadText;
 	[SerializeField] string m_BodyText;
-	[SerializeField] uint   m_Flag;
-	[SerializeField] uint   m_Team;
+	[SerializeField] uint m_Flag;
+	[SerializeField] uint m_Team;
 
 
 
@@ -278,8 +280,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetTag(Tag tag) => (Tag & (1u << (int)tag)) != 0u;
 	public void SetTag(Tag tag, bool value) => Tag = value switch {
-		false => (byte)(Tag & ~(1 << (int)tag)),
 		true  => (byte)(Tag |  (1 << (int)tag)),
+		false => (byte)(Tag & ~(1 << (int)tag)),
 	};
 
 	public uint Immunity {
@@ -322,16 +324,16 @@ public class CreatureAuthoring : MonoBehaviour {
 				switch ((Flag)i) {
 					case global::Flag.Pinned:
 						if (TryGetComponent(out PhysicsBodyAuthoring body)) body.Mass = b switch {
-							false => CreaturePhysics.InitialMass,
 							true  => CreaturePhysics.PinnedMass,
+							false => CreaturePhysics.InitialMass,
 						};
 						break;
 					case global::Flag.Piercing:
 						foreach (var shape in GetComponents<PhysicsShapeAuthoring>()) {
 							var collidesWith = shape.CollidesWith;
 							collidesWith.Value = b switch {
-								false => collidesWith.Value |  (1u << (int)PhysicsCategory.Creature),
 								true  => collidesWith.Value & ~(1u << (int)PhysicsCategory.Creature),
+								false => collidesWith.Value |  (1u << (int)PhysicsCategory.Creature),
 							};
 							shape.CollidesWith = collidesWith;
 						}
@@ -343,8 +345,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetFlag(Flag flag) => (Flag & (1u << (int)flag)) != 0u;
 	public void SetFlag(Flag flag, bool value) => Flag = value switch {
-		false => Flag & ~(1u << (int)flag),
 		true  => Flag |  (1u << (int)flag),
+		false => Flag & ~(1u << (int)flag),
 	};
 
 	public uint Team {
@@ -353,8 +355,8 @@ public class CreatureAuthoring : MonoBehaviour {
 	}
 	public bool GetTeam(Team team) => (Team & (1u << (int)team)) != 0u;
 	public void SetTeam(Team team, bool value) => Team = value switch {
-		false => Team & ~(1u << (int)team),
 		true  => Team |  (1u << (int)team),
+		false => Team & ~(1u << (int)team),
 	};
 
 
@@ -461,15 +463,15 @@ public struct CreatureBlobData {
 	// Fields
 
 	public FixedString512Bytes Name;
-	public float  Radius;
-	public float  Height;
+	public float Radius;
+	public float Height;
 	public ushort MaxShield;
 	public ushort MaxHealth;
 	public ushort MaxEnergy;
-	public byte   Tag;
-	public uint   Immunity;
-	public Head   InitialHead;
-	public Body   InitialBody;
+	public byte Tag;
+	public uint Immunity;
+	public Head InitialHead;
+	public Body InitialBody;
 
 
 
@@ -477,8 +479,8 @@ public struct CreatureBlobData {
 
 	public bool GetTag(Tag tag) => (Tag & (1u << (int)tag)) != 0;
 	public void SetTag(Tag tag, bool value) => Tag = value switch {
-		false => (byte)(Tag & ~(1u << (int)tag)),
 		true  => (byte)(Tag |  (1u << (int)tag)),
+		false => (byte)(Tag & ~(1u << (int)tag)),
 	};
 
 	public Immunity GetImmunity(Effect effect) =>
@@ -559,9 +561,6 @@ public struct CreatureCore : IComponentData {
 		false => Flag & ~(1u << (int)flag),
 		true  => Flag |  (1u << (int)flag),
 	};
-	public bool HasFlag   (Flag flag) => GetFlag(flag);
-	public void AddFlag   (Flag flag) => SetFlag(flag, true);
-	public void RemoveFlag(Flag flag) => SetFlag(flag, false);
 
 	public uint Team {
 		get => (Data0 & TeamMask) >> TeamShift;
@@ -572,9 +571,6 @@ public struct CreatureCore : IComponentData {
 		false => Team & ~(1u << (int)team),
 		true  => Team |  (1u << (int)team),
 	};
-	public bool HasTeam   (Team team) => GetTeam(team);
-	public void AddTeam   (Team team) => SetTeam(team, true);
-	public void RemoveTeam(Team team) => SetTeam(team, false);
 
 
 
@@ -696,9 +692,6 @@ public struct CreatureTemp : IComponentData {
 		false => Flag & ~(1u << (int)flag),
 		true  => Flag |  (1u << (int)flag),
 	};
-	public bool HasFlag   (Flag flag) => GetFlag(flag);
-	public void AddFlag   (Flag flag) => SetFlag(flag, true);
-	public void RemoveFlag(Flag flag) => SetFlag(flag, false);
 
 	public uint Team {
 		get => (Data0 & TeamMask) >> TeamShift;
@@ -706,12 +699,9 @@ public struct CreatureTemp : IComponentData {
 	}
 	public bool GetTeam(Team team) => (Team & (1u << (int)team)) != 0u;
 	public void SetTeam(Team team, bool value) => Team = value switch {
-		false => Team & ~(1u << (int)team),
 		true  => Team |  (1u << (int)team),
+		false => Team & ~(1u << (int)team),
 	};
-	public bool HasTeam   (Team team) => GetTeam(team);
-	public void AddTeam   (Team team) => SetTeam(team, true);
-	public void RemoveTeam(Team team) => SetTeam(team, false);
 
 
 
@@ -1037,8 +1027,8 @@ partial struct CreatureInitializationSystem : ISystem {
 			if (temp.Flag != core.Flag) {
 				for (int i = 0; i < 8; i++) {
 					var flag = (Flag)i;
-					var a = temp.HasFlag(flag);
-					var b = core.HasFlag(flag);
+					var a = temp.GetFlag(flag);
+					var b = core.GetFlag(flag);
 					if (a == b) continue;
 					temp.SetFlag(flag, b);
 					switch (flag) {
@@ -1068,8 +1058,8 @@ partial struct CreatureInitializationSystem : ISystem {
 			if (temp.Team != core.Team) {
 				for (int i = 0; i < 8; i++) {
 					var team = (Team)i;
-					var a = core.HasTeam(team);
-					var b = core.HasTeam(team);
+					var a = core.GetTeam(team);
+					var b = core.GetTeam(team);
 					if (a == b) continue;
 					temp.SetTeam(team, b);
 				}
@@ -1162,7 +1152,7 @@ partial struct CreatureEndPredictedSimulationSystem : ISystem {
 			in CreatureCore core,
 			ref PhysicsVelocity velocity) {
 
-			if (!core.HasFlag(Flag.Floating)) {
+			if (!core.GetFlag(Flag.Floating)) {
 				float multiplier = CreaturePhysics.GravityMultiplier;
 				velocity.Linear += multiplier * core.GravityVector;
 			}
@@ -1214,9 +1204,10 @@ partial struct CreatureSimulationSystem : ISystem {
 			in PhysicsMass mass) {
 
 			if (core.GravityFactor == 0 && temp.GravityFactor != 0) {
-				var gravity = temp.GravityFactor * CreaturePhysics.GravityMultiplier;
-				var knock   = core.KnockFactor   * CreaturePhysics.KnockMultiplier;
-				if (gravity + knock < CreaturePhysics.DustThreshold) {
+				var impactEnergy = 0f;
+				impactEnergy += temp.GravityFactor * CreaturePhysics.GravityMultiplier;
+				impactEnergy += core.KnockFactor * CreaturePhysics.KnockMultiplier;
+				if (impactEnergy < CreaturePhysics.DustThreshold) {
 					var right   = CameraManager.ValueRO.Right;
 					var forward = CameraManager.ValueRO.Forward;
 					var radius  = blob.Value.Value.Radius;
@@ -1288,14 +1279,14 @@ partial struct CreaturePresentationSystem : ISystem {
 				//	drawer.UIs.ElementAt(i).BaseColor.a = a;
 				//}
 				float ratio = data.Radius * 2f / (data.MaxHealth + data.MaxShield);
-				float maxHealth = math.max((int)status.Health, (int)data.MaxHealth);
-				float maxShield = math.max((int)status.Shield, (int)data.MaxShield);
+				float maxHealth = math.max((float)status.Health, data.MaxHealth);
+				float maxShield = math.max((float)status.Shield, data.MaxShield);
 				float max = (maxHealth + maxShield) * ratio;
 
-				float pureHealth = math.min((int)status.Health,  data.MaxHealth) * ratio;
-				float overHealth = math.max(0,   status.Health - data.MaxHealth) * ratio;
-				float pureShield = math.min((int)status.Shield,  data.MaxShield) * ratio;
-				float overShield = math.max(0,   status.Shield - data.MaxShield) * ratio;
+				float pureHealth = math.min((float)status.Health, data.MaxHealth) * ratio;
+				float pureShield = math.min((float)status.Shield, data.MaxShield) * ratio;
+				float overHealth = math.max(0, status.Health - data.MaxHealth) * ratio;
+				float overShield = math.max(0, status.Shield - data.MaxShield) * ratio;
 				float pureHealthPivot = max * -0.5f + pureHealth * 0.5f;
 				float overHealthPivot = pureHealthPivot + pureHealth;
 				float pureShieldPivot = overHealthPivot + overHealth;

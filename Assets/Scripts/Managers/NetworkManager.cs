@@ -71,8 +71,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		public override void OnInspectorGUI() {
 			Begin("Network Manager");
 
-			LabelField("Chat Message", EditorStyles.boldLabel);
-			PropertyField("m_OnChatMessageReceived");
+			LabelField("Event", EditorStyles.boldLabel);
+			PropertyField("m_OnChatReceived");
 			Space();
 			LabelField("Debug", EditorStyles.boldLabel);
 			BeginDisabledGroup();
@@ -91,7 +91,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	// Constants
 
 	public const float Tickrate = 60f;
-	public const float Ticktime = 1f / Tickrate;
+	public const float Ticktime = 0.0166667f;
 
 	const float ConnectionTimeOut = 5f;
 	const float BroadcastInterval = 1f;
@@ -129,19 +129,19 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	CancellationTokenSource m_BroadcastCancellation;
 	CancellationTokenSource m_DiscoverCancellation;
 
-	[SerializeField] UnityEvent<string> m_OnChatMessageReceived = new();
-	Queue<string> m_ChatMessageQueue = new();
+	Queue<string> m_ChatQueue = new();
+	[SerializeField] UnityEvent<string> m_OnChatReceived = new();
 
 
 
 	// Properties
 
 	public static ServiceState ServiceState {
-		get         => Instance.m_ServiceState;
+		get => Instance.m_ServiceState;
 		private set => Instance.m_ServiceState = value;
 	}
 	public static NetworkState NetworkState {
-		get         => Instance.m_NetworkState;
+		get => Instance.m_NetworkState;
 		private set => Instance.m_NetworkState = value;
 	}
 
@@ -167,11 +167,11 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	};
 
 	public static ushort Port {
-		get         => Instance.m_Port;
+		get => Instance.m_Port;
 		private set => Instance.m_Port = value;
 	}
 	public static int MaxPlayers {
-		get         => Instance.m_MaxPlayers;
+		get => Instance.m_MaxPlayers;
 		private set => Instance.m_MaxPlayers = value;
 	}
 
@@ -186,10 +186,10 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		set => Instance.m_DiscoverCancellation = value;
 	}
 	static bool IsBroadcasting => BroadcastCancellation != null;
-	static bool IsDiscovering  => DiscoverCancellation  != null;
+	static bool IsDiscovering => DiscoverCancellation != null;
 
-	public static UnityEvent<string> OnChatMessageReceived => Instance.m_OnChatMessageReceived;
-	public static Queue<string> ChatMessageQueue => Instance.m_ChatMessageQueue;
+	public static Queue<string> ChatQueue => Instance.m_ChatQueue;
+	public static UnityEvent<string> OnChatReceived => Instance.m_OnChatReceived;
 
 
 
@@ -206,8 +206,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			var task = UnityServices.InitializeAsync();
 			await task;
 			ServiceState = task.IsCompletedSuccessfully switch {
-				false => ServiceState.Uninitialized,
 				true  => ServiceState.Unsigned,
+				false => ServiceState.Uninitialized,
 			};
 		}
 	}
@@ -223,8 +223,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			var task = AuthenticationService.Instance.SignInAnonymouslyAsync();
 			await task;
 			ServiceState = task.IsCompletedSuccessfully switch {
-				false => ServiceState.Unsigned,
 				true  => ServiceState.Ready,
+				false => ServiceState.Unsigned,
 			};
 		}
 	}
@@ -281,8 +281,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 				};
 			}
 			NetworkState = (NetworkState == NetworkState.ConnectionSucceeded) switch {
-				false => NetworkState.ConnectionFailed,
 				true  => NetworkState.ConnectedAsRelayHost,
+				false => NetworkState.ConnectionFailed,
 			};
 		}
 	}
@@ -327,8 +327,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 				};
 			}
 			NetworkState = (NetworkState == NetworkState.ConnectionSucceeded) switch {
-				false => NetworkState.ConnectionFailed,
 				true  => NetworkState.ConnectedAsRelayClient,
+				false => NetworkState.ConnectionFailed,
 			};
 		}
 	}
@@ -366,8 +366,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 				};
 			}
 			NetworkState = (NetworkState == NetworkState.ConnectionSucceeded) switch {
-				false => NetworkState.ConnectionFailed,
 				true  => NetworkState.ConnectedAsLocalHost,
+				false => NetworkState.ConnectionFailed,
 			};
 		}
 	}
@@ -398,8 +398,8 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 				};
 			}
 			NetworkState = (NetworkState == NetworkState.ConnectionSucceeded) switch {
-				false => NetworkState.ConnectionFailed,
 				true  => NetworkState.ConnectedAsLocalClient,
+				false => NetworkState.ConnectionFailed,
 			};
 		}
 	}
@@ -488,7 +488,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	// Chat Methods
 
 	public static void SendChatMessage(string message) {
-		ChatMessageQueue.Enqueue(message);
+		ChatQueue.Enqueue(message);
 	}
 
 
@@ -696,7 +696,7 @@ public partial class NetworkManagerClientMessageSystem : SystemBase {
 
 	protected override void OnUpdate() {
 		var buffer = System.CreateCommandBuffer();
-		while (NetworkManager.ChatMessageQueue.TryDequeue(out var text)) {
+		while (NetworkManager.ChatQueue.TryDequeue(out var text)) {
 			var messageEntity = buffer.CreateEntity();
 			buffer.AddComponent(messageEntity, new SendRpcCommandRequest());
 			buffer.AddComponent(messageEntity, new ChatMessageRpc { text = text });
@@ -705,7 +705,7 @@ public partial class NetworkManagerClientMessageSystem : SystemBase {
 			.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ChatMessageRpc>>()
 			.WithEntityAccess()) {
 			var text = message.ValueRO.text.ToString();
-			NetworkManager.OnChatMessageReceived.Invoke(text);
+			NetworkManager.OnChatReceived.Invoke(text);
 			buffer.DestroyEntity(entity);
 		}
 	}

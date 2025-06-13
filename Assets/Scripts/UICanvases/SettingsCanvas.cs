@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,11 +26,28 @@ public class SettingsCanvas : BaseCanvas {
 		public override void OnInspectorGUI() {
 			Begin("Settings Canvas");
 
-			if (I.Raycaster) {
+			if (I.Raycaster && I.Raycaster.enabled) {
 				LabelField("Selected", EditorStyles.boldLabel);
 				I.FirstSelected = ObjectField("First Selected", I.FirstSelected);
 				Space();
 			}
+			LabelField("Confirm Reset All Data", EditorStyles.boldLabel);
+			PropertyField("m_ResetAllDataHeader");
+			PropertyField("m_ResetAllDataContent");
+			PropertyField("m_ResetAllDataConfirm");
+			PropertyField("m_ResetAllDataCancel");
+			Space();
+			LabelField("Alert All Data Reset", EditorStyles.boldLabel);
+			PropertyField("m_AllDataResetContent");
+			PropertyField("m_AllDataResetClose");
+			Space();
+			LabelField("Confirm Restore Defaults", EditorStyles.boldLabel);
+			PropertyField("m_RestoreDefaultsHeader");
+			PropertyField("m_RestoreDefaultsContent");
+			PropertyField("m_RestoreDefaultsConfirm");
+			PropertyField("m_RestoreDefaultsCancel");
+			Space();
+
 			End();
 		}
 	}
@@ -37,9 +55,46 @@ public class SettingsCanvas : BaseCanvas {
 
 
 
+	// Fields
+
+	[SerializeField] LocalizedString m_ResetAllDataHeader = new();
+	[SerializeField] LocalizedString m_ResetAllDataContent = new();
+	[SerializeField] LocalizedString m_ResetAllDataConfirm = new();
+	[SerializeField] LocalizedString m_ResetAllDataCancel = new();
+
+	[SerializeField] LocalizedString m_AllDataResetContent = new();
+	[SerializeField] LocalizedString m_AllDataResetClose = new();
+
+	[SerializeField] LocalizedString m_RestoreDefaultsHeader = new();
+	[SerializeField] LocalizedString m_RestoreDefaultsContent = new();
+	[SerializeField] LocalizedString m_RestoreDefaultsConfirm = new();
+	[SerializeField] LocalizedString m_RestoreDefaultsCancel = new();
+
+
+
+	// Properties
+
+	LocalizedString ResetAllDataHeader  => m_ResetAllDataHeader;
+	LocalizedString ResetAllDataContent => m_ResetAllDataContent;
+	LocalizedString ResetAllDataConfirm => m_ResetAllDataConfirm;
+	LocalizedString ResetAllDataCancel  => m_ResetAllDataCancel;
+
+	LocalizedString AllDataResetContent => m_AllDataResetContent;
+	LocalizedString AllDataResetClose   => m_AllDataResetClose;
+
+	LocalizedString RestoreDefaultsHeader  => m_RestoreDefaultsHeader;
+	LocalizedString RestoreDefaultsContent => m_RestoreDefaultsContent;
+	LocalizedString RestoreDefaultsConfirm => m_RestoreDefaultsConfirm;
+	LocalizedString RestoreDefaultsCancel  => m_RestoreDefaultsCancel;
+
+
+
 	// General Methods
 
-	public void UpdateLanguageDropdown(CustomDropdown dropdown) {
+	public void SetLanguage(int value) {
+		LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[value];
+	}
+	public void RefreshLanguageDropdown(CustomDropdown dropdown) {
 		if (dropdown.Elements.Length == 0) {
 			var elements = new string[LocalizationSettings.AvailableLocales.Locales.Count];
 			for (int i = 0; i < elements.Length; i++) {
@@ -56,101 +111,113 @@ public class SettingsCanvas : BaseCanvas {
 		for (int i = 0; i < dropdown.Elements.Length; i++) {
 			var locale = LocalizationSettings.AvailableLocales.Locales[i];
 			if (locale == LocalizationSettings.SelectedLocale) {
-				dropdown.Value = i;
+				dropdown.CurrentValue = i;
 				break;
 			}
 		}
 	}
-	public void SetLanguageValue(int value) {
-		LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[value];
-	}
 
-	public void UpdateFullScreenToggle(CustomToggle toggle) {
-		StartCoroutine(UpdateFullScreenToggleCoroutine(toggle));
+	public void SetFullScreen(bool value) {
+		Screen.fullScreenMode = value ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
 	}
-	IEnumerator UpdateFullScreenToggleCoroutine(CustomToggle toggle) {
+	public void RefreshFullScreenToggle(CustomToggle toggle) {
+		StartCoroutine(RefreshFullScreenToggleCoroutine(toggle));
+	}
+	IEnumerator RefreshFullScreenToggleCoroutine(CustomToggle toggle) {
 		float timeStartChange = Time.realtimeSinceStartup;
 		while (Time.realtimeSinceStartup - timeStartChange < 0.5f) {
-			toggle.Value = Screen.fullScreenMode == FullScreenMode.FullScreenWindow;
+			toggle.CurrentValue = Screen.fullScreenMode == FullScreenMode.FullScreenWindow;
 			yield return null;
 		}
 	}
-	public void SetFullScreenValue(bool value) {
-		Screen.fullScreenMode = value ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
-	}
 
-	public void UpdateScreenResolutionStepper(CustomStepper stepper) {
-		if (stepper.Elements.Length == 0) {
+	public void SetScreenResolution(int value) {
+		var resolution = UIManager.ScreenResolution[value];
+		Screen.SetResolution(resolution.x, resolution.y, Screen.fullScreen);
+	}
+	public void RefreshScreenResolutionStepper(CustomStepper stepper) {
+		if (stepper.Options.Length == 0) {
 			var elements = new string[UIManager.ScreenResolution.Length];
 			for (int i = 0; i < elements.Length; i++) {
 				var resolution = UIManager.ScreenResolution[i];
 				elements[i] = $"{resolution.x}x{resolution.y}";
 			}
-			stepper.Elements = elements;
+			stepper.Options = elements;
 		}
 	}
-	public void SetScreenResolutionValue(int value) {
-		var resolution = UIManager.ScreenResolution[value];
-		Screen.SetResolution(resolution.x, resolution.y, Screen.fullScreen);
-	}
 
-	public void UpdateMusicSlider(CustomSlider slider) {
-		slider.Value = SoundManager.Music;
-	}
-	public void SetMusicValue(float value) {
+	public void SetMusic(float value) {
 		SoundManager.Music = value;
 	}
-
-	public void UpdateSoundFXSlider(CustomSlider slider) {
-		slider.Value = SoundManager.SoundFX;
+	public void RefreshMusicSlider(CustomSlider slider) {
+		slider.CurrentValue = SoundManager.Music;
 	}
-	public void SetSoundFXValue(float value) {
+
+	public void SetSoundFX(float value) {
 		SoundManager.SoundFX = value;
+	}
+	public void RefreshSoundFXSlider(CustomSlider slider) {
+		slider.CurrentValue = SoundManager.SoundFX;
 	}
 
 
 
 	// Controls Methods
 
-	public void UpdateMouseSensitivitySlider(CustomSlider slider) {
-		slider.Value = InputManager.MouseSensitivity;
-	}
-	public void SetMouseSensitivityValue(float value) {
+	public void SetMouseSensitivity(float value) {
 		InputManager.MouseSensitivity = value;
+	}
+	public void RefreshMouseSensitivitySlider(CustomSlider slider) {
+		slider.CurrentValue = InputManager.MouseSensitivity;
 	}
 
 
 
 	// Advanced Methods
 
-	public void UpdateMaxFrameRateSlider(CustomSlider slider) {
-		slider.Value = GameManager.MaxFrameRate;
-	}
-	public void SetMaxFrameRateValue(float value) {
+	public void SetMaxFrameRate(float value) {
 		GameManager.MaxFrameRate = (int)value;
 	}
-
-	public void UpdateDisplayDebugScreenToggle(CustomToggle toggle) {
-		toggle.Value = UIManager.DisplayDebugScreen;
-	}
-	public void SetDisplayDebugScreenValue(bool value) {
-		UIManager.DisplayDebugScreen = value;
+	public void RefreshMaxFrameRateSlider(CustomSlider slider) {
+		slider.CurrentValue = GameManager.MaxFrameRate;
 	}
 
-	public void ResetAllData() {
-		UIManager.ConfirmResetAllData();
-		UIManager.OnConfirmationConfirmed.AddListener(() => {
+	public void SetDisplayDebugScreen(bool value) {
+		UIManager.DebugScreen = value;
+	}
+	public void RefreshDisplayDebugScreenToggle(CustomToggle toggle) {
+		toggle.CurrentValue = UIManager.DebugScreen;
+	}
+
+	public void ConfirmResetAllData() {
+		UIManager.ConfirmationHeaderReference  = ResetAllDataHeader;
+		UIManager.ConfirmationContentReference = ResetAllDataContent;
+		UIManager.ConfirmationConfirmReference = ResetAllDataConfirm;
+		UIManager.ConfirmationCancelReference  = ResetAllDataCancel;
+		UIManager.OpenConfirmation();
+		UIManager.OnConfirmationConfirmed += () => {
 			RestoreDefaults();
 			PlayerPrefs.DeleteAll();
-			UIManager.OnBackCompleted.AddListener(UIManager.AlertAllDataReset);
-		});
+			UIManager.AlertContentReference = AllDataResetContent;
+			UIManager.AlertCloseReference   = AllDataResetClose;
+			UIManager.OpenAlert();
+		};
 	}
 
 
 
 	// Methods
 
-	public void RestoreDefaults() {
+	public void ConfirmRestoreDefaults() {
+		UIManager.ConfirmationHeaderReference  = RestoreDefaultsHeader;
+		UIManager.ConfirmationContentReference = RestoreDefaultsContent;
+		UIManager.ConfirmationConfirmReference = RestoreDefaultsConfirm;
+		UIManager.ConfirmationCancelReference  = RestoreDefaultsCancel;
+		UIManager.OpenConfirmation();
+		UIManager.OnConfirmationConfirmed += RestoreDefaults;
+	}
+
+	void RestoreDefaults() {
 		var stack = new Stack<Transform>();
 		stack.Push(transform);
 		while (0 < stack.Count) {
@@ -160,5 +227,10 @@ public class SettingsCanvas : BaseCanvas {
 				widget.Restore();
 			}
 		}
+	}
+
+	public override void Back() {
+		// -
+		UIManager.PopOverlay();
 	}
 }

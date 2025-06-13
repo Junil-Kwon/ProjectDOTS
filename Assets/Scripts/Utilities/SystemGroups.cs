@@ -33,15 +33,15 @@ public partial class DOTSPredictedSimulationSystemGroup : ComponentSystemGroup {
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class DOTSSimulationSystemGroup : ComponentSystemGroup { }
 
-[UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
-public partial class DOTSPresentationSystemGroup : ComponentSystemGroup { }
-
 // (Local World | Server World)
 [WorldSystemFilter((WorldSystemFilterFlags)0x300u)]
 [UpdateAfter(typeof(DOTSSimulationSystemGroup))]
 public partial class DOTSServerSimulationSystemGroup : ComponentSystemGroup { }
 
-// (Local World | Client World | Thin Client World)
+// (Local World | Client World), (Local World | Client World | Thin Client World)
 [WorldSystemFilter((WorldSystemFilterFlags)0x500u, (WorldSystemFilterFlags)0xD00u)]
 [UpdateAfter(typeof(DOTSSimulationSystemGroup))]
 public partial class DOTSClientSimulationSystemGroup : ComponentSystemGroup { }
+
+[UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
+public partial class DOTSPresentationSystemGroup : ComponentSystemGroup { }

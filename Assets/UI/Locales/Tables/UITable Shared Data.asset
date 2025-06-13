@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: e4fbc5d10cad19f48a8ec4c975bbd1ac
   m_Entries:
   - m_Id: 1864697636577280
-    m_Key: Title_StartGame
+    m_Key: MainMenu_StartGame
     m_Metadata:
       m_Items: []
   - m_Id: 1099486835105792
@@ -89,6 +89,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 146046865408
     m_Key: Menu_Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5574891084308480
+    m_Key: Menu_ReturnToMainMenu
     m_Metadata:
       m_Items: []
   - m_Id: 450565918720
@@ -183,6 +187,22 @@ MonoBehaviour:
     m_Key: Confirmation_QuitGameCancel
     m_Metadata:
       m_Items: []
+  - m_Id: 5565775318212608
+    m_Key: Confirmation_ReturnToMainMenuHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566563679592448
+    m_Key: Confirmation_ReturnToMainMenuContent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566584516894720
+    m_Key: Confirmation_ReturnToMainMenuConfirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5566602447544320
+    m_Key: Confirmation_ReturnToMainMenuCancel
+    m_Metadata:
+      m_Items: []
   - m_Id: 905078021939200
     m_Key: Confirmation_ReturnToLobbyHeader
     m_Metadata:
@@ -213,6 +233,22 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1187602061189120
     m_Key: Confirmation_ResetAllDataCancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554549154504704
+    m_Key: Confirmation_RestoreDefaultsHeader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554691848921088
+    m_Key: Confirmation_RestoreDefaultsContext
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554716880527360
+    m_Key: Confirmation_RestoreDefaultsConfirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5554749793230848
+    m_Key: Confirmation_RestoreDefaultsCancel
     m_Metadata:
       m_Items: []
   - m_Id: 1196605684178944

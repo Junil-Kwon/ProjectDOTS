@@ -21,18 +21,18 @@ public struct color {
 
 	const int RShift = 24;
 	const int GShift = 16;
-	const int BShift =  8;
-	const int AShift =  0;
+	const int BShift = 08;
+	const int AShift = 00;
 
-	public static readonly color white   = new(Color.white);
-	public static readonly color black   = new(Color.black);
-	public static readonly color red     = new(Color.red);
-	public static readonly color green   = new(Color.green);
-	public static readonly color blue    = new(Color.blue);
-	public static readonly color cyan    = new(Color.cyan);
+	public static readonly color white = new(Color.white);
+	public static readonly color black = new(Color.black);
+	public static readonly color red = new(Color.red);
+	public static readonly color green = new(Color.green);
+	public static readonly color blue = new(Color.blue);
+	public static readonly color cyan = new(Color.cyan);
 	public static readonly color magenta = new(Color.magenta);
-	public static readonly color yellow  = new(Color.yellow);
-	public static readonly color clear   = new(Color.clear);
+	public static readonly color yellow = new(Color.yellow);
+	public static readonly color clear = new(Color.clear);
 
 
 
@@ -126,12 +126,12 @@ public struct color {
 		float m = v - c;
 		color color = new(0f, 0f, 0f, a);
 		switch (p) {
-			case < 1f: color.r =  c; color.g =  x; color.b = 0f; break;
-			case < 2f: color.r =  x; color.g =  c; color.b = 0f; break;
-			case < 3f: color.r = 0f; color.g =  c; color.b =  x; break;
-			case < 4f: color.r = 0f; color.g =  x; color.b =  c; break;
-			case < 5f: color.r =  x; color.g = 0f; color.b =  c; break;
-			default:   color.r =  c; color.g = 0f; color.b =  x; break;
+			case < 1f: color.r = c; color.g = x; color.b = 0; break;
+			case < 2f: color.r = x; color.g = c; color.b = 0; break;
+			case < 3f: color.r = 0; color.g = c; color.b = x; break;
+			case < 4f: color.r = 0; color.g = x; color.b = c; break;
+			case < 5f: color.r = x; color.g = 0; color.b = c; break;
+			default: color.r = c; color.g = 0; color.b = x; break;
 		}
 		color.r += m;
 		color.g += m;

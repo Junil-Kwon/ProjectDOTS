@@ -30,29 +30,27 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
+			I.contentType = ContentType.Custom;
 			LabelField("Inputfield", EditorStyles.boldLabel);
-			I.TextViewport  = ObjectField("Text Viewport",  I.TextViewport);
-			I.HideToggle    = ObjectField("Hide Toggle",    I.HideToggle);
-			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
-			Space();
+			I.TextViewport    = ObjectField("Text Viewport",     I.TextViewport);
 			I.PlaceHolderUGUI = ObjectField("Place Holder UGUI", I.PlaceHolderUGUI);
+			I.TextUGUI        = ObjectField("Text UGUI",         I.TextUGUI);
+			I.MaskToggle      = ObjectField("Mask Toggle",       I.MaskToggle);
+			I.RestoreButton   = ObjectField("Restore Button",    I.RestoreButton);
+			Space();
+			I.TextValidation = EnumField("Text Validation", I.TextValidation);
+			if (I.TextValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
+			I.TextLengthLimit = IntField("Text Length Limit", I.TextLengthLimit);
+			I.TextSelectionColor = ColorField("Text Selection Color", I.TextSelectionColor);
+			Space();
 			if (I.PlaceHolderUGUI) I.PlaceHolder = TextField("Place Holder", I.PlaceHolder);
-			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-			if (I.TextUGUI) {
-				I.contentType = ContentType.Custom;
-				I.TextLengthLimit = IntField ("Text Length Limit", I.TextLengthLimit);
-				I.TextValidation  = EnumField("Text Validation",   I.TextValidation);
-				if (I.TextValidation == CharacterValidation.Regex) PropertyField("m_RegexValue");
-				I.TextSelectionColor = ColorField("Text Selection Color", I.TextSelectionColor);
-			}
+			I.DefaultValue = TextField("Default Value", I.DefaultValue);
+			I.CurrentValue = TextField("Current Value", I.CurrentValue);
+			I.Mask = Toggle("Mask", I.Mask);
 			Space();
-			I.Default = TextField("Default", I.Default);
-			I.Value   = TextField("Value",   I.Value);
-			I.Mask    = Toggle   ("Mask",    I.Mask);
-			Space();
-			PropertyField("m_OnStateUpdated");
 			PropertyField("m_OnValueChanged");
 			PropertyField("m_OnEndEdit");
+			PropertyField("m_OnRefreshed");
 			Space();
 
 			End();
@@ -64,12 +62,12 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 
 	// Fields
 
-	[SerializeField] CustomToggle m_HideToggle;
-	[SerializeField] GameObject   m_RestoreButton;
+	[SerializeField] GameObject m_MaskToggle;
+	[SerializeField] GameObject m_RestoreButton;
 
-	[SerializeField] string m_Default;
+	[SerializeField] string m_DefaultValue;
 
-	[SerializeField] UnityEvent<CustomInputfield> m_OnStateUpdated = new();
+	[SerializeField] UnityEvent<CustomInputfield> m_OnRefreshed = new();
 
 
 
@@ -79,35 +77,30 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 		get => m_TextViewport;
 		set => m_TextViewport = value;
 	}
-	CustomToggle HideToggle {
-		get => m_HideToggle;
-		set => m_HideToggle = value;
+	TextMeshProUGUI PlaceHolderUGUI {
+		get => m_Placeholder as TextMeshProUGUI;
+		set => m_Placeholder = value;
+	}
+	TextMeshProUGUI TextUGUI {
+		get => m_TextComponent as TextMeshProUGUI;
+		set => m_TextComponent = value;
+	}
+	GameObject MaskToggle {
+		get => m_MaskToggle;
+		set => m_MaskToggle = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
 		set => m_RestoreButton = value;
 	}
 
-	TextMeshProUGUI PlaceHolderUGUI {
-		get => m_Placeholder as TextMeshProUGUI;
-		set => m_Placeholder = value;
-	}
-	public string PlaceHolder {
-		get => PlaceHolderUGUI.text;
-		set => PlaceHolderUGUI.text = value;
-	}
-
-	TextMeshProUGUI TextUGUI {
-		get => m_TextComponent as TextMeshProUGUI;
-		set => m_TextComponent = value;
+	CharacterValidation TextValidation {
+		get => characterValidation;
+		set => characterValidation = value;
 	}
 	int TextLengthLimit {
 		get => characterLimit;
 		set => characterLimit = value;
-	}
-	CharacterValidation TextValidation {
-		get => characterValidation;
-		set => characterValidation = value;
 	}
 	Color TextSelectionColor {
 		get => selectionColor;
@@ -116,16 +109,20 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 
 
 
-	public string Default {
-		get => m_Default;
+	public string PlaceHolder {
+		get => PlaceHolderUGUI.text;
+		set => PlaceHolderUGUI.text = value;
+	}
+	public string DefaultValue {
+		get => m_DefaultValue;
 		set {
-			if (m_Default != value) {
-				m_Default = value;
-				Value = value;
+			if (m_DefaultValue != value) {
+				m_DefaultValue = value;
+				CurrentValue = value;
 			}
 		}
 	}
-	public string Value {
+	public string CurrentValue {
 		get => text;
 		set {
 			if (text != value) {
@@ -144,22 +141,26 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 		}
 	}
 
-	public UnityEvent<CustomInputfield> OnStateUpdated => m_OnStateUpdated;
-	public UnityEvent<string>           OnValueChanged => onValueChanged;
-	public UnityEvent<string>           OnEndEdit      => onEndEdit;
+	public UnityEvent<string> OnValueChanged => onValueChanged;
+	public UnityEvent<string> OnEndEdit => onEndEdit;
+	public UnityEvent<CustomInputfield> OnRefreshed => m_OnRefreshed;
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (HideToggle)    HideToggle.Value = Mask;
-		if (RestoreButton) RestoreButton.SetActive(Value != Default);
-		OnStateUpdated.Invoke(this);
+		if (MaskToggle && MaskToggle.TryGetComponent(out IBaseWidget widget)) widget.Refresh();
+		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
+		OnRefreshed.Invoke(this);
 	}
 
 	public void Restore() {
-		if (RestoreButton) Value = Default;
+		if (RestoreButton) CurrentValue = DefaultValue;
+	}
+
+	public void RefreshMaskToggle(CustomToggle toggle) {
+		toggle.CurrentValue = Mask;
 	}
 
 
