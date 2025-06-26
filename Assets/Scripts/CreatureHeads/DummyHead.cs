@@ -24,12 +24,10 @@ public struct DummyHead : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(GhostInputSystemGroup))]
+[UpdateInGroup(typeof(DOTSServerSimulationSystemGroup))]
 partial struct DummyHeadSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
-		state.RequireForUpdate<InputManagerBridge>();
-		state.RequireForUpdate<CameraManagerBridge>();
 		state.RequireForUpdate<DummyHead>();
 	}
 
@@ -38,12 +36,12 @@ partial struct DummyHeadSystem : ISystem {
 		}.ScheduleParallel(state.Dependency);
 	}
 
+
+
 	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal), typeof(Simulate))]
 	partial struct DummyHeadSimulationJob : IJobEntity {
 		public void Execute(
-			in CreatureCore core,
-			ref CreatureInput input,
-			ref DummyHead head) {
+			ref CreatureInput input) {
 
 		}
 	}

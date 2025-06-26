@@ -70,6 +70,7 @@ public class GameCanvas : BaseCanvas {
 	// Lifecycle
 
 	protected override void Update(){
+		if (UIManager.CurrentCanvas != this) return;
 		if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
 	}
 }

@@ -31,9 +31,8 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 		public override void OnInspectorGUI() {
 			Begin("Camera Manager");
 
-			if (!MainCamera) {
-				var text = "No camera found.\nPlease add a camera to child object.";
-				HelpBox(text, MessageType.Warning);
+			if (MainCamera == null) {
+				HelpBox("Main Camera is missing.\nPlease add a Camera to children of this GameObject.");
 				Space();
 			} else {
 				LabelField("Camera", EditorStyles.boldLabel);
@@ -76,7 +75,6 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 
 	Camera m_MainCamera;
 	UniversalAdditionalCameraData m_CameraData;
-
 	[SerializeField] float m_FocusDistance = 64f;
 	[SerializeField] float m_Projection = 1f;
 	[SerializeField] constraints m_Constraints = new();
@@ -236,10 +234,10 @@ public partial class CameraManagerSystem : SystemBase {
 
 			var point = transform.ValueRO.Position;
 			var ray = new RaycastInput {
-				Start = point + new float3(0f, +0.5f, 0f),
-				End   = point + new float3(0f, -5.0f, 0f),
+				Start = point + new float3(0f, 0.5f, 0f),
+				End   = point - new float3(0f, 5.0f, 0f),
 				Filter = new CollisionFilter {
-					BelongsTo = ~(0u),
+					BelongsTo    = ~(0u),
 					CollidesWith = ~(1u << (int)PhysicsCategory.Creature),
 				}
 			};

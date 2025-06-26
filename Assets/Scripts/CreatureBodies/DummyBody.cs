@@ -28,20 +28,26 @@ public struct DummyBody : IComponentData {
 partial struct DummyBodySimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<NetworkTime>();
 		state.RequireForUpdate<DummyBody>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
+		var networkTime = SystemAPI.GetSingleton<NetworkTime>();
 		state.Dependency = new DummyBodySimulationJob {
+			IsFullTick = networkTime.IsFirstTimeFullyPredictingTick,
 		}.ScheduleParallel(state.Dependency);
 	}
 
+
+
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct DummyBodySimulationJob : IJobEntity {
+		public bool IsFullTick;
 		public void Execute(
+			in DummyBody body,
 			in CreatureInput input,
 			ref CreatureCore core,
-			ref DummyBody body,
 			ref LocalTransform transform,
 			ref PhysicsVelocity velocity) {
 
@@ -54,24 +60,25 @@ partial struct DummyBodySimulationSystem : ISystem {
 					velocity.Linear.x = 0f;
 					velocity.Linear.z = 0f;
 					core.MotionXTick++;
-					if (0f < input.MoveFactor) core.MotionX = Motion.Move;
+					if (math.any(input.MoveDirection != default)) core.MotionX = Motion.Move;
 					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Move:
-					if (0 < input.MoveFactor) {
-						transform.Rotation = quaternion.LookRotationSafe(-input.MoveVector, math.up());
-						velocity.Linear.x = 5f * input.MoveVector.x;
-						velocity.Linear.z = 5f * input.MoveVector.z;
+					if (math.any(input.MoveDirection != default)) {
+						float3 vector = new(-input.MoveDirection.x, 0f, -input.MoveDirection.y);
+						transform.Rotation = quaternion.LookRotationSafe(vector, math.up());
+						velocity.Linear.x = 5f * input.MoveDirection.x;
+						velocity.Linear.z = 5f * input.MoveDirection.y;
 					}
 					core.MotionXTick++;
-					if (input.MoveFactor == 0f) core.MotionX = Motion.Idle;
+					if (math.all(input.MoveDirection == default)) core.MotionX = Motion.Idle;
 					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Jump:
-					velocity.Linear.x = 5f * input.MoveVector.x;
-					velocity.Linear.z = 5f * input.MoveVector.z;
+					velocity.Linear.x = 5f * input.MoveDirection.x;
+					velocity.Linear.z = 5f * input.MoveDirection.y;
 					if (core.MotionXTick != 10) core.MotionXTick++;
 					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.4f, 0f);
 					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
@@ -100,6 +107,8 @@ partial struct DummyBodyPresentationSystem : ISystem {
 		state.Dependency = new DummyBodyPresentationJob {
 		}.ScheduleParallel(state.Dependency);
 	}
+
+
 
 	[BurstCompile, WithAll(typeof(DummyBody))]
 	partial struct DummyBodyPresentationJob : IJobEntity {

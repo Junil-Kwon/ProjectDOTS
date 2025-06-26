@@ -51,17 +51,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e05a5bf6338ac64086143b0d325718a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Radius: 0.4
+  m_HeadName: Player
+  m_BodyName: Player
+  m_Flag: 0
+  m_Team: 1
   m_Height: 1.44
+  m_Radius: 0.4
   m_MaxEnergy: 20
   m_MaxShield: 0
   m_MaxHealth: 10
   m_Tag: 0
-  m_Immunity: 1431306240
-  m_HeadText: Player
-  m_BodyText: Player
-  m_Flag: 0
-  m_Team: 1
+  m_Immunity: 1431655765
 --- !u!114 &356339463614169064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,5 +358,6 @@ MonoBehaviour:
   TrackInterpolationDelay: 0
   GhostGroup: 0
   UsePreSerialization: 0
+  UseSingleBaseline: 0
   RollbackPredictedSpawnedGhostState: 0
   RollbackPredictionOnStructuralChanges: 1

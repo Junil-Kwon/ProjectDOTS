@@ -41,7 +41,7 @@ public sealed class NavigationManager : MonoSingleton<NavigationManager> {
 
 
 
-	// Definitions
+	// Constants
 
 	const float SampleDistance = 1.0f;
 	const float SampleMaxRange = 5.0f;

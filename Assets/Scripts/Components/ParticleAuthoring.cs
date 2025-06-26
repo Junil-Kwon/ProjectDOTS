@@ -181,7 +181,7 @@ partial struct ParticleInitializationSystem : ISystem {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
 partial struct ParticleSimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {

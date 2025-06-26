@@ -64,6 +64,7 @@ public abstract class BaseCanvas : MonoBehaviour {
 	// Lifecycle
 
 	protected virtual void Update() {
+		if (UIManager.CurrentCanvas != this) return;
 		if (InputManager.GetKeyUp(KeyAction.Cancel)) Back();
 		if (InputManager.Navigate != Vector2.zero && !UIManager.Selected) {
 			UIManager.Selected = FirstSelected;

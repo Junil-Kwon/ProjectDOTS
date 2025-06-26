@@ -12,9 +12,16 @@ using Unity.NetCode;
 // Player Head
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public struct PlayerHead : IComponentData {
+public struct PlayerHead : IInputComponentData {
 
-	public byte Data;
+	public uint Key;
+	public float2 MoveDirection;
+
+	public bool GetKey(KeyAction key) => (Key & (1 << (int)key)) != 0;
+	public void SetKey(KeyAction key, bool value) => Key = value switch {
+		true  => Key |  (1u << (int)key),
+		false => Key & ~(1u << (int)key),
+	};
 }
 
 
@@ -25,7 +32,7 @@ public struct PlayerHead : IComponentData {
 
 [BurstCompile]
 [UpdateInGroup(typeof(GhostInputSystemGroup))]
-partial struct PlayerHeadSystem : ISystem {
+partial struct PlayerHeadGhostSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<InputManagerBridge>();
@@ -40,19 +47,50 @@ partial struct PlayerHeadSystem : ISystem {
 		}.ScheduleParallel(state.Dependency);
 	}
 
+
+
 	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal), typeof(Simulate))]
 	partial struct PlayerHeadSimulationJob : IJobEntity {
-		[ReadOnly] public InputManagerBridge  InputManager;
+		[ReadOnly] public InputManagerBridge InputManager;
 		[ReadOnly] public CameraManagerBridge CameraManager;
 		public void Execute(
-			in CreatureCore core,
-			ref CreatureInput input,
 			ref PlayerHead head) {
 
-			input.Key = InputManager.KeyNext;
+			head.Key = InputManager.KeyNext;
 			float3 moveDirection = new(InputManager.MoveDirection.x, 0f, InputManager.MoveDirection.y);
 			float3 eulerRotation = new(0f, CameraManager.Yaw * math.TORADIANS, 0f);
-			input.MoveVector = math.mul(quaternion.Euler(eulerRotation), moveDirection);
+			float3 rotatedMoveDirection = math.mul(quaternion.Euler(eulerRotation), moveDirection);
+			head.MoveDirection = new(rotatedMoveDirection.x, rotatedMoveDirection.z);
+		}
+	}
+}
+
+
+
+[BurstCompile]
+[UpdateInGroup(typeof(DOTSPredictedSimulationSystemGroup))]
+partial struct PlayerHeadSystem : ISystem {
+
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<PlayerHead>();
+		state.RequireForUpdate<CreatureInput>();
+	}
+
+	public void OnUpdate(ref SystemState state) {
+		state.Dependency = new PlayerHeadInputJob() {
+		}.ScheduleParallel(state.Dependency);
+	}
+
+
+
+	[BurstCompile, WithAll(typeof(GhostOwnerIsLocal), typeof(Simulate))]
+	partial struct PlayerHeadInputJob : IJobEntity {
+		public void Execute(
+			ref PlayerHead head,
+			ref CreatureInput input) {
+
+			input.Key = head.Key;
+			input.MoveDirection = head.MoveDirection;
 		}
 	}
 }

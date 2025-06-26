@@ -56,9 +56,9 @@ MonoBehaviour:
   m_MaxShield: 0
   m_MaxHealth: 10
   m_Tag: 0
-  m_Immunity: 1431306240
-  m_HeadText: Dummy
-  m_BodyText: Dummy
+  m_Immunity: 1431655765
+  m_HeadName: Dummy
+  m_BodyName: Dummy
   m_Flag: 0
   m_Team: 0
 --- !u!114 &-523836587068498667
@@ -342,5 +342,6 @@ MonoBehaviour:
   TrackInterpolationDelay: 0
   GhostGroup: 0
   UsePreSerialization: 0
+  UseSingleBaseline: 0
   RollbackPredictedSpawnedGhostState: 0
   RollbackPredictionOnStructuralChanges: 1

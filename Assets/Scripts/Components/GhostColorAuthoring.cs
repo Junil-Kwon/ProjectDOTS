@@ -85,8 +85,7 @@ public struct GhostColor : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
 partial struct GhostColorSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {

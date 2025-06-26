@@ -190,3 +190,48 @@ public class IsLocalEvent : BaseEvent {
 		}
 	}
 }
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Network Manager | Is Single Player
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[NodeMenu("Network Manager/Is Single Player")]
+public class IsSinglePlayerEvent : BaseEvent {
+
+	// Node
+
+	#if UNITY_EDITOR
+	public class IsSinglePlayerEventNode : BaseEventNode {
+		IsSinglePlayerEvent I => target as IsSinglePlayerEvent;
+
+		public IsSinglePlayerEventNode() : base() {
+			mainContainer.style.width = DefaultNodeWidth;
+			var purple = new StyleColor(color.HSVtoRGB(270f, 0.75f, 0.60f));
+			titleContainer.style.backgroundColor = purple;
+		}
+
+		public override void ConstructPort() {
+			CreatePort(Direction.Input);
+			CreatePort(Direction.Output).portName = "True";
+			CreatePort(Direction.Output).portName = "False";
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+	}
+	#endif
+
+
+
+	// Methods
+
+	public override void GetNext(List<BaseEvent> list) {
+		list ??= new();
+		list.Clear();
+		int index = NetworkManager.IsSinglePlayer ? 0 : 1;
+		foreach (var next in next) if (next.oPortType == PortType.Default) {
+			if (next.oPort == index) list.Add(next.data);
+		}
+	}
+}

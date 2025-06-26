@@ -14,7 +14,7 @@ using UnityEditor;
 
 // Prefab Names
 
-public enum Prefab : ushort {
+public enum Prefab : uint {
 	Dummy,
 	Player,
 
@@ -55,7 +55,7 @@ public class PrefabContainerAuthoring : MonoBehaviour {
 			var entity = GetEntity(TransformUsageFlags.None);
 			var buffer = AddBuffer<PrefabContainer>(entity);
 			var prefabs = new NativeArray<PrefabContainer>(1024, Allocator.Temp);
-			foreach (var gameObject in Resources.LoadAll<GameObject>("Prefabs")) {
+			foreach (var gameObject in Resources.LoadAll<GameObject>("")) {
 				if (Enum.TryParse(gameObject.name, out Prefab prefab)) {
 					prefabs[(int)prefab] = new PrefabContainer {
 

@@ -131,7 +131,7 @@ public struct color {
 			case < 3f: color.r = 0; color.g = c; color.b = x; break;
 			case < 4f: color.r = 0; color.g = x; color.b = c; break;
 			case < 5f: color.r = x; color.g = 0; color.b = c; break;
-			default: color.r = c; color.g = 0; color.b = x; break;
+			default:   color.r = c; color.g = 0; color.b = x; break;
 		}
 		color.r += m;
 		color.g += m;

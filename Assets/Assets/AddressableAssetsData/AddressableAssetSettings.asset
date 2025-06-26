@@ -132,6 +132,7 @@ MonoBehaviour:
     - Locale-de
     - Locale-es
     - Locale-zh-Hant
+    - Preload
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b7c5af6ca54c7464f9b74bbf5539f188, type: 2}

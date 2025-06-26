@@ -78,6 +78,9 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			BeginDisabledGroup();
 			TextField("Service State", $"{ServiceState}");
 			TextField("Network State", $"{NetworkState}");
+			Space();
+			TextField("Port", $"{Port}");
+			TextField("Max Players", $"{MaxPlayers}");
 			EndDisabledGroup();
 			Space();
 
@@ -165,6 +168,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		NetworkState.ConnectedAsLocalClient => true,
 		_ => false,
 	};
+	public static bool IsSinglePlayer => MaxPlayers == 1 && IsLocal;
 
 	public static ushort Port {
 		get => Instance.m_Port;
@@ -270,7 +274,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
 
 			NetworkState = NetworkState.Connecting;
-			Listen (server, NetworkEndpoint.AnyIpv4);
+			Listen(server, NetworkEndpoint.AnyIpv4);
 			Connect(client, relayClientData.Endpoint);
 			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
@@ -355,7 +359,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 			await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
 
 			NetworkState = NetworkState.Connecting;
-			Listen (server, NetworkEndpoint.AnyIpv4.WithPort(Port));
+			Listen(server, NetworkEndpoint.AnyIpv4.WithPort(Port));
 			Connect(client, NetworkEndpoint.LoopbackIpv4.WithPort(Port));
 			float timeStartConnect = Time.realtimeSinceStartup;
 			while (NetworkState == NetworkState.Connecting) {
@@ -409,7 +413,11 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 	// Connection Methods
 
 	public static void Connect() {
-		CreateLocalHost(7979, 1);
+		var listener = new TcpListener(IPAddress.Loopback, 0);
+		listener.Start();
+		var port = (ushort)((IPEndPoint)listener.LocalEndpoint).Port;
+		listener.Stop();
+		CreateLocalHost(port, 1);
 	}
 
 	public static void Disconnect() {
@@ -562,8 +570,7 @@ public struct RequestApprovalRpc : IApprovalRpcCommand {
 
 
 
-[WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSServerSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerServerApprovalSystem : SystemBase {
 	EndSimulationEntityCommandBufferSystem System;
 	EntityQuery QueryApproved;
@@ -615,8 +622,7 @@ public partial class NetworkManagerServerApprovalSystem : SystemBase {
 
 
 
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerClientApprovalSystem : SystemBase {
 	EndSimulationEntityCommandBufferSystem System;
 
@@ -658,8 +664,7 @@ public struct ChatMessageRpc : IRpcCommand {
 
 
 
-[WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSServerSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerServerMessageSystem : SystemBase {
 	EndSimulationEntityCommandBufferSystem System;
 
@@ -685,8 +690,7 @@ public partial class NetworkManagerServerMessageSystem : SystemBase {
 
 
 
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup), OrderLast = true)]
 public partial class NetworkManagerClientMessageSystem : SystemBase {
 	EndSimulationEntityCommandBufferSystem System;
 

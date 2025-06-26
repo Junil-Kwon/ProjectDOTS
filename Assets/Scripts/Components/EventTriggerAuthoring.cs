@@ -198,8 +198,7 @@ rpc this entity
 */
 
 [BurstCompile]
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup))]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
 partial struct EventTriggerSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {

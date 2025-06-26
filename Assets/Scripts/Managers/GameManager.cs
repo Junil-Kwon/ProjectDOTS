@@ -92,9 +92,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			Instance.m_MaxFrameRate;
 		set {
 			PlayerPrefs.SetInt(MaxFrameRateKey, Instance.m_MaxFrameRate = Mathf.Max(60, value));
-			//#if !UNITY_EDITOR
-			//if (Application.isPlaying) Application.targetFrameRate = Instance.m_MaxFrameRate;
-			//#endif
+			if (Application.isPlaying) Application.targetFrameRate = Instance.m_MaxFrameRate;
 		}
 	}
 
@@ -228,7 +226,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSServerSimulationSystemGroup), OrderLast = true)]
 public partial class GameManagerServerSystem : SystemBase {
 
 	protected override void OnCreate() {
@@ -245,7 +243,7 @@ public partial class GameManagerServerSystem : SystemBase {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(DOTSSimulationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup), OrderLast = true)]
 public partial class GameManagerClientSystem : SystemBase {
 
 	protected override void OnCreate() {

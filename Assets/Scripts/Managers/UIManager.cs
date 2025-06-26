@@ -63,12 +63,12 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	GameCanvas m_GameCanvas;
 	MultiplayerCanvas m_MultiplayerCanvas;
 	DialogueCanvas m_DialogueCanvas;
-	ChatCanvas m_ChatCanvas;
 	MenuCanvas m_MenuCanvas;
 	AchievementCanvas m_AchievementCanvas;
 	SettingsCanvas m_SettingsCanvas;
 	ConfirmationCanvas m_ConfirmationCanvas;
 	AlertCanvas m_AlertCanvas;
+	ChatCanvas m_ChatCanvas;
 	FadeCanvas m_FadeCanvas;
 	DebugCanvas m_DebugCanvas;
 
@@ -97,10 +97,6 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		Instance.m_DialogueCanvas || TryGetComponentInChildren(out Instance.m_DialogueCanvas) ?
 		Instance.m_DialogueCanvas : null;
 
-	static ChatCanvas ChatCanvas =>
-		Instance.m_ChatCanvas || TryGetComponentInChildren(out Instance.m_ChatCanvas) ?
-		Instance.m_ChatCanvas : null;
-
 	static MenuCanvas MenuCanvas =>
 		Instance.m_MenuCanvas || TryGetComponentInChildren(out Instance.m_MenuCanvas) ?
 		Instance.m_MenuCanvas : null;
@@ -120,6 +116,10 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	static AlertCanvas AlertCanvas =>
 		Instance.m_AlertCanvas || TryGetComponentInChildren(out Instance.m_AlertCanvas) ?
 		Instance.m_AlertCanvas : null;
+
+	static ChatCanvas ChatCanvas =>
+		Instance.m_ChatCanvas || TryGetComponentInChildren(out Instance.m_ChatCanvas) ?
+		Instance.m_ChatCanvas : null;
 
 	static FadeCanvas FadeCanvas =>
 		Instance.m_FadeCanvas || TryGetComponentInChildren(out Instance.m_FadeCanvas) ?
@@ -204,12 +204,12 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 	public static void OpenMultiplayer()  => OpenOverlayCanvas(MultiplayerCanvas);
 	public static void OpenDialogue()     => OpenOverlayCanvas(DialogueCanvas);
-	public static void OpenChat()         => OpenOverlayCanvas(ChatCanvas);
 	public static void OpenMenu()         => OpenOverlayCanvas(MenuCanvas);
 	public static void OpenAchievement()  => OpenOverlayCanvas(AchievementCanvas);
 	public static void OpenSettings()     => OpenOverlayCanvas(SettingsCanvas);
 	public static void OpenConfirmation() => OpenOverlayCanvas(ConfirmationCanvas);
 	public static void OpenAlert()        => OpenOverlayCanvas(AlertCanvas);
+	public static void OpenChat()         => OpenOverlayCanvas(ChatCanvas);
 
 	static void OpenOverlayCanvas(BaseCanvas overlayCanvas) {
 		if (overlayCanvas == CurrentCanvas) return;

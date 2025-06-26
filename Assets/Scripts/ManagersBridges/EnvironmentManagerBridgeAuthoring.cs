@@ -78,7 +78,7 @@ public partial class EnvironmentManagerBridgeSystem : SystemBase {
 	}
 
 	protected override void OnUpdate() {
-		var bridge = SystemAPI.GetSingletonRW<AIManagerBridge>();
+		var bridge = SystemAPI.GetSingletonRW<EnvironmentManagerBridge>();
 
 		var i = bridge.ValueRO;
 

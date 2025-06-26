@@ -28,15 +28,16 @@ public struct PlayerBody : IComponentData {
 partial struct PlayerBodySimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
-		state.RequireForUpdate<PlayerBody>();
 		state.RequireForUpdate<NetworkTime>();
+		state.RequireForUpdate<PlayerBody>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
+		var networkTime = SystemAPI.GetSingleton<NetworkTime>();
 		state.Dependency = new PlayerBodySimulationJob {
+			IsFullTick = networkTime.IsFirstTimeFullyPredictingTick,
 		}.ScheduleParallel(state.Dependency);
 
-		var networkTime = SystemAPI.GetSingleton<NetworkTime>();
 		if (networkTime.IsFirstTimeFullyPredictingTick) {
 			foreach (var input in SystemAPI.Query<RefRO<CreatureInput>>().WithAll<Simulate>()) {
 				if (input.ValueRO.GetKey(KeyAction.Ability1)) {
@@ -50,12 +51,15 @@ partial struct PlayerBodySimulationSystem : ISystem {
 		}
 	}
 
+
+
 	[BurstCompile, WithAll(typeof(Simulate))]
 	partial struct PlayerBodySimulationJob : IJobEntity {
+		public bool IsFullTick;
 		public void Execute(
+			in PlayerBody body,
 			in CreatureInput input,
 			ref CreatureCore core,
-			ref PlayerBody body,
 			ref LocalTransform transform,
 			ref PhysicsVelocity velocity) {
 
@@ -67,25 +71,26 @@ partial struct PlayerBodySimulationSystem : ISystem {
 				case Motion.Idle:
 					velocity.Linear.x = 0f;
 					velocity.Linear.z = 0f;
-					core.MotionXTick++;
-					if (0f < input.MoveFactor) core.MotionX = Motion.Move;
+					if (IsFullTick) core.MotionXTick++;
+					if (math.any(input.MoveDirection != default)) core.MotionX = Motion.Move;
 					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Move:
-					if (0f < input.MoveFactor) {
-						transform.Rotation = quaternion.LookRotationSafe(-input.MoveVector, math.up());
-						velocity.Linear.x = 5f * input.MoveVector.x;
-						velocity.Linear.z = 5f * input.MoveVector.z;
+					if (math.any(input.MoveDirection != default)) {
+						float3 vector = new(-input.MoveDirection.x, 0f, -input.MoveDirection.y);
+						transform.Rotation = quaternion.LookRotationSafe(vector, math.up());
+						velocity.Linear.x = 5f * input.MoveDirection.x;
+						velocity.Linear.z = 5f * input.MoveDirection.y;
 					}
-					core.MotionXTick++;
-					if (input.MoveFactor == 0f) core.MotionX = Motion.Idle;
+					if (IsFullTick) core.MotionXTick++;
+					if (math.all(input.MoveDirection == default)) core.MotionX = Motion.Idle;
 					if (input.GetKey(KeyAction.Jump) && core.IsGrounded) core.MotionX = Motion.Jump;
 					break;
 
 				case Motion.Jump:
-					velocity.Linear.x = 5f * input.MoveVector.x;
-					velocity.Linear.z = 5f * input.MoveVector.z;
+					velocity.Linear.x = 5f * input.MoveDirection.x;
+					velocity.Linear.z = 5f * input.MoveDirection.y;
 					if (core.MotionXTick != 10) core.MotionXTick++;
 					if (core.MotionXTick ==  5) core.KnockVector += new float3(0f, 2.4f, 0f);
 					if (core.MotionXTick == 10 && core.IsGrounded) core.MotionXTick++;
@@ -114,6 +119,8 @@ partial struct PlayerBodyPresentationSystem : ISystem {
 		state.Dependency = new PlayerBodyPresentationJob {
 		}.ScheduleParallel(state.Dependency);
 	}
+
+
 
 	[BurstCompile, WithAll(typeof(PlayerBody))]
 	partial struct PlayerBodyPresentationJob : IJobEntity {

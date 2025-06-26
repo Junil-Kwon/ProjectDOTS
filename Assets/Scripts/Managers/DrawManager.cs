@@ -29,9 +29,9 @@ public struct TileDrawData {
 
 	public float2 tiling;
 	public float2 offset;
-	public color  basecolor;
-	public color  maskcolor;
-	public color  emission;
+	public color basecolor;
+	public color maskcolor;
+	public color emission;
 }
 
 public struct SpriteDrawData {
@@ -41,9 +41,9 @@ public struct SpriteDrawData {
 
 	public float2 tiling;
 	public float2 offset;
-	public color  basecolor;
-	public color  maskcolor;
-	public color  emission;
+	public color basecolor;
+	public color maskcolor;
+	public color emission;
 }
 
 public struct ShadowDrawData {
@@ -62,7 +62,7 @@ public struct UIDrawData {
 
 	public float2 tiling;
 	public float2 offset;
-	public color  basecolor;
+	public color basecolor;
 }
 
 

@@ -40,8 +40,6 @@ public enum KeyAction : byte {
 	ScrollWheel,
 	Submit,
 	Cancel,
-	TrackedDevicePosition,
-	TrackedDeviceOrientation,
 }
 
 
@@ -63,19 +61,17 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		public override void OnInspectorGUI() {
 			Begin("Input Manager");
 
-			if (!InputActionAsset) {
-				var t0 = "No input action asset found.";
-				var t1 = "Please assign an Input Action Asset to the Player Input component.";
-				HelpBox($"{t0}\n{t1}", MessageType.Warning);
+			if (InputActionAsset == null) {
+				HelpBox("Input Action Asset is missing.\nPlease assign it in the Player Input.");
+				Space();
+			} else {
+				LabelField("Debug", EditorStyles.boldLabel);
+				BeginDisabledGroup();
+				var actionMap = Application.isPlaying ? PlayerInput.currentActionMap.name : "None";
+				TextField("Action Map", actionMap);
+				EndDisabledGroup();
 				Space();
 			}
-			LabelField("Debug", EditorStyles.boldLabel);
-			BeginDisabledGroup();
-			var actionMap = Application.isPlaying ? PlayerInput.currentActionMap.name : "None";
-			TextField("Action Map", actionMap);
-			EndDisabledGroup();
-			Space();
-
 			End();
 		}
 	}
@@ -93,10 +89,9 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Fields
 
 	PlayerInput m_PlayerInput;
+	bool m_IsPointing;
 
 	float m_MouseSensitivity;
-
-	bool m_IsPointing;
 	uint m_KeyNext;
 	uint m_KeyPrev;
 	Vector2 m_LookDirection;
@@ -117,6 +112,11 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	static InputActionAsset InputActionAsset => PlayerInput.actions;
 
+	public static bool IsPointing {
+		get         => Instance.m_IsPointing;
+		private set => Instance.m_IsPointing = value;
+	}
+
 
 
 	public static float MouseSensitivity {
@@ -126,10 +126,6 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		set => PlayerPrefs.SetFloat(SensitivityKey, Instance.m_MouseSensitivity = value);
 	}
 
-	public static bool IsPointing {
-		get         => Instance.m_IsPointing;
-		private set => Instance.m_IsPointing = value;
-	}
 	public static uint KeyNext {
 		get         => Instance.m_KeyNext;
 		private set => Instance.m_KeyNext = value;
@@ -176,7 +172,8 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 				if (!Enum.TryParse(inputAction.name, out KeyAction keyAction)) continue;
 
 				int index = (int)keyAction;
-				inputAction.performed += (KeyAction)index switch {
+				inputAction.started += callback => KeyNext |= 1u << index;
+				inputAction.performed += keyAction switch {
 					KeyAction.Look        => callback => LookDirection = callback.ReadValue<Vector2>(),
 					KeyAction.Move        => callback => MoveDirection = callback.ReadValue<Vector2>(),
 					KeyAction.Point       => callback => PointPosition = callback.ReadValue<Vector2>(),
@@ -187,8 +184,14 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 						false => KeyNext &= ~(1u << index),
 					},
 				};
-				inputAction.started  += callback => KeyNext |=  (1u << index);
-				inputAction.canceled += callback => KeyNext &= ~(1u << index);
+				inputAction.canceled += keyAction switch {
+					KeyAction.Look        => callback => LookDirection = Vector2.zero,
+					KeyAction.Move        => callback => MoveDirection = Vector2.zero,
+					KeyAction.Point       => callback => PointPosition = Vector2.zero,
+					KeyAction.ScrollWheel => callback => ScrollWheel   = Vector2.zero,
+					KeyAction.Navigate    => callback => Navigate      = Vector2.zero,
+					_ => callback => KeyNext &= ~(1u << index),
+				};
 			}
 		}
 		InputSystem.onBeforeUpdate += () => KeyPrev = KeyNext;
@@ -211,15 +214,10 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	public static void SwitchActionMap(ActionMap actionMap, bool hideCursor = false) {
 		if (InputActionAsset == null) return;
 		PlayerInput.currentActionMap = InputActionAsset.FindActionMap(actionMap.ToString());
+		KeyPrev = KeyNext = default;
+		LookDirection = MoveDirection = PointPosition = ScrollWheel = Navigate = default;
 		Cursor.lockState = hideCursor ? CursorLockMode.Locked : CursorLockMode.None;
 		Cursor.visible = !hideCursor;
-		KeyPrev = 0u;
-		KeyNext = 0u;
-		LookDirection = Vector2.zero;
-		MoveDirection = Vector2.zero;
-		PointPosition = Vector2.zero;
-		ScrollWheel   = Vector2.zero;
-		Navigate      = Vector2.zero;
 	}
 
 
