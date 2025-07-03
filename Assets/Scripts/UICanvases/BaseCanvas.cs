@@ -41,7 +41,7 @@ public abstract class BaseCanvas : MonoBehaviour {
 	public virtual void Show() {
 		gameObject.SetActive(true);
 		if (Raycaster && Raycaster.enabled) {
-			UIManager.Selected = !InputManager.IsPointing switch {
+			UIManager.Selected = !InputManager.IsPointerMode switch {
 				true  => LastSelected ? LastSelected : FirstSelected,
 				false => null,
 			};

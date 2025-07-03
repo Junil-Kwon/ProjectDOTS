@@ -61,6 +61,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		public override void OnInspectorGUI() {
 			Begin("Input Manager");
 
+			I.TrySetInstance();
 			if (InputActionAsset == null) {
 				HelpBox("Input Action Asset is missing.\nPlease assign it in the Player Input.");
 				Space();
@@ -81,17 +82,18 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	// Constants
 
-	const string SensitivityKey = "MouseSensitivity";
-	const float SensitivityValue = 0.2f;
+	const string PointerSensKey = "PointerSens";
+	const float PointerSensDefault = 1f;
 
 
 
 	// Fields
 
 	PlayerInput m_PlayerInput;
-	bool m_IsPointing;
 
-	float m_MouseSensitivity;
+	float? m_PointerSens;
+	bool m_IsPointerMode;
+
 	uint m_KeyNext;
 	uint m_KeyPrev;
 	Vector2 m_LookDirection;
@@ -112,19 +114,18 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	static InputActionAsset InputActionAsset => PlayerInput.actions;
 
-	public static bool IsPointing {
-		get         => Instance.m_IsPointing;
-		private set => Instance.m_IsPointing = value;
+
+
+	public static float PointerSens {
+		get => Instance.m_PointerSens ??= PlayerPrefs.GetFloat(PointerSensKey, PointerSensDefault);
+		set => PlayerPrefs.SetFloat(PointerSensKey, (Instance.m_PointerSens = value) ?? default);
+	}
+	public static bool IsPointerMode {
+		get         => Instance.m_IsPointerMode;
+		private set => Instance.m_IsPointerMode = value;
 	}
 
 
-
-	public static float MouseSensitivity {
-		get => Instance.m_MouseSensitivity == default ?
-			Instance.m_MouseSensitivity = PlayerPrefs.GetFloat(SensitivityKey, SensitivityValue) :
-			Instance.m_MouseSensitivity;
-		set => PlayerPrefs.SetFloat(SensitivityKey, Instance.m_MouseSensitivity = value);
-	}
 
 	public static uint KeyNext {
 		get         => Instance.m_KeyNext;
@@ -154,6 +155,8 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 		get         => Instance.m_Navigate;
 		private set => Instance.m_Navigate = value;
 	}
+
+
 
 	public static string KeyPressed {
 		get         => Instance.m_KeyPressed;
@@ -200,7 +203,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 			var inputAction = obj as InputAction;
 			if (inputAction?.activeControl == null) return;
 			var device = inputAction.activeControl.device;
-			IsPointing = device is Pointer;
+			IsPointerMode = device is Pointer;
 		};
 	}
 
@@ -224,18 +227,16 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	// Key Binding Methods
 
-	public static List<string> GetKeysBinding(KeyAction keyAction) {
-		var keys = new List<string>();
-		if (InputActionAsset == null) return keys;
+	public static void GetKeysBinding(KeyAction keyAction, List<string> keys) {
+		if (InputActionAsset == null) return;
 		var inputAction = InputActionAsset.FindAction(keyAction.ToString());
 		if (inputAction != null) {
+			keys.Clear();
 			for (int i = 0; i < inputAction.bindings.Count; i++) {
 				var split = inputAction.bindings[i].path.Split('/');
 				if (split[0].Equals("<Keyboard>")) keys.Add(split[1]);
-				// path: "<Device>/Key"
 			}
 		}
-		return keys;
 	}
 
 	public static void SetKeysBinding(KeyAction keyAction, List<string> keys) {
@@ -245,12 +246,11 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 			for (int i = inputAction.bindings.Count - 1; -1 < i; i--) {
 				var split = inputAction.bindings[i].path.Split('/');
 				if (split[0].Equals("<Keyboard>")) inputAction.ChangeBinding(i).Erase();
-				// path: "<Device>/Key"
 			}
-			foreach (string key in keys) inputAction.AddBinding("<Keyboard>/" + key);
+			if (keys != null) foreach (string key in keys) {
+				inputAction.AddBinding("<Keyboard>/" + key);
+			}
 		}
-		//bool isMove = KeyAction.MoveUp <= keyAction && keyAction <= KeyAction.MoveRight;
-		//if (isMove) SyncMoveBinding();
 	}
 
 	/*static void SyncMoveBinding() {
@@ -282,11 +282,10 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 
 	static void RegisterKeyRecord() {
 		InputSystem.onAnyButtonPress.Call(inputControl => {
-			if (KeyPressed != null) {
-				var parts = inputControl.path.Split('/');
-				if (parts[1].Equals("Keyboard")) KeyPressed = parts[2];
-				// path: "/Device/Key"
-			}
+			if (KeyPressed == null) return;
+			var split = inputControl.path.Split('/');
+			if (split[1].Equals("Keyboard")) KeyPressed = split[2];
+			// path: "/Device/Key"
 		});
 	}
 
@@ -295,7 +294,7 @@ public sealed class InputManager : MonoSingleton<InputManager> {
 	// Lifecycle
 
 	void Start() {
-		MouseSensitivity = MouseSensitivity;
+		PointerSens = PointerSens;
 		RegisterActionMap();
 		RegisterKeyRecord();
 	}

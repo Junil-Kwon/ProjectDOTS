@@ -17,15 +17,17 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 
 	// Properties
 
-	public static T Instance => instance ??= FindAnyObjectByType<T>();
+	protected static T Instance => instance ??= FindAnyObjectByType<T>();
 
 
 
 	// Methods
 
-	public static bool TryGetComponentInChildren<K>(out K component) where K : Component {
+	protected void TrySetInstance() => instance ??= this as T;
+
+	protected static bool TryGetComponentInChildren<K>(out K component) where K : Component {
 		var transform = Instance.transform;
-		for (int i = 0; i < transform.childCount; i++) {
+		for (int i = 0; i < Instance.transform.childCount; i++) {
 			if (transform.GetChild(i).TryGetComponent(out component)) {
 				return true;
 			}
@@ -39,7 +41,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 	// Lifecycle
 
 	protected virtual void Awake() {
-		instance ??= this as T;
+		TrySetInstance();
 		if (Instance == this) DontDestroyOnLoad(gameObject);
 		else DestroyImmediate(gameObject);
 	}

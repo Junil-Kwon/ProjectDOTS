@@ -203,9 +203,7 @@ public class EditorExtensions : Editor {
 	}
 
 	public int LayerField(int layer) {
-		var options = new string[32];
-		for (int i = 0; i < options.Length; i++) options[i] = LayerMask.LayerToName(i);
-		return EditorGUILayout.MaskField(layer, options);
+		return LayerField(string.Empty, layer);
 	}
 	public int LayerField(string label, int layer) {
 		var options = new string[32];

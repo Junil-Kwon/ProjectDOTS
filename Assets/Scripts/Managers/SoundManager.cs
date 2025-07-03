@@ -22,6 +22,8 @@ public sealed class SoundManager : MonoSingleton<SoundManager> {
 		public override void OnInspectorGUI() {
 			Begin("Sound Manager");
 
+			I.TrySetInstance();
+
 			End();
 		}
 	}

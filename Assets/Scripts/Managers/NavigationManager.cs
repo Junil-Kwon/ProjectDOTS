@@ -27,6 +27,7 @@ public sealed class NavigationManager : MonoSingleton<NavigationManager> {
 		public override void OnInspectorGUI() {
 			Begin("Navigation Manager");
 
+			I.TrySetInstance();
 			LabelField("Navigation", EditorStyles.boldLabel);
 			BeginHorizontal();
 			PrefixLabel("Bake NavMesh");

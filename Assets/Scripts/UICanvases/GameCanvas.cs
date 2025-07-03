@@ -71,6 +71,7 @@ public class GameCanvas : BaseCanvas {
 
 	protected override void Update(){
 		if (UIManager.CurrentCanvas != this) return;
-		if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
+		//if (InputManager.GetKeyUp(KeyAction.Menu) || !Application.isFocused) Back();
+		if (InputManager.GetKeyUp(KeyAction.Menu)) Back();
 	}
 }

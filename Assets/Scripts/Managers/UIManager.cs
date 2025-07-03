@@ -27,6 +27,7 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 		public override void OnInspectorGUI() {
 			Begin("UI Manager");
 
+			I.TrySetInstance();
 			LabelField("Debug", EditorStyles.boldLabel);
 			BeginDisabledGroup();
 			TextField("Current Canvas", $"{(Application.isPlaying ? CurrentCanvas : "None")}");

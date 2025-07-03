@@ -23,6 +23,7 @@ public class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 		public override void OnInspectorGUI() {
 			Begin("Environment Manager");
 
+			I.TrySetInstance();
 			if (MainLight == null) {
 				HelpBox("Main Light is missing. Please add a Light to children of this GameObject.");
 				Space();

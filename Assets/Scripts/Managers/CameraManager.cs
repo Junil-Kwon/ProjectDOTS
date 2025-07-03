@@ -31,6 +31,7 @@ public sealed class CameraManager : MonoSingleton<CameraManager> {
 		public override void OnInspectorGUI() {
 			Begin("Camera Manager");
 
+			I.TrySetInstance();
 			if (MainCamera == null) {
 				HelpBox("Main Camera is missing.\nPlease add a Camera to children of this GameObject.");
 				Space();
@@ -242,11 +243,11 @@ public partial class CameraManagerSystem : SystemBase {
 				}
 			};
 			if (world.CastRay(ray, out var hit)) point = hit.Position;
-			point += new float3(0f, blob.ValueRO.Value.Value.Height + 1f, 0f);
+			point += new float3(0f, blob.ValueRO.Value.Value.RoughHeight + 1f, 0f);
 
 			var delta = (Vector3)point - CameraManager.Position;
 			CameraManager.Position += 5f * SystemAPI.Time.DeltaTime * delta;
-			CameraManager.Yaw += InputManager.LookDirection.x * InputManager.MouseSensitivity * 0.1f;
+			CameraManager.Yaw += InputManager.LookDirection.x * InputManager.PointerSens * 0.1f;
 			break;
 		}
 	}

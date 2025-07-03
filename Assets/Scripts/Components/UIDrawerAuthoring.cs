@@ -156,7 +156,7 @@ public class UIDrawerAuthoring : MonoBehaviour {
 // UI Drawer
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[InternalBufferCapacity(7)]
+[InternalBufferCapacity(6)]
 public struct UIDrawer : IBufferElementData {
 
 	// Constants

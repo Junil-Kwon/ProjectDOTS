@@ -56,7 +56,8 @@ public struct InputManagerBridge : IComponentData {
 
 	// Fields
 
-	public float m_MouseSensitivity;
+	public float m_PointerSens;
+
 	public uint m_KeyPrev;
 	public uint m_KeyNext;
 	public float2 m_LookDirection;
@@ -71,9 +72,9 @@ public struct InputManagerBridge : IComponentData {
 
 	// Properties
 
-	public float MouseSensitivity {
-		get => m_MouseSensitivity;
-		set => m_MouseSensitivity = value;
+	public float PointerSens {
+		get => m_PointerSens;
+		set => m_PointerSens = value;
 	}
 
 	public uint KeyPrev {
@@ -136,14 +137,14 @@ public partial class InputManagerBridgeSystem : SystemBase {
 		var i = bridge.ValueRO;
 
 		ref var o = ref bridge.ValueRW;
-		o.MouseSensitivity = InputManager.MouseSensitivity;
-		o.KeyPrev          = InputManager.KeyPrev;
-		o.KeyNext          = InputManager.KeyNext;
-		o.LookDirection    = InputManager.LookDirection;
-		o.MoveDirection    = InputManager.MoveDirection;
-		o.PointPosition    = InputManager.PointPosition;
-		o.ScrollWheel      = InputManager.ScrollWheel;
-		o.Navigate         = InputManager.Navigate;
+		o.PointerSens   = InputManager.PointerSens;
+		o.KeyPrev       = InputManager.KeyPrev;
+		o.KeyNext       = InputManager.KeyNext;
+		o.LookDirection = InputManager.LookDirection;
+		o.MoveDirection = InputManager.MoveDirection;
+		o.PointPosition = InputManager.PointPosition;
+		o.ScrollWheel   = InputManager.ScrollWheel;
+		o.Navigate      = InputManager.Navigate;
 
 		o.Flag = 0u;
 	}

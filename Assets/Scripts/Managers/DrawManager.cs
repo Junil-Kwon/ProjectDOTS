@@ -92,6 +92,7 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 		public override void OnInspectorGUI() {
 			Begin("Draw Manager");
 
+			I.TrySetInstance();
 			LabelField("Material", EditorStyles.boldLabel);
 			TileMaterial   = ObjectField("Tile Material",   TileMaterial);
 			SpriteMaterial = ObjectField("Sprite Material", SpriteMaterial);
@@ -1149,36 +1150,36 @@ public partial class DrawManagerSystem : SystemBase {
 	protected override void OnCreate() {
 		System = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>();
 
-		TileLUTable   = new(DrawManager.TileLUTable.Count,   Allocator.Persistent);
+		TileLUTable   = new(DrawManager.TileLUTable.Count, Allocator.Persistent);
 		SpriteLUTable = new(DrawManager.SpriteLUTable.Count, Allocator.Persistent);
 		ShadowLUTable = new(DrawManager.ShadowLUTable.Count, Allocator.Persistent);
-		UILUTable     = new(DrawManager.UILUTable.Count,     Allocator.Persistent);
-		foreach (var pair in DrawManager.TileLUTable)   TileLUTable  .Add(pair.Key, pair.Value);
+		UILUTable     = new(DrawManager.UILUTable.Count, Allocator.Persistent);
+		foreach (var pair in DrawManager.TileLUTable)   TileLUTable.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.SpriteLUTable) SpriteLUTable.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.ShadowLUTable) ShadowLUTable.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UILUTable)     UILUTable    .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UILUTable)     UILUTable.Add(pair.Key, pair.Value);
 
-		TileDataMap   = new(DrawManager.TileDataMap.Count,   Allocator.Persistent);
+		TileDataMap   = new(DrawManager.TileDataMap.Count, Allocator.Persistent);
 		SpriteDataMap = new(DrawManager.SpriteDataMap.Count, Allocator.Persistent);
 		ShadowDataMap = new(DrawManager.ShadowDataMap.Count, Allocator.Persistent);
-		UIDataMap     = new(DrawManager.UIDataMap.Count,     Allocator.Persistent);
-		foreach (var pair in DrawManager.TileDataMap)   TileDataMap  .Add(pair.Key, pair.Value);
+		UIDataMap     = new(DrawManager.UIDataMap.Count, Allocator.Persistent);
+		foreach (var pair in DrawManager.TileDataMap)   TileDataMap.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.SpriteDataMap) SpriteDataMap.Add(pair.Key, pair.Value);
 		foreach (var pair in DrawManager.ShadowDataMap) ShadowDataMap.Add(pair.Key, pair.Value);
-		foreach (var pair in DrawManager.UIDataMap)     UIDataMap    .Add(pair.Key, pair.Value);
+		foreach (var pair in DrawManager.UIDataMap)     UIDataMap.Add(pair.Key, pair.Value);
 
 		TileRenderer   = new(DrawManager.TileMaterial,   DrawManager.TileMesh);
 		SpriteRenderer = new(DrawManager.SpriteMaterial, DrawManager.SpriteMesh);
 		ShadowRenderer = new(DrawManager.ShadowMaterial, DrawManager.ShadowMesh);
 		UIRenderer     = new(DrawManager.UIMaterial,     DrawManager.UIMesh);
-		TileRenderer  .param.shadowCastingMode = ShadowCastingMode.On;
+		TileRenderer.param.shadowCastingMode = ShadowCastingMode.On;
 		SpriteRenderer.param.shadowCastingMode = ShadowCastingMode.Off;
 		ShadowRenderer.param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
-		UIRenderer    .param.shadowCastingMode = ShadowCastingMode.Off;
-		TileRenderer  .param.receiveShadows = true;
+		UIRenderer.param.shadowCastingMode = ShadowCastingMode.Off;
+		TileRenderer.param.receiveShadows = true;
 		SpriteRenderer.param.receiveShadows = false;
 		ShadowRenderer.param.receiveShadows = false;
-		UIRenderer    .param.receiveShadows = false;
+		UIRenderer.param.receiveShadows = false;
 
 		TileQuery   = new NativeArray<EntityQuery>(2, Allocator.Persistent);
 		SpriteQuery = new NativeArray<EntityQuery>(2, Allocator.Persistent);
@@ -1189,14 +1190,14 @@ public partial class DrawManagerSystem : SystemBase {
 		var spriteDrawer = ComponentType.ReadOnly<SpriteDrawer>();
 		var shadowDrawer = ComponentType.ReadOnly<ShadowDrawer>();
 		var uiDrawer     = ComponentType.ReadOnly<UIDrawer>();
-		TileQuery  [0] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.ReadOnly<Static>());
+		TileQuery[0]   = GetEntityQuery(localToWorld, tileDrawer, ComponentType.ReadOnly<Static>());
 		SpriteQuery[0] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.ReadOnly<Static>());
 		ShadowQuery[0] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.ReadOnly<Static>());
-		UIQuery    [0] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.ReadOnly<Static>());
-		TileQuery  [1] = GetEntityQuery(localToWorld, tileDrawer,   ComponentType.Exclude<Static>());
+		UIQuery[0]     = GetEntityQuery(localToWorld, uiDrawer, ComponentType.ReadOnly<Static>());
+		TileQuery[1]   = GetEntityQuery(localToWorld, tileDrawer, ComponentType.Exclude<Static>());
 		SpriteQuery[1] = GetEntityQuery(localToWorld, spriteDrawer, ComponentType.Exclude<Static>());
 		ShadowQuery[1] = GetEntityQuery(localToWorld, shadowDrawer, ComponentType.Exclude<Static>());
-		UIQuery    [1] = GetEntityQuery(localToWorld, uiDrawer,     ComponentType.Exclude<Static>());
+		UIQuery[1]     = GetEntityQuery(localToWorld, uiDrawer, ComponentType.Exclude<Static>());
 	}
 
 	protected override void OnDestroy() {

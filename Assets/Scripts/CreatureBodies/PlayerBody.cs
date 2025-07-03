@@ -30,6 +30,8 @@ partial struct PlayerBodySimulationSystem : ISystem {
 	public void OnCreate(ref SystemState state) {
 		state.RequireForUpdate<NetworkTime>();
 		state.RequireForUpdate<PlayerBody>();
+		state.RequireForUpdate<EndInitializationEntityCommandBufferSystem.Singleton>();
+		state.RequireForUpdate<PrefabContainer>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
@@ -38,14 +40,16 @@ partial struct PlayerBodySimulationSystem : ISystem {
 			IsFullTick = networkTime.IsFirstTimeFullyPredictingTick,
 		}.ScheduleParallel(state.Dependency);
 
+		var singleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
+		var buffer = singleton.CreateCommandBuffer(state.WorldUnmanaged);
 		if (networkTime.IsFirstTimeFullyPredictingTick) {
 			foreach (var input in SystemAPI.Query<RefRO<CreatureInput>>().WithAll<Simulate>()) {
 				if (input.ValueRO.GetKey(KeyAction.Ability1)) {
 					var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>();
 					var prefab = prefabContainer.Reinterpret<Entity>()[(int)Prefab.Dummy];
-					var entity = state.EntityManager.Instantiate(prefab);
-					var transform = LocalTransform.FromPosition(new float3(0f, 2f, 0f));
-					state.EntityManager.SetComponentData(entity, transform);
+					var entity = buffer.Instantiate(prefab);
+					var position = new float3(0f, 20f, 0f);
+					buffer.SetComponent(entity, LocalTransform.FromPosition(position));
 				}
 			}
 		}

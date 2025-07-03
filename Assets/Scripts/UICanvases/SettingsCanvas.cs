@@ -165,10 +165,10 @@ public class SettingsCanvas : BaseCanvas {
 	// Controls Methods
 
 	public void SetMouseSensitivity(float value) {
-		InputManager.MouseSensitivity = value;
+		InputManager.PointerSens = value;
 	}
 	public void RefreshMouseSensitivitySlider(CustomSlider slider) {
-		slider.CurrentValue = InputManager.MouseSensitivity;
+		slider.CurrentValue = InputManager.PointerSens;
 	}
 
 

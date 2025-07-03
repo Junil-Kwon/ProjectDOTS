@@ -227,10 +227,10 @@ partial struct ParticlePresentationSystem : ISystem {
 
 	public void OnUpdate(ref SystemState state) {
 		var deltaTime = SystemAPI.Time.DeltaTime;
-		var tilePresentationJob   = new ParticleTilePresentationJob  () { DeltaTime = deltaTime, };
+		var tilePresentationJob   = new ParticleTilePresentationJob()   { DeltaTime = deltaTime, };
 		var spritePresentationJob = new ParticleSpritePresentationJob() { DeltaTime = deltaTime, };
 		var shadowPresentationJob = new ParticleShadowPresentationJob() { DeltaTime = deltaTime, };
-		var uiPresentationJob     = new ParticleUIPresentationJob    () { DeltaTime = deltaTime, };
+		var uiPresentationJob     = new ParticleUIPresentationJob()     { DeltaTime = deltaTime, };
 		var tile   = tilePresentationJob  .ScheduleParallel(state.Dependency);
 		var sprite = spritePresentationJob.ScheduleParallel(state.Dependency);
 		var shadow = shadowPresentationJob.ScheduleParallel(state.Dependency);

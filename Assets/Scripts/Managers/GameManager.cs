@@ -39,6 +39,7 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 		public override void OnInspectorGUI() {
 			Begin("Game Manager");
 
+			I.TrySetInstance();
 			LabelField("Setup", EditorStyles.boldLabel);
 			BeginDisabledGroup(Application.isPlaying);
 			GameScene = SceneField("Game Scene", GameScene);

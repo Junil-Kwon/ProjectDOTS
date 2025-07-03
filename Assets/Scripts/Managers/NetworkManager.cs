@@ -71,6 +71,7 @@ public sealed class NetworkManager : MonoSingleton<NetworkManager> {
 		public override void OnInspectorGUI() {
 			Begin("Network Manager");
 
+			I.TrySetInstance();
 			LabelField("Event", EditorStyles.boldLabel);
 			PropertyField("m_OnChatReceived");
 			Space();
@@ -607,7 +608,7 @@ public partial class NetworkManagerServerApprovalSystem : SystemBase {
 				var connectionEntity = connection.ConnectionEntity;
 				buffer.AddComponent(connectionEntity, new NetworkStreamInGame());
 				var prefabContainer = SystemAPI.GetSingletonBuffer<PrefabContainer>(true);
-				var position = new float3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
+				var position = new float3(Random.Range(-2f, 2f), 2f, Random.Range(-2f, 2f));
 				var networkId = SystemAPI.GetComponent<NetworkId>(connectionEntity).Value;
 				var player = buffer.Instantiate(prefabContainer[(int)Prefab.Player].Prefab);
 				buffer.SetComponent(player, LocalTransform.FromPosition(position));
