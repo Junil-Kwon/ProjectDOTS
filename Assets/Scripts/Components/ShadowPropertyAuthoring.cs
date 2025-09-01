@@ -242,7 +242,7 @@ public sealed class ShadowPropertyAuthoring : MonoComponent<ShadowPropertyAuthor
 
 	class Baker : Baker<ShadowPropertyAuthoring> {
 		public override void Bake(ShadowPropertyAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.Renderable);
+			var entity = GetEntity(TransformUsageFlags.Renderable);
 			AddComponent(entity, new ShadowPropertyScale  { Value = authoring.Scale });
 			AddComponent(entity, new ShadowPropertyPivot  { Value = authoring.Pivot });
 			AddComponent(entity, new ShadowPropertyTiling { Value = authoring.Tiling });

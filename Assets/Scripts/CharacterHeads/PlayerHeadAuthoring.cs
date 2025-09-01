@@ -254,8 +254,8 @@ public partial class PlayerHeadClientSimulationSystem : SystemBase {
 				Filter       = new CollisionFilter {
 				BelongsTo    = uint.MaxValue,
 				CollidesWith = 1u << (int)PhysicsCategory.Terrain,
-				}, }, out var terrainHit)) {
-				position = terrainHit.Position + new float3(0f, height * 0.5f, 0f);
+				}, }, out var hit)) {
+				position = hit.Position + new float3(0f, height, 0f);
 			}
 			var delta = (position - (float3)CameraManager.Position) * new float3(10f, 2f, 10f);
 			CameraManager.Position += (Vector3)delta * SystemAPI.Time.DeltaTime;

@@ -49,7 +49,8 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			Begin();
 
 			LabelField("Bootstrap", EditorStyles.boldLabel);
-			UseDebugMode = Toggle("Use Debug Mode", UseDebugMode);
+			UseDebugMode      = Toggle("Use Debug Mode",       UseDebugMode);
+			UseFrameRateLimit = Toggle("Use Frame Rate Limit", UseFrameRateLimit);
 			Space();
 
 			LabelField("Event Instance", EditorStyles.boldLabel);
@@ -71,18 +72,11 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 
 
-	// Constants
-
-	const string MaxFrameRateK = "MaxFrameRate";
-	const float MaxFrameRateD = 60f;
-
-
-
 	// Fields
 
 	[SerializeField] bool m_UseDebugMode;
+	[SerializeField] bool m_UseFrameRateLimit;
 	GameState m_GameState = GameState.Paused;
-	float? m_MaxFrameRate;
 
 	PlayerData? m_LocalPlayer;
 	List<PlayerData> m_RemotePlayers = new();
@@ -108,6 +102,10 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 			}
 		}
 	}
+	static bool UseFrameRateLimit {
+		get => Instance.m_UseFrameRateLimit;
+		set => Instance.m_UseFrameRateLimit = value;
+	}
 
 	public static GameState GameState {
 		get => Instance.m_GameState;
@@ -127,15 +125,6 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	public static float TimeScale {
 		get => Time.timeScale;
 		set => Time.timeScale = Mathf.Clamp(value, 0f, 10f);
-	}
-
-	public static float MaxFrameRate {
-		get => Instance.m_MaxFrameRate ??= PlayerPrefs.GetFloat(MaxFrameRateK, MaxFrameRateD);
-		set {
-			value = Mathf.Clamp(value, 60f, 360f);
-			PlayerPrefs.SetFloat(MaxFrameRateK, (Instance.m_MaxFrameRate = value).Value);
-			if (Application.isPlaying) Application.targetFrameRate = (int)value;
-		}
 	}
 
 
@@ -254,7 +243,6 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 	// Lifecycle
 
 	void Start() {
-		//MaxFrameRate = MaxFrameRate;
 		bool useDebugMode = false;
 		#if UNITY_EDITOR
 		useDebugMode = UseDebugMode;
@@ -265,6 +253,9 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 		} else {
 			UIManager.OpenScreen(Screen.MainMenu);
 			NetworkManager.Disconnect();
+		}
+		if (UseFrameRateLimit) {
+			Application.targetFrameRate = 60;
 		}
 	}
 

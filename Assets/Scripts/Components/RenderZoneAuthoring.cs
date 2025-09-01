@@ -84,7 +84,7 @@ public struct RenderZone : IComponentData {
 
 	// Constants
 
-	public const float TransitionTime = 0.4f;
+	public const float TransitionTime = 0.5f;
 
 
 
@@ -131,16 +131,13 @@ public partial class RenderZoneSimulationSystem : SystemBase {
 	protected override void OnUpdate() {
 		var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 		var singleton = SystemAPI.GetSingleton<RenderZonePresentationSystem.Singleton>();
-		var mainRenderZone = singleton.MainRenderZone[0];
-		var tempRenderZone = singleton.TempRenderZone[0];
-		var transition = singleton.Transition[0];
 
 		var renderZone = new RenderZone {
 			CullingMask = 1 << 0,
-			LightMode   = LightMode.TimeOfDay,
+			LightMode   = LightMode.DayNightCycle,
 		};
 		if (physicsWorld.CalculateDistance(new PointDistanceInput {
-			Position     = CameraManager.Position,
+			Position     = CameraManager.Position + new Vector3(0f, 0.1f, 0f),
 			MaxDistance  = 0f,
 			Filter       = new CollisionFilter {
 			BelongsTo    = uint.MaxValue,
@@ -148,23 +145,19 @@ public partial class RenderZoneSimulationSystem : SystemBase {
 			}, }, out var hit)) {
 			renderZone = SystemAPI.GetComponent<RenderZone>(hit.Entity);
 		}
-		if (mainRenderZone != renderZone) {
-			tempRenderZone = mainRenderZone;
-			mainRenderZone = renderZone;
-			CameraManager.CullingMask = renderZone.CullingMask;
-			transition = (0f < transition) ? (1f - transition) : float.Epsilon;
+		if (singleton.MainRenderZone[0] != renderZone) {
+			singleton.TempRenderZone[0] = singleton.MainRenderZone[0];
+			singleton.MainRenderZone[0] = renderZone;
+			bool match = (0f < singleton.Transition[0]) && (singleton.Transition[0] < 1f);
+			singleton.Transition[0] = match ? (1f - singleton.Transition[0]) : float.Epsilon;
 		}
-		if (0f < transition) {
+		if (0f < singleton.Transition[0] && singleton.Transition[0] < 1f) {
 			float delta = SystemAPI.Time.DeltaTime / RenderZone.TransitionTime;
-			transition = math.min(transition + delta, 1f);
-			if (transition == 1f) {
-				transition = 0f;
-				tempRenderZone = mainRenderZone;
-			}
+			singleton.Transition[0] = math.min(singleton.Transition[0] + delta, 1f);
+		} else if (singleton.Transition[0] == 1f) {
+			singleton.Transition[0] = 0f;
+			singleton.TempRenderZone[0] = singleton.MainRenderZone[0];
 		}
-		singleton.MainRenderZone[0] = mainRenderZone;
-		singleton.TempRenderZone[0] = tempRenderZone;
-		singleton.Transition[0] = transition;
 	}
 }
 
@@ -196,47 +189,17 @@ public partial class RenderZonePresentationSystem : SystemBase {
 	}
 
 	protected override void OnUpdate() {
-		var mainRenderZone = MainRenderZone[0];
-		var tempRenderZone = TempRenderZone[0];
-		var transition = Transition[0];
-
-		EnvironmentManager.LightMode = tempRenderZone.LightMode;
-		foreach (var world in World.All) {
-			if (world.IsCreated) world.EntityManager.CompleteAllTrackedJobs();
+		if (0f < Transition[0]) {
+			EnvironmentManager.LightMode = TempRenderZone[0].LightMode;
+			foreach (var world in World.All) {
+				if (world.IsCreated) world.EntityManager.CompleteAllTrackedJobs();
+			}
+			int mainCullingMask = MainRenderZone[0].CullingMask | (1 << 1);
+			int tempCullingMask = TempRenderZone[0].CullingMask | (1 << 2);
+			CameraManager.SetTransition(tempCullingMask, 1f - Transition[0]);
+			CameraManager.CullingMask = mainCullingMask;
 		}
-		CameraManager.SetTransition(tempRenderZone.CullingMask, 1f - transition);
-		CameraManager.CullingMask = mainRenderZone.CullingMask;
-		EnvironmentManager.LightMode = mainRenderZone.LightMode;
-	}
-
-	public static bool TryGetData(
-		in Singleton singleton, int index, out RenderZone renderZone, out int layer) {
-		var mainRenderZone = singleton.MainRenderZone[0];
-		var tempRenderZone = singleton.TempRenderZone[0];
-		switch (index) {
-			case 0: for (int i = 0; i < 32; i++) {
-				bool match = true;
-				match = match && ((mainRenderZone.CullingMask & (1 << i)) != 0);
-				if (match) {
-					renderZone = mainRenderZone;
-					layer = i;
-					return true;
-				}
-			} break;
-			case 1: for (int i = 0; i < 32; i++) {
-				bool match = true;
-				match = match && ((mainRenderZone.CullingMask & (1 << i)) == 0);
-				match = match && ((tempRenderZone.CullingMask & (1 << i)) != 0);
-				if (match) {
-					renderZone = tempRenderZone;
-					layer = i;
-					return true;
-				}
-			} break;
-		}
-		renderZone = default;
-		layer = -1;
-		return false;
+		EnvironmentManager.LightMode = MainRenderZone[0].LightMode;
 	}
 
 	protected override void OnDestroy() {

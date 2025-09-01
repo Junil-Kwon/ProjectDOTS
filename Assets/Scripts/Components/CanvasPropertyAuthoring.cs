@@ -245,7 +245,7 @@ public sealed class CanvasPropertyAuthoring : MonoComponent<CanvasPropertyAuthor
 
 	class Baker : Baker<CanvasPropertyAuthoring> {
 		public override void Bake(CanvasPropertyAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.Renderable);
+			var entity = GetEntity(TransformUsageFlags.Renderable);
 			AddComponent(entity, new CanvasPropertyScale     { Value = authoring.Scale });
 			AddComponent(entity, new CanvasPropertyPivot     { Value = authoring.Pivot });
 			AddComponent(entity, new CanvasPropertyTiling    { Value = authoring.Tiling });

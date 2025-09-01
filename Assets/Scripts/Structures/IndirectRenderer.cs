@@ -150,6 +150,7 @@ public class IndirectRenderer<T> : IDisposable where T : unmanaged {
 	}
 
 	public void Draw() {
+		if (Length == 0) return;
 		if (IsDirty) {
 			IsDirty = false;
 			var args = ArgsBuffer.LockBufferForWrite<int>(0, 5);

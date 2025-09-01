@@ -8,7 +8,7 @@ using UnityEditor;
 
 
 public enum LightMode {
-	TimeOfDay,
+	DayNightCycle,
 	Interior,
 }
 
@@ -80,7 +80,7 @@ public sealed class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 	// Fields
 
 	[SerializeField] Light m_DirectionalLight;
-	[SerializeField] LightMode m_LightMode = LightMode.TimeOfDay;
+	[SerializeField] LightMode m_LightMode = LightMode.DayNightCycle;
 	[SerializeField] float m_TimeOfDay = 0.5f;
 	[SerializeField] float m_DayLength = 300f;
 
@@ -113,7 +113,7 @@ public sealed class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 		set {
 			Instance.m_LightMode = value;
 			switch (value) {
-				case LightMode.TimeOfDay: {
+				case LightMode.DayNightCycle: {
 					float normal = TimeOfDay % 1f;
 					float lightRoll = normal switch {
 						< 0.20f => Mathf.Lerp(000f, 000f, (normal - 0.00f) / 0.20f),

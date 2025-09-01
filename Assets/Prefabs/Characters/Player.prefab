@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 1446190147807711883}
   - component: {fileID: -7272636287304451901}
   - component: {fileID: -5830703769547022861}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,8 +141,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterRendererAuthoring
   m_SpriteName: Player
-  m_Center: {x: 0, y: 0.7, z: 0}
+  m_MotionName: Idle
   m_Sprite: 2
+  m_Motion: 0
+  m_Center: {x: 0, y: 0.7, z: 0}
+  m_BaseColor: {x: 1, y: 1, z: 1, w: 1}
+  m_MaskColor: {x: 1, y: 1, z: 1, w: 0}
+  m_Emission: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &8443597333497839329
 MonoBehaviour:
   m_ObjectHideFlags: 0

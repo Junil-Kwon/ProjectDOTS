@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Physics;
+using Unity.NetCode;
 using Unity.Jobs;
 using Unity.Burst;
 
@@ -144,8 +145,8 @@ public struct ParticleRenderer : IComponentData {
 	public int MainCullingMask;
 	public int TempCullingMask;
 	public float Transition;
-	public float Alpha0;
-	public float Alpha1;
+	public float MainAlpha;
+	public float TempAlpha;
 
 	public Sprite Sprite;
 	public Motion Motion;
@@ -163,7 +164,7 @@ public struct ParticleRenderer : IComponentData {
 	// Properties
 
 	public float this[int index] {
-		get => (index == 0) ? Alpha0 : Alpha1;
+		get => (index == 0) ? MainAlpha : TempAlpha;
 	}
 }
 
@@ -174,8 +175,7 @@ public struct ParticleRenderer : IComponentData {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
-[UpdateAfter(typeof(ParticleClientSimulationSystem))]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup), OrderLast = true)]
 partial struct ParticleRendererSimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
@@ -187,16 +187,15 @@ partial struct ParticleRendererSimulationSystem : ISystem {
 
 	public void OnUpdate(ref SystemState state) {
 		var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-		var cameraBridge = SystemAPI.GetSingleton<CameraBridgeSystem.Singleton>();
 		var singleton = SystemAPI.GetSingleton<RenderZonePresentationSystem.Singleton>();
 
 		state.Dependency = new ParticleRendererSimulationJob {
-			PhysicsWorld         = physicsWorld,
-			CameraBridgeProperty = cameraBridge.Property[0],
-			RenderZoneLookup     = SystemAPI.GetComponentLookup<RenderZone>(true),
-			MainRenderZone       = singleton.MainRenderZone[0],
-			TempRenderZone       = singleton.TempRenderZone[0],
-			DeltaTime            = SystemAPI.Time.DeltaTime,
+			PhysicsWorld     = physicsWorld,
+			RenderZoneLookup = SystemAPI.GetComponentLookup<RenderZone>(true),
+			MainRenderZone   = singleton.MainRenderZone[0],
+			TempRenderZone   = singleton.TempRenderZone[0],
+			Transition       = singleton.Transition[0],
+			DeltaTime        = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
 	}
 }
@@ -204,10 +203,10 @@ partial struct ParticleRendererSimulationSystem : ISystem {
 [BurstCompile, WithAll(typeof(Simulate))]
 partial struct ParticleRendererSimulationJob : IJobEntity {
 	[ReadOnly] public PhysicsWorld PhysicsWorld;
-	[ReadOnly] public CameraBridge.Property CameraBridgeProperty;
 	[ReadOnly] public ComponentLookup<RenderZone> RenderZoneLookup;
 	[ReadOnly] public RenderZone MainRenderZone;
 	[ReadOnly] public RenderZone TempRenderZone;
+	[ReadOnly] public float Transition;
 	[ReadOnly] public float DeltaTime;
 
 	public void Execute(
@@ -218,7 +217,7 @@ partial struct ParticleRendererSimulationJob : IJobEntity {
 			CullingMask = 1 << 0,
 		};
 		if (PhysicsWorld.CalculateDistance(new PointDistanceInput {
-			Position     = transform.Position + renderer.Center,
+			Position     = transform.Position + new float3(0f, 0.1f, 0f),
 			MaxDistance  = 0f,
 			Filter       = new CollisionFilter {
 			BelongsTo    = uint.MaxValue,
@@ -226,31 +225,43 @@ partial struct ParticleRendererSimulationJob : IJobEntity {
 			}, }, out var hit)) {
 			renderZone = RenderZoneLookup[hit.Entity];
 		}
-		float transition = renderer.Transition;
 		if (renderer.MainCullingMask != renderZone.CullingMask) {
 			renderer.TempCullingMask = renderer.MainCullingMask;
 			renderer.MainCullingMask = renderZone.CullingMask;
-			transition = (0f < transition) ? (1f - transition) : float.Epsilon;
+			bool match = (0f < renderer.Transition) && (renderer.Transition < 1f);
+			renderer.Transition = match ? (1f - renderer.Transition) : float.Epsilon;
 		}
-		if (0f < transition) {
+		if (0f < renderer.Transition && renderer.Transition < 1f) {
 			float delta = DeltaTime / RenderZone.TransitionTime;
-			transition = math.min(transition + delta, 1f);
-			if (transition == 1f) {
-				transition = 0f;
-				renderer.TempCullingMask = renderer.MainCullingMask;
-			}
+			renderer.Transition = math.min(renderer.Transition + delta, 1f);
+		} else if (renderer.Transition == 1f) {
+			renderer.Transition = 0f;
+			renderer.TempCullingMask = renderer.MainCullingMask;
 		}
-		if (renderer.Transition != transition) {
-			if (renderer.Initialized != true) {
-				renderer.Initialized = true;
-				transition = 1f;
-			}
-			renderer.Transition = transition;
+
+		if (renderer.Initialized != true) {
+			renderer.Initialized = true;
+			renderer.MainCullingMask = renderZone.CullingMask;
+			renderer.TempCullingMask = renderZone.CullingMask;
+			renderer.Transition = 0f;
 		}
-		bool main = (MainRenderZone.CullingMask & renderer.MainCullingMask) != 0;
-		bool temp = (TempRenderZone.CullingMask & renderer.TempCullingMask) != 0;
-		renderer.Alpha0 = main ? 1f : (0f < transition) ? (1f - transition) : 0f;
-		renderer.Alpha1 = temp ? 1f : (0f < transition) ? (0f + transition) : 0f;
+		bool mainmain = (renderer.MainCullingMask & MainRenderZone.CullingMask) != 0;
+		bool maintemp = (renderer.MainCullingMask & TempRenderZone.CullingMask) != 0;
+		bool tempmain = (renderer.TempCullingMask & MainRenderZone.CullingMask) != 0;
+		bool temptemp = (renderer.TempCullingMask & TempRenderZone.CullingMask) != 0;
+		float transition = renderer.Transition;
+		if (transition == 0f) {
+			renderer.MainAlpha = mainmain ? 1f : 0f;
+			renderer.TempAlpha = maintemp ? 1f : 0f;
+		} else if (0f < transition && transition < 1f) {
+			float main = 1f - transition;
+			float temp = 0f + transition;
+			renderer.MainAlpha = 1f - ((mainmain ? main : 0f) + (tempmain ? temp : 0f));
+			renderer.TempAlpha = 1f - ((maintemp ? main : 0f) + (temptemp ? temp : 0f));
+		} else if (transition == 1f) {
+			renderer.MainAlpha = tempmain ? 0f : 1f;
+			renderer.TempAlpha = temptemp ? 0f : 1f;
+		}
 	}
 }
 
@@ -272,6 +283,7 @@ public partial class ParticleRendererPresentationSystem : SystemBase {
 		for (int i = 0; i < Length; i++) {
 			SpriteRenderer[i] = new(DrawManager.QuadMesh, DrawManager.SpriteMaterial);
 			SpriteRenderer[i].Param.shadowCastingMode = ShadowCastingMode.Off;
+			SpriteRenderer[i].Param.layer = 1 << i;
 		}
 		RequireForUpdate<RenderZonePresentationSystem.Singleton>();
 		ParticleQuery = GetEntityQuery(
@@ -285,10 +297,11 @@ public partial class ParticleRendererPresentationSystem : SystemBase {
 		var entityArray = ParticleQuery.ToEntityArray(Allocator.TempJob);
 		int count = entityArray.Length;
 		for (int i = 0; i < Length; i++) {
-			if (RenderZonePresentationSystem.TryGetData(
-				singleton, i, out RenderZone renderZone, out int layer)) {
-				SpriteRenderer[i].Param.layer = layer;
-			} else continue;
+			if (0 < i && singleton.Transition[0] == 0f) continue;
+			var renderZone = i switch {
+				0 => singleton.MainRenderZone[0],
+				_ => singleton.TempRenderZone[0],
+			};
 			EnvironmentManager.LightMode = renderZone.LightMode;
 
 			var spriteBuffer = SpriteRenderer[i].LockBuffer(count);

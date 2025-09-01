@@ -186,7 +186,7 @@ public sealed class OpaquePropertyAuthoring : MonoComponent<OpaquePropertyAuthor
 
 	class Baker : Baker<OpaquePropertyAuthoring> {
 		public override void Bake(OpaquePropertyAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.Renderable);
+			var entity = GetEntity(TransformUsageFlags.Renderable);
 			AddComponent(entity, new OpaquePropertyTiling { Value = authoring.Tiling });
 			AddComponent(entity, new OpaquePropertyOffset { Value = authoring.Offset });
 			if (authoring.UseHashData && authoring.UseAnimation) {

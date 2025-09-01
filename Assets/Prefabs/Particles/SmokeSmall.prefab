@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8894466522544960978}
   - component: {fileID: 1903157453924346850}
   - component: {fileID: 1725353735639362479}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: SmokeSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,11 +61,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f8bafffa70d13a409842f98c73da4eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParticleRendererAuthoring
-  m_Center: {x: 0, y: 0, z: 0}
-  m_BaseColor: {x: 1, y: 1, z: 1, w: 1}
-  m_MaskColor: {x: 1, y: 1, z: 1, w: 0}
-  m_Emission: {x: 0, y: 0, z: 0, w: 0}
   m_SpriteName: SmokeSmall
   m_MotionName: Idle
   m_Sprite: 5
   m_Motion: 0
+  m_Center: {x: 0, y: 0, z: 0}
+  m_BaseColor: {x: 1, y: 1, z: 1, w: 1}
+  m_MaskColor: {x: 1, y: 1, z: 1, w: 0}
+  m_Emission: {x: 0, y: 0, z: 0, w: 0}

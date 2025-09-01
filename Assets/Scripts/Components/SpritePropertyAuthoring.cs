@@ -305,7 +305,7 @@ public sealed class SpritePropertyAuthoring : MonoComponent<SpritePropertyAuthor
 
 	class Baker : Baker<SpritePropertyAuthoring> {
 		public override void Bake(SpritePropertyAuthoring authoring) {
-			Entity entity = GetEntity(TransformUsageFlags.Renderable);
+			var entity = GetEntity(TransformUsageFlags.Renderable);
 			AddComponent(entity, new SpritePropertyScale     { Value = authoring.Scale });
 			AddComponent(entity, new SpritePropertyPivot     { Value = authoring.Pivot });
 			AddComponent(entity, new SpritePropertyTiling    { Value = authoring.Tiling });
