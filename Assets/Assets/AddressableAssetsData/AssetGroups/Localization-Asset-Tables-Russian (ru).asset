@@ -13,17 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Asset-Tables-Russian (ru)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Asset-Tables-Russian (ru)
-  m_GUID: 184245d8ca47c8046bde277fb62c32bf
-  m_SerializeEntries:
-  - m_GUID: bd71148f117c1dc478781743de078774
-    m_Address: FontTable_ru
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ru
-    FlaggedDuringContentUpdateRestriction: 0
+  m_GUID: e57f8a56720389749a11cea60e378ece
+  m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 2adf08f3d3c98324bb84cde3cd8181c2, type: 2}
-    - {fileID: 11400000, guid: c245881403042d94b8095b17b027c9fa, type: 2}
+    - {fileID: 11400000, guid: 6568d7adfc2bf934a8ec379b2a67371c, type: 2}
+    - {fileID: 11400000, guid: 4a077f2f3c260394381850e08bd8e469, type: 2}

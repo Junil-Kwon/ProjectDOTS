@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-Russian (ru)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-String-Tables-Russian (ru)
-  m_GUID: f128ebb636912384a9a1dbb755e9d186
+  m_GUID: dfc161b42fd84cd4ea0859c95a082062
   m_SerializeEntries:
-  - m_GUID: bc0538473355cfc4482b6546497a549e
-    m_Address: UITable_ru
+  - m_GUID: 8fb75a9fcb087114f9c5a8af300d41cf
+    m_Address: UI Table_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 463c25757bcbc8845bfa0ff67410ce7f, type: 2}
-    - {fileID: 11400000, guid: 57f84e117f2570340a22b8532f769ace, type: 2}
+    - {fileID: 11400000, guid: 144aaacb03812d3459ed63d5ec4dec1a, type: 2}
+    - {fileID: 11400000, guid: 6abbc1d839493414ea4c9b6193482b48, type: 2}

@@ -13,17 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Asset-Tables-English (en)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Asset-Tables-English (en)
-  m_GUID: 83f4423b54c3fbb47b5fc71b64a87ef2
-  m_SerializeEntries:
-  - m_GUID: 042036efb0b67124bb5e903d7ea7b8ef
-    m_Address: FontTable_en
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-en
-    FlaggedDuringContentUpdateRestriction: 0
+  m_GUID: d988cc7e5e0f0ea49be8556fe25fa04f
+  m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: ca3f0217bf6c8f546bcc47318d6f1c41, type: 2}
-    - {fileID: 11400000, guid: a6bb1f0c51bb54e409c51fad8e232fe2, type: 2}
+    - {fileID: 11400000, guid: 1be0921f6ba76a24e92ad1c576facdcb, type: 2}
+    - {fileID: 11400000, guid: b079cc82c7e2d5b48a8ef704003f6909, type: 2}

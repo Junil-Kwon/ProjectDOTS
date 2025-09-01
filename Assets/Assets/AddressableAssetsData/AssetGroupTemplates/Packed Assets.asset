@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Packed Assets
   m_EditorClassIdentifier: 
   m_SchemaObjects:
-  - {fileID: 7512974363151577956}
-  - {fileID: 1027688274825159946}
+  - {fileID: 8628171927830826568}
+  - {fileID: 6956885810122485885}
   m_Description: Pack assets into asset bundles.
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
---- !u!114 &1027688274825159946
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
+--- !u!114 &6956885810122485885
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -31,7 +31,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Group: {fileID: 0}
   m_StaticContent: 0
---- !u!114 &7512974363151577956
+--- !u!114 &8628171927830826568
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}

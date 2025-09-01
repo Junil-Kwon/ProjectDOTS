@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Selector
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Selector")]
-public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
+[AddComponentMenu("UI Widget/Custom Selector")]
+public class CustomSelector : Selectable, IWidgetBase, IUpdateSelectedHandler {
 
 	// Editor
 
@@ -25,17 +24,17 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	class CustomSelectorEditor : EditorExtensionsSelectable {
 		CustomSelector I => target as CustomSelector;
 		public override void OnInspectorGUI() {
-			Begin("Custom Selector");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Selector", EditorStyles.boldLabel);
-			I.Template = ObjectField("Template", I.Template);
+
+			LabelField("Custom Selector", EditorStyles.boldLabel);
+			I.Template      = ObjectField("Template",       I.Template);
 			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 			Space();
 			PropertyField("m_Elements");
-			Space();
 			I.DefaultValue = IntField("Default Value", I.DefaultValue);
 			I.CurrentValue = IntField("Current Value", I.CurrentValue);
 			I.MultiSelect = Toggle("Multi Select", I.MultiSelect);
@@ -57,7 +56,6 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string[] m_Elements = new[] { "Element 1", "Element 2", "Element 3", };
-
 	[SerializeField] int m_DefaultValue;
 	[SerializeField] int m_CurrentValue;
 	[SerializeField] bool m_MultiSelect;
@@ -91,7 +89,6 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 			}
 		}
 	}
-
 	public int DefaultValue {
 		get => m_DefaultValue;
 		set {
@@ -131,8 +128,14 @@ public class CustomSelector : Selectable, IBaseWidget, IUpdateSelectedHandler {
 		}
 	}
 
-	public UnityEvent<int> OnValueChanged => m_OnValueChanged;
-	public UnityEvent<CustomSelector> OnRefreshed => m_OnRefreshed;
+
+
+	public UnityEvent<int> OnValueChanged {
+		get => m_OnValueChanged;
+	}
+	public UnityEvent<CustomSelector> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 

@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Inputfield
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Inputfield")]
-public class CustomInputfield : TMP_InputField, IBaseWidget {
+[AddComponentMenu("UI Widget/Custom Inputfield")]
+public class CustomInputfield : TMP_InputField, IWidgetBase {
 
 	// Editor
 
@@ -25,13 +24,14 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 	class CustomInputfieldEditor : EditorExtensionsSelectable {
 		CustomInputfield I => target as CustomInputfield;
 		public override void OnInspectorGUI() {
-			Begin("Custom Inputfield");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
+
 			I.contentType = ContentType.Custom;
-			LabelField("Inputfield", EditorStyles.boldLabel);
+			LabelField("Custom Inputfield", EditorStyles.boldLabel);
 			I.TextViewport    = ObjectField("Text Viewport",     I.TextViewport);
 			I.PlaceHolderUGUI = ObjectField("Place Holder UGUI", I.PlaceHolderUGUI);
 			I.TextUGUI        = ObjectField("Text UGUI",         I.TextUGUI);
@@ -141,16 +141,24 @@ public class CustomInputfield : TMP_InputField, IBaseWidget {
 		}
 	}
 
-	public UnityEvent<string> OnValueChanged => onValueChanged;
-	public UnityEvent<string> OnEndEdit => onEndEdit;
-	public UnityEvent<CustomInputfield> OnRefreshed => m_OnRefreshed;
+
+
+	public UnityEvent<string> OnValueChanged {
+		get => onValueChanged;
+	}
+	public UnityEvent<string> OnEndEdit {
+		get => onEndEdit;
+	}
+	public UnityEvent<CustomInputfield> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 
 	// Methods
 
 	public void Refresh() {
-		if (MaskToggle && MaskToggle.TryGetComponent(out IBaseWidget widget)) widget.Refresh();
+		if (MaskToggle && MaskToggle.TryGetComponent(out IWidgetBase widget)) widget.Refresh();
 		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
 		OnRefreshed.Invoke(this);
 	}

@@ -1,13 +1,12 @@
 using UnityEngine;
+using System;
 
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Burst;
 using Unity.Physics;
 using Unity.Physics.Authoring;
-using Unity.NetCode;
+using Unity.Burst;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,22 +14,21 @@ using UnityEditor;
 
 
 
-// Event Trigger Types
-
-public enum TriggerType : byte {
+public enum Trigger : byte {
+	Instant,
 	InRange,
 	OnInteract,
 }
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Event Trigger Authoring
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Component/Event Trigger")]
-[RequireComponent(typeof(PhysicsShapeAuthoring))]
-public class EventTriggerAuthoring : MonoBehaviour {
+[RequireComponent(typeof(InteractorAuthoring), typeof(PhysicsShapeAuthoring))]
+public sealed class EventTriggerAuthoring : MonoComponent<EventTriggerAuthoring> {
 
 	// Editor
 
@@ -39,59 +37,70 @@ public class EventTriggerAuthoring : MonoBehaviour {
 	class EventTriggerAuthoringEditor : EditorExtensions {
 		EventTriggerAuthoring I => target as EventTriggerAuthoring;
 		public override void OnInspectorGUI() {
-			Begin("Event Trigger Authoring");
+			Begin();
 
-			LabelField("Event", EditorStyles.boldLabel);
-			I.Event = ObjectField("Event Graph", I.Event);
-			if (I.Event == null && Button("Create Event Graph")) {
-				I.Event = CreateInstance<EventGraphSO>();
-				I.Event.name = I.gameObject.name;
+			if (Enum.TryParse(I.name, out Event value)) {
+				BeginDisabledGroup();
+				EnumField("Event", value);
+				EndDisabledGroup();
+				Space();
 			}
-			if (I.Event != null && Button("Open Event Graph")) {
-				I.Event.Open();
-			}
-			Space();
-			LabelField("Trigger", EditorStyles.boldLabel);
-			I.TriggerType = EnumField("Trigger Type", I.TriggerType);
-			var width = GUILayout.Width(18f);
+
+			LabelField("Event Data", EditorStyles.boldLabel);
 			BeginHorizontal();
+			I.EventGraph = ObjectField("Event Graph", I.EventGraph);
+			if (I.EventGraph == null && Button("Create", GUILayout.Width(64f))) {
+				I.EventGraph = CreateInstance<EventGraphSO>();
+				I.EventGraph.name = I.gameObject.name;
+			}
+			if (I.EventGraph != null && Button("Open", GUILayout.Width(64f))) {
+				I.EventGraph.Open();
+				I.EventGraph.name = I.gameObject.name;
+			}
+			EndHorizontal();
+			I.Trigger = EnumField("Trigger", I.Trigger);
+			BeginHorizontal();
+			BeginDisabledGroup(I.Trigger == Trigger.Instant);
 			PrefixLabel("Use Count Limit");
-			I.UseCountLimit = EditorGUILayout.Toggle(I.UseCountLimit, width);
+			I.UseCountLimit = EditorGUILayout.Toggle(I.UseCountLimit, GUILayout.Width(14f));
 			if (I.UseCountLimit) I.Count = IntField(I.Count);
 			EndHorizontal();
 			BeginHorizontal();
 			PrefixLabel("Use Cooldown");
-			I.UseCooldown = EditorGUILayout.Toggle(I.UseCooldown, width);
+			I.UseCooldown = EditorGUILayout.Toggle(I.UseCooldown, GUILayout.Width(14f));
 			if (I.UseCooldown) I.Cooldown = FloatField(I.Cooldown);
 			EndHorizontal();
-			BeginHorizontal();
-			PrefixLabel("Is Global");
-			I.IsGlobal = EditorGUILayout.Toggle(I.IsGlobal, width);
-			EndHorizontal();
-			if (I.TryGetComponent(out InteractableAuthoring _)) {
-				I.TriggerType = TriggerType.OnInteract;
-			}
+			EndDisabledGroup();
 			Space();
 
 			End();
 		}
 
 		void OnSceneGUI() {
-			if (I.Event?.Clone != null) {
+			if (I.EventGraph?.Clone != null) {
 				Tools.current = Tool.None;
-				foreach (var data in I.Event.Clone.GetEvents()) data.DrawHandles();
+				var list = I.EventGraph.Clone.GetEvents();
+				foreach (var eventBase in list) {
+					eventBase.DrawHandles();
+				}
 			}
 		}
 	}
 
 	void OnDrawGizmosSelected() {
-		if (Event != null) {
-			Gizmos.color = color.green;
-			foreach (var data in Event.Entry.GetEvents()) data.DrawGizmos();
+		if (EventGraph?.Entry != null) {
+			Gizmos.color = Color.white;
+			var list = EventGraph.Entry.GetEvents();
+			foreach (var eventBase in list) {
+				eventBase.DrawGizmos();
+			}
 		}
-		if (Event?.Clone != null) {
-			Gizmos.color = color.white;
-			foreach (var data in Event.Clone.GetEvents()) data.DrawGizmos();
+		if (EventGraph?.Clone != null) {
+			Gizmos.color = Color.green;
+			var list = EventGraph.Clone.GetEvents();
+			foreach (var eventBase in list) {
+				eventBase.DrawGizmos();
+			}
 		}
 	}
 	#endif
@@ -100,68 +109,91 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 	// Fields
 
-	[SerializeField] EventGraphSO m_Event;
-	[SerializeField] TriggerType  m_TriggerType;
-	[SerializeField] int   m_Count    = -1;
-	[SerializeField] float m_Cooldown = -1;
-	[SerializeField] bool  m_IsGlobal = false;
+	#if UNITY_EDITOR
+	[SerializeField] string m_TriggerName;
+	#endif
+
+	[SerializeField] EventGraphSO m_EventGraph;
+	[SerializeField] Trigger m_Trigger;
+	[SerializeField] int m_Count = int.MaxValue;
+	[SerializeField] float m_Cooldown = float.MaxValue;
 
 
 
 	// Properties
 
-	public EventGraphSO Event {
-		get => m_Event;
-		set => m_Event = value;
+	EventGraphSO EventGraph {
+		get => m_EventGraph;
+		set => m_EventGraph = value;
 	}
-	public TriggerType TriggerType {
-		get => m_TriggerType;
+
+	#if UNITY_EDITOR
+	Trigger Trigger {
+		get => !Enum.TryParse(m_TriggerName, out Trigger trigger) ?
+			Enum.Parse<Trigger>(m_TriggerName = m_Trigger.ToString()) :
+			m_Trigger = trigger;
+		set => m_TriggerName = (m_Trigger = value).ToString();
+	}
+	#else
+	Trigger Trigger {
+		get => m_Trigger;
+		set => m_Trigger = value;
+	}
+	#endif
+
+	bool UseCountLimit {
+		get => m_Count != int.MaxValue;
 		set {
-			if (m_TriggerType != value) {
-				m_TriggerType = value;
-				bool interactType = value == TriggerType.OnInteract;
-				bool hasComponent = gameObject.TryGetComponent(out InteractableAuthoring interactable);
-				if (interactType ^ hasComponent) {
-					if (interactType) gameObject.AddComponent<InteractableAuthoring>();
-					else DestroyImmediate(interactable);
-				}
+			if (m_Count != int.MaxValue != value) {
+				m_Count = value ? 1 : int.MaxValue;
 			}
 		}
 	}
-	public bool UseCountLimit {
-		get => 0 <= m_Count;
-		set => m_Count = value ? Mathf.Max(0, m_Count) : -1;
-	}
-	public int Count {
+	int Count {
 		get => m_Count;
-		set => m_Count = value;
+		set {
+			if (m_Count != int.MaxValue) {
+				m_Count = Mathf.Max(1, value);
+			}
+		}
 	}
-	public bool UseCooldown {
-		get => 0f <= m_Cooldown;
-		set => m_Cooldown = value ? Mathf.Max(0f, m_Cooldown) : -1f;
+
+	bool UseCooldown {
+		get => m_Cooldown != float.MaxValue;
+		set {
+			if (m_Cooldown != float.MaxValue != value) {
+				m_Cooldown = value ? 0.01f : float.MaxValue;
+			}
+		}
 	}
-	public float Cooldown {
+	float Cooldown {
 		get => m_Cooldown;
-		set => m_Cooldown = value;
-	}
-	public bool IsGlobal {
-		get => m_IsGlobal;
-		set => m_IsGlobal = value;
+		set {
+			if (m_Cooldown != float.MaxValue) {
+				m_Cooldown = Mathf.Max(0.01f, value);
+			}
+		}
 	}
 
 
 
 	// Baker
-	
+
 	class Baker : Baker<EventTriggerAuthoring> {
 		public override void Bake(EventTriggerAuthoring authoring) {
-			var entity = GetEntity(TransformUsageFlags.None);
-			AddComponent(entity, new EventTrigger {
+			var entity = GetEntity(TransformUsageFlags.Dynamic);
+			AddComponent(entity, new EventTriggerBlob {
+				Value = this.AddBlobAsset(new EventTriggerBlobData {
 
-				Event    = authoring.Event,
+					EventGraph = authoring.EventGraph,
+
+				})
+			});
+			AddComponent(entity, new EventTriggerData {
+
+				Trigger  = authoring.Trigger,
 				Count    = authoring.Count,
 				Cooldown = authoring.Cooldown,
-				IsGlobal = authoring.IsGlobal,
 
 			});
 		}
@@ -170,88 +202,180 @@ public class EventTriggerAuthoring : MonoBehaviour {
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Event Trigger
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Event Trigger Blob
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-public struct EventTrigger : IComponentData {
+public struct EventTriggerBlob : IComponentData {
 
-	public UnityObjectRef<EventGraphSO> Event;
-	public int   Count;
-	public float Cooldown;
-	public bool  IsGlobal;
-	public float Timer;
+	// Fields
 
-	public readonly bool UseCountLimit => 0 <= Count;
-	public readonly bool UseCooldown => 0f <= Cooldown;
+	public BlobAssetReference<EventTriggerBlobData> Value;
 }
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Event Trigger System
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+public struct EventTriggerBlobData {
 
-/*
-if is global enabled, then the event will be triggered on all clients
-rpc this entity
-*/
+	// Fields
+
+	public UnityObjectRef<EventGraphSO> EventGraph;
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Event Trigger Data
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+public struct EventTriggerData : IComponentData {
+
+	// Fields
+
+	public Trigger Trigger;
+	public int Count;
+	public float Cooldown;
+	public float Timer;
+	public byte State;
+	public uint EventID;
+
+
+
+	// Properties
+
+	public bool UseCountLimit {
+		get => Count != int.MaxValue;
+	}
+	public bool UseCooldown {
+		get => Cooldown != float.MaxValue;
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Event Trigger Server Simulation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [BurstCompile]
-[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
-partial struct EventTriggerSystem : ISystem {
+[UpdateInGroup(typeof(DOTSServerSimulationSystemGroup))]
+partial struct EventTriggerServerSimulationSystem : ISystem {
 
 	public void OnCreate(ref SystemState state) {
-		state.RequireForUpdate<SimulationSingleton>();
-		state.RequireForUpdate<GameManagerBridge>();
+		state.RequireForUpdate<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		state.RequireForUpdate<EventTriggerData>();
 	}
 
 	public void OnUpdate(ref SystemState state) {
-		state.Dependency = new EventSimulationJob {
-			DeltaTime = SystemAPI.Time.DeltaTime,
+		var bufferSystem =
+			SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		var buffer = bufferSystem.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+
+		state.Dependency = new EventTriggerServerSimulationJob {
+			Buffer = buffer,
 		}.ScheduleParallel(state.Dependency);
-		state.Dependency = new TriggerEventJob {
-			GameManager        = SystemAPI.GetSingletonRW<GameManagerBridge>(),
-			GhostOwnerLookup   = SystemAPI.GetComponentLookup<GhostOwnerIsLocal>(true),
-			InteractableLookup = SystemAPI.GetComponentLookup<Interactable>(true),
-			TriggerLookup      = SystemAPI.GetComponentLookup<EventTrigger>(),
-		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
+	}
+}
+
+[BurstCompile, WithAll(typeof(Simulate))]
+partial struct EventTriggerServerSimulationJob : IJobEntity {
+	public EntityCommandBuffer.ParallelWriter Buffer;
+
+	public void Execute(
+		in EventTriggerData triggerData,
+		Entity entity,
+		[ChunkIndexInQuery] int chunkIndex) {
+
+		Buffer.DestroyEntity(chunkIndex, entity);
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Event Trigger Client Simulation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[BurstCompile]
+[UpdateInGroup(typeof(DOTSClientSimulationSystemGroup))]
+[UpdateAfter(typeof(InteractorClientSimulationSystem))]
+partial struct EventTriggerClientSimulationSystem : ISystem {
+
+	public void OnCreate(ref SystemState state) {
+		state.RequireForUpdate<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		state.RequireForUpdate<GameBridgeSystem.Singleton>();
+		state.RequireForUpdate<EventTriggerData>();
 	}
 
-	[BurstCompile, WithAll(typeof(Simulate))]
-	partial struct EventSimulationJob : IJobEntity {
-		public float DeltaTime;
-		public void Execute(ref EventTrigger trigger) {
-			if (trigger.UseCooldown) trigger.Timer -= DeltaTime;
-		}
+	public void OnUpdate(ref SystemState state) {
+		var bufferSystem =
+			SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		var buffer = bufferSystem.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+		var gameBridge = SystemAPI.GetSingleton<GameBridgeSystem.Singleton>();
+
+		state.Dependency = new EventTriggerClientSimulationJob {
+			Buffer           = buffer,
+			GameBridgeMethod = gameBridge.Method,
+			GameBridgeResult = gameBridge.Result,
+			DeltaTime        = SystemAPI.Time.DeltaTime,
+		}.ScheduleParallel(state.Dependency);
 	}
+}
 
-	[BurstCompile, WithAll(typeof(Simulate))]
-	partial struct TriggerEventJob : ITriggerEventsJob {
-		[NativeDisableUnsafePtrRestriction] public RefRW<GameManagerBridge> GameManager;
-		[ReadOnly] public ComponentLookup<GhostOwnerIsLocal> GhostOwnerLookup;
-		[ReadOnly] public ComponentLookup<Interactable> InteractableLookup;
-		public ComponentLookup<EventTrigger> TriggerLookup;
+[BurstCompile, WithAll(typeof(Simulate))]
+[WithAll(typeof(Interactor)), WithPresent(typeof(Interactable), typeof(Interact))]
+partial struct EventTriggerClientSimulationJob : IJobEntity {
+	public EntityCommandBuffer.ParallelWriter Buffer;
+	public NativeQueue<FixedBytes62>.ParallelWriter GameBridgeMethod;
+	public NativeHashMap<Entity, FixedBytes16>.ReadOnly GameBridgeResult;
+	[ReadOnly] public float DeltaTime;
 
-		public void Execute(TriggerEvent triggerEvent) {
-			Execute(triggerEvent.EntityA, triggerEvent.EntityB);
-			Execute(triggerEvent.EntityB, triggerEvent.EntityA);
-		}
-		public void Execute(Entity entity, Entity target) {
-			if (GhostOwnerLookup.HasComponent(entity) && GhostOwnerLookup.IsComponentEnabled(entity)) {
-				if (TriggerLookup.HasComponent(target) && !InteractableLookup.HasComponent(target)) {
-					var trigger = TriggerLookup[target];
-					bool match = true;
-					match &= !trigger.UseCountLimit || 0 < trigger.Count;
-					match &= !trigger.UseCooldown || trigger.Timer <= 0f;
-					if (match) {
-						GameManager.ValueRW.PlayEvent(trigger.Event);
-						if (trigger.UseCountLimit) trigger.Count--;
-						if (trigger.UseCooldown) trigger.Timer = trigger.Cooldown;
-						TriggerLookup[target] = trigger;
-					}
+	public void Execute(
+		EnabledRefRO<Interactable> interactable,
+		EnabledRefRW<Interact> interact,
+		in EventTriggerBlob triggerBlob,
+		ref EventTriggerData triggerData,
+		Entity entity,
+		[ChunkIndexInQuery] int chunkIndex) {
+
+		switch (triggerData.State) {
+			case 0: {
+				if (triggerData.Trigger switch {
+					Trigger.Instant => true,
+					Trigger.InRange => interactable.ValueRO || interact.ValueRO,
+					Trigger.OnInteract => interact.ValueRO,
+					_ => false,
+					}) {
+					interact.ValueRW = false;
+					triggerData.State = 1;
 				}
-			}
+			} break;
+			case 1: {
+				if (!GameBridgeResult.TryGetPlayEventResult(entity, out uint eventID)) {
+					GameBridgeMethod.PlayEvent(entity, triggerBlob.Value.Value.EventGraph);
+				} else {
+					if (triggerData.UseCountLimit) triggerData.Count--;
+					if (triggerData.Count <= 0) Buffer.DestroyEntity(chunkIndex, entity);
+					if (triggerData.UseCooldown) triggerData.Timer = triggerData.Cooldown;
+					triggerData.EventID = eventID;
+					triggerData.State = 2;
+				}
+			} break;
+			case 2: {
+				if (!GameBridgeResult.TryGetIsEventPlayingResult(entity, out bool isPlaying)) {
+					GameBridgeMethod.IsEventPlaying(entity, triggerData.EventID);
+				} else if (!isPlaying) {
+					triggerData.EventID = default;
+					triggerData.State = 3;
+				}
+			} break;
+			case 3: {
+				if (0f < triggerData.Timer) triggerData.Timer -= DeltaTime;
+				if (!triggerData.UseCooldown || triggerData.Timer <= 0f) {
+					interact.ValueRW = false;
+					triggerData.State = 0;
+				}
+			} break;
 		}
 	}
 }

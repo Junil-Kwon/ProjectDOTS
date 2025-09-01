@@ -4,33 +4,46 @@ using System.Collections.Generic;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Hash Map
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [Serializable]
 public class HashMap<K, V> : Dictionary<K, V>, ISerializationCallbackReceiver {
 
 	// Fields
 
-	[SerializeField] List<K> k = new();
-	[SerializeField] List<V> v = new();
+	[SerializeField] List<K> m_KList = new();
+	[SerializeField] List<V> m_VList = new();
+
+
+
+	// Properties
+
+	List<K> KList {
+		get => m_KList;
+	}
+	List<V> VList {
+		get => m_VList;
+	}
 
 
 
 	// Methods
 
 	public void OnBeforeSerialize() {
-		k.Clear();
-		v.Clear();
+		KList.Clear();
+		VList.Clear();
 		foreach (var (k, v) in this) {
-			this.k.Add(k);
-			this.v.Add(v);
+			KList.Add(k);
+			VList.Add(v);
 		}
 	}
 
 	public void OnAfterDeserialize() {
 		Clear();
-		for (int i = 0; i < k.Count; i++) Add(k[i], v[i]);
+		for (int i = 0; i < KList.Count; i++) {
+			Add(KList[i], VList[i]);
+		}
 	}
 }

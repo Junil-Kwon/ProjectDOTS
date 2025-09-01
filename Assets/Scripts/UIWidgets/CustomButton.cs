@@ -3,20 +3,18 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-using TMPro;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Button
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Button")]
-public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubmitHandler {
+[AddComponentMenu("UI Widget/Custom Button")]
+public class CustomButton : Selectable, IWidgetBase, IPointerClickHandler, ISubmitHandler {
 
 	// Editor
 
@@ -25,15 +23,13 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	class CustomButtonEditor : EditorExtensionsSelectable {
 		CustomButton I => target as CustomButton;
 		public override void OnInspectorGUI() {
-			Begin("Custom Button");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Button", EditorStyles.boldLabel);
-			I.TextUGUI = ObjectField("Text UGUI", I.TextUGUI);
-			if (I.TextUGUI) I.Text = TextField("Text", I.Text);
-			Space();
+
+			LabelField("Custom Button", EditorStyles.boldLabel);
 			PropertyField("m_OnClick");
 			PropertyField("m_OnRefreshed");
 			Space();
@@ -47,8 +43,6 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	// Fields
 
-	[SerializeField] TextMeshProUGUI m_TextUGUI;
-
 	[SerializeField] UnityEvent m_OnClick = new();
 	[SerializeField] UnityEvent<CustomButton> m_OnRefreshed = new();
 
@@ -56,19 +50,12 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	// Properties
 
-	TextMeshProUGUI TextUGUI {
-		get => m_TextUGUI;
-		set => m_TextUGUI = value;
+	public UnityEvent OnClick {
+		get => m_OnClick;
 	}
-	public string Text {
-		get => TextUGUI.text;
-		set => TextUGUI.text = value;
+	public UnityEvent<CustomButton> OnRefreshed {
+		get => m_OnRefreshed;
 	}
-
-
-
-	public UnityEvent OnClick => m_OnClick;
-	public UnityEvent<CustomButton> OnRefreshed => m_OnRefreshed;
 
 
 
@@ -83,6 +70,22 @@ public class CustomButton : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 
 	// Event Handlers
+
+	public override void OnPointerEnter(PointerEventData eventData) {
+		if (interactable) {
+			if (UIManager.Selected != this) UIManager.Selected = this;
+			base.OnPointerEnter(eventData);
+		}
+	}
+
+	public override void OnPointerExit(PointerEventData eventData) {
+		if (interactable) {
+			if (UIManager.Selected == this) UIManager.Selected = null;
+			base.OnPointerExit(eventData);
+		}
+	}
+
+
 
 	public void OnPointerClick(PointerEventData eventData) {
 		if (interactable) OnClick.Invoke();

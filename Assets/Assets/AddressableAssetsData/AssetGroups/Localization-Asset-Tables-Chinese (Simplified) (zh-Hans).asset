@@ -13,17 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Asset-Tables-Chinese (Simplified) (zh-Hans)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Asset-Tables-Chinese (Simplified) (zh-Hans)
-  m_GUID: d692dd406172af640b6e3bf5ad3dd559
-  m_SerializeEntries:
-  - m_GUID: 42edaaf0acc61064bae478f52253e4d2
-    m_Address: FontTable_zh-Hans
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-zh-Hans
-    FlaggedDuringContentUpdateRestriction: 0
+  m_GUID: 603722a9ec0933e409683fcafe537382
+  m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: ea2c80dd5a4a8da4ea4dc7df20cb54de, type: 2}
-    - {fileID: 11400000, guid: f8401c52f484cdb43a40c9188ffb018a, type: 2}
+    - {fileID: 11400000, guid: 2326fea19ebdca041938a116fb013c2f, type: 2}
+    - {fileID: 11400000, guid: 01f71fa2a516cf04fa6d0a8e34618406, type: 2}

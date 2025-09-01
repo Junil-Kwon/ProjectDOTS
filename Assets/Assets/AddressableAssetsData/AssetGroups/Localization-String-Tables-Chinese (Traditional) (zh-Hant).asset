@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-Chinese (Traditional) (zh-Hant)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-String-Tables-Chinese (Traditional) (zh-Hant)
-  m_GUID: 6c0011c34af4bce4a902ad735cf94017
+  m_GUID: f5572d36d36f7ff4b8dd61d5f3780a70
   m_SerializeEntries:
-  - m_GUID: b141e59359932cb4ca49b1f113ebe5ce
-    m_Address: UITable_zh-Hant
+  - m_GUID: fc2cf76b185d5c547912aef768c1b351
+    m_Address: UI Table_zh-Hant
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hant
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 9d31ec5c14c3b65408a8088ab0c3c28a, type: 2}
-    - {fileID: 11400000, guid: 92a01027377dbd8498a933d2ed9de0ab, type: 2}
+    - {fileID: 11400000, guid: 00ed25e49b8206f41a2c1e75fe1fa1f8, type: 2}
+    - {fileID: 11400000, guid: 98f7c7f37b52ec4439e8b4500388a791, type: 2}

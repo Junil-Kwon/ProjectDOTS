@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Assets-Korean (ko)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Korean (ko)
-  m_GUID: 1757958ee74db9045b3b5796c00e56e3
+  m_GUID: 45f1924d46796794f86f525823126dc0
   m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 824407d57af2107498de8c4b3882f369, type: 2}
-    - {fileID: 11400000, guid: 06da6ed2d50242647b7ab50a0b5e2368, type: 2}
+    - {fileID: 11400000, guid: 7c592d9319353ae4689f91f50ac86cb4, type: 2}
+    - {fileID: 11400000, guid: 0f808f7ff73ebec449c3dff4cb90aa33, type: 2}

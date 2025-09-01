@@ -9,67 +9,61 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7036014d867800c4aa5ea60009305b2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 120ae1dc7b90f1743a9360f1e131e4a3, type: 3}
   m_Name: SpriteAtlasMap
   m_EditorClassIdentifier: 
-  m_Data:
-  - SourceTexture: Assets/Textures/SpriteBases
-    TargetTexture: {fileID: 2800000, guid: 6adc2443a2be13f45ba5c0150afac6c1, type: 3}
-    FallbackColor:
-      serializedVersion: 2
-      rgba: 0
-  - SourceTexture: Assets/Textures/SpriteMasks
-    TargetTexture: {fileID: 2800000, guid: a5d54a71869b81b4ba25c95ba8bcc4ba, type: 3}
-    FallbackColor:
-      serializedVersion: 2
-      rgba: 0
-  - SourceTexture: Assets/Textures/SpriteNormals
-    TargetTexture: {fileID: 2800000, guid: 024db03547984f34fa6ce24d50f01557, type: 3}
-    FallbackColor:
-      serializedVersion: 2
-      rgba: 16744319
+  m_LayerData:
+  - SourcePath: Assets/Textures/SpriteBases
+    TargetTexture: {fileID: 2800000, guid: 1ed219f3d9d29a64fb20cf3d24e40faa, type: 3}
+    FallbackColor: {r: 1, g: 1, b: 1, a: 0}
+  - SourcePath: Assets/Textures/SpriteMasks
+    TargetTexture: {fileID: 2800000, guid: a6554f5e8edcd2a4e9205ebda161ba41, type: 3}
+    FallbackColor: {r: 1, g: 1, b: 1, a: 0}
+  - SourcePath: Assets/Textures/SpriteEmissions
+    TargetTexture: {fileID: 2800000, guid: 61bc474fcad743044a278370c7f697fa, type: 3}
+    FallbackColor: {r: 1, g: 1, b: 1, a: 0}
+  - SourcePath: Assets/Textures/SpriteNormals
+    TargetTexture: {fileID: 2800000, guid: ae56ca017d13efc498b6d328cd37a9b8, type: 3}
+    FallbackColor: {r: 0.5019608, g: 0.5019608, b: 1, a: 0}
   m_PixelPerUnit: 16
   m_Padding: 2
   m_MaxSize: 16384
+  m_TrimTransparent: 1
+  m_MergeDuplicates: 0
   m_AtlasMap:
-    k:
-    - Landing_0_0_0100
-    - Landing_0_1_0100
-    - Landing_0_2_0100
-    - Landing_0_3_0100
-    - Landing_0_4_0100
-    - Landing_0_5_0100
-    - Landing_0_6_9999
-    - Landing_1_0_0100
-    - Landing_1_1_0100
-    - Landing_1_2_0100
-    - Landing_1_3_0100
-    - Landing_1_4_0100
-    - Landing_1_5_0100
-    - Landing_1_6_9999
-    - Landing_2_0_0100
-    - Landing_2_1_0100
-    - Landing_2_2_0100
-    - Landing_2_3_0100
-    - Landing_2_4_0100
-    - Landing_2_5_0100
-    - Landing_2_6_9999
-    - Landing_3_0_0100
-    - Landing_3_1_0100
-    - Landing_3_2_0100
-    - Landing_3_3_0100
-    - Landing_3_4_0100
-    - Landing_3_5_0100
-    - Landing_3_6_9999
-    - Landing_4_0_0100
-    - Landing_4_1_0100
-    - Landing_4_2_0100
-    - Landing_4_3_0100
-    - Landing_4_4_0100
-    - Landing_4_5_0100
-    - Landing_4_6_9999
+    m_KList:
+    - Dummy_Idle_0_0_100
+    - Dummy_Idle_1_0_100
+    - Dummy_Idle_2_0_100
+    - Dummy_Idle_3_0_100
+    - Dummy_Idle_4_0_100
+    - Dummy_Move_0_0_50
+    - Dummy_Move_0_1_200
+    - Dummy_Move_0_2_200
+    - Dummy_Move_0_3_200
+    - Dummy_Move_0_4_150
+    - Dummy_Move_1_0_50
+    - Dummy_Move_1_1_200
+    - Dummy_Move_1_2_200
+    - Dummy_Move_1_3_200
+    - Dummy_Move_1_4_150
+    - Dummy_Move_2_0_50
+    - Dummy_Move_2_1_200
+    - Dummy_Move_2_2_200
+    - Dummy_Move_2_3_200
+    - Dummy_Move_2_4_150
+    - Dummy_Move_3_0_50
+    - Dummy_Move_3_1_200
+    - Dummy_Move_3_2_200
+    - Dummy_Move_3_3_200
+    - Dummy_Move_3_4_150
+    - Dummy_Move_4_0_50
+    - Dummy_Move_4_1_200
+    - Dummy_Move_4_2_200
+    - Dummy_Move_4_3_200
+    - Dummy_Move_4_4_150
     - None
-    - Player
+    - NormalSample
     - Player_Death_0_0_0100
     - Player_Death_0_1_0100
     - Player_Death_0_2_9999
@@ -93,438 +87,378 @@ MonoBehaviour:
     - Player_Move_0_3_0100
     - Player_Move_0_4_0100
     - Player_Move_0_5_0100
-    - SmokeMini_0_0100
-    - SmokeMini_1_0100
-    - SmokeMini_2_0100
-    - SmokeMini_3_0100
-    - SmokeMini_4_0100
-    - SmokeMini_5_9999
-    - SmokeTiny_0_0100
-    - SmokeTiny_1_0100
-    - SmokeTiny_2_0100
-    - SmokeTiny_3_0100
+    - SmokeSmall_0_100
+    - SmokeSmall_1_100
+    - SmokeSmall_2_100
+    - SmokeSmall_3_100
+    - SmokeSmall_4_100
+    - SmokeSmall_5_9999
+    - SmokeTiny_0_100
+    - SmokeTiny_1_100
+    - SmokeTiny_2_100
+    - SmokeTiny_3_100
     - SmokeTiny_4_9999
-    v:
+    m_VList:
     - scale:
         x: 0.8125
-        y: 0.5
+        y: 1.0625
       pivot:
-        x: 0.03125
-        y: -0.4375
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
+        x: 0.5703125
+        y: 0.07421875
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.7109375
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.609375
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.5078125
+        y: 0.40625
+    - scale:
+        x: 0.8125
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
+        x: 0.6875
+        y: 0.07421875
+    - scale:
+        x: 0.8125
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
+        x: 0.4375
+        y: 0.25
+    - scale:
+        x: 0.8125
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
       tiling:
         x: 0.1015625
         y: 0.0625
       offset:
-        x: 0.34375
-        y: 0.890625
+        x: 0.1171875
+        y: 0.3359375
     - scale:
-        x: 1.125
-        y: 0.625
+        x: 0.8125
+        y: 1.0625
       pivot:
-        x: 0
-        y: -0.5625
+        x: -0.03125
+        y: 0.03125
       tiling:
-        x: 0.140625
-        y: 0.078125
+        x: 0.1015625
+        y: 0.06640625
       offset:
-        x: 0.8515625
+        x: 0.5546875
+        y: 0.25
+    - scale:
+        x: 0.8125
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0.0625
+      tiling:
+        x: 0.1015625
+        y: 0.0625
+      offset:
+        x: 0
+        y: 0.3359375
+    - scale:
+        x: 0.8125
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
+        x: 0.7578125
         y: 0
     - scale:
-        x: 1.1875
-        y: 0.5
+        x: 0.6875
+        y: 1.0625
       pivot:
-        x: 0.03125
-        y: -0.6875
+        x: -0.03125
+        y: 0.03125
       tiling:
-        x: 0.1484375
-        y: 0.0625
+        x: 0.0859375
+        y: 0.06640625
       offset:
-        x: 0.5078125
-        y: 0.328125
-    - scale:
-        x: 1.1875
-        y: 0.5
-      pivot:
-        x: 0.03125
-        y: -0.625
-      tiling:
-        x: 0.1484375
-        y: 0.0625
-      offset:
-        x: 0.34375
-        y: 0.328125
-    - scale:
-        x: 1.1875
-        y: 0.4375
-      pivot:
-        x: 0.03125
-        y: -0.59375
-      tiling:
-        x: 0.1484375
-        y: 0.0546875
-      offset:
-        x: 0.8359375
-        y: 0.328125
-    - scale:
-        x: 1.1875
-        y: 0.4375
-      pivot:
-        x: 0.03125
-        y: -0.59375
-      tiling:
-        x: 0.1484375
-        y: 0.0546875
-      offset:
-        x: 0.671875
-        y: 0.328125
-    - scale:
-        x: 0.0625
-        y: 0.0625
-      pivot:
-        x: -0.96875
-        y: -0.96875
-      tiling:
-        x: 0.0078125
-        y: 0.0078125
-      offset:
-        x: 0.1953125
-        y: 0.125
-    - scale:
-        x: 0.5625
-        y: 0.5625
-      pivot:
-        x: 0.34375
-        y: -0.46875
-      tiling:
-        x: 0.0703125
-        y: 0.0703125
-      offset:
-        x: 0.546875
-        y: 0.765625
-    - scale:
-        x: 0.625
-        y: 0.5625
-      pivot:
-        x: 0.4375
-        y: -0.53125
-      tiling:
-        x: 0.078125
-        y: 0.0703125
-      offset:
-        x: 0.546875
-        y: 0.578125
-    - scale:
-        x: 0.625
-        y: 0.625
-      pivot:
-        x: 0.5
-        y: -0.5625
-      tiling:
-        x: 0.078125
-        y: 0.078125
-      offset:
-        x: 0.734375
-        y: 0.484375
-    - scale:
-        x: 0.625
-        y: 0.625
-      pivot:
-        x: 0.5
-        y: -0.5
-      tiling:
-        x: 0.078125
-        y: 0.078125
-      offset:
-        x: 0.640625
-        y: 0.484375
-    - scale:
-        x: 0.625
-        y: 0.625
-      pivot:
-        x: 0.5
-        y: -0.5
-      tiling:
-        x: 0.078125
-        y: 0.078125
-      offset:
-        x: 0.546875
-        y: 0.484375
-    - scale:
-        x: 0.625
-        y: 0.625
-      pivot:
-        x: 0.5
-        y: -0.5
-      tiling:
-        x: 0.078125
-        y: 0.078125
-      offset:
-        x: 0.921875
-        y: 0.484375
-    - scale:
-        x: 0.0625
-        y: 0.0625
-      pivot:
-        x: -0.96875
-        y: -0.96875
-      tiling:
-        x: 0.0078125
-        y: 0.0078125
-      offset:
-        x: 0.1484375
-        y: 0.125
-    - scale:
-        x: 0.5625
-        y: 0.5
-      pivot:
         x: 0.40625
-        y: -0.125
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
       tiling:
-        x: 0.0703125
+        x: 0.0859375
         y: 0.0625
+      offset:
+        x: 0.90625
+        y: 0.3359375
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.3046875
+        y: 0.40625
+    - scale:
+        x: 0.8125
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
+      tiling:
+        x: 0.1015625
+        y: 0.0625
+      offset:
+        x: 0.234375
+        y: 0.3359375
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.203125
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0.1015625
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
+      tiling:
+        x: 0.0859375
+        y: 0.0625
+      offset:
+        x: 0.8046875
+        y: 0.3359375
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0
+        y: 0.40625
+    - scale:
+        x: 0.6875
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
+      tiling:
+        x: 0.0859375
+        y: 0.0625
+      offset:
+        x: 0.703125
+        y: 0.3359375
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0
+        y: 0.5546875
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
+      offset:
+        x: 0
+        y: 0.48046875
+    - scale:
+        x: 0.8125
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
+      tiling:
+        x: 0.1015625
+        y: 0.0625
+      offset:
+        x: 0.3515625
+        y: 0.3359375
+    - scale:
+        x: 0.6875
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.0859375
+        y: 0.06640625
       offset:
         x: 0.9140625
         y: 0.40625
     - scale:
-        x: 0.5
-        y: 0.6875
-      pivot:
-        x: 0.625
-        y: -0.09375
-      tiling:
-        x: 0.0625
-        y: 0.0859375
-      offset:
-        x: 0.546875
-        y: 0.6640625
-    - scale:
-        x: 0.4375
-        y: 0.8125
-      pivot:
-        x: 0.71875
-        y: -0.15625
-      tiling:
-        x: 0.0546875
-        y: 0.1015625
-      offset:
-        x: 0.4765625
-        y: 0.875
-    - scale:
-        x: 0.4375
-        y: 0.875
-      pivot:
-        x: 0.78125
-        y: -0.125
-      tiling:
-        x: 0.0546875
-        y: 0.109375
-      offset:
-        x: 0.4765625
-        y: 0.75
-    - scale:
-        x: 0.4375
-        y: 0.9375
-      pivot:
-        x: 0.78125
-        y: -0.15625
-      tiling:
-        x: 0.0546875
-        y: 0.1171875
-      offset:
-        x: 0.4765625
-        y: 0.484375
-    - scale:
-        x: 0.4375
-        y: 0.9375
-      pivot:
-        x: 0.78125
-        y: -0.15625
-      tiling:
-        x: 0.0546875
-        y: 0.1171875
-      offset:
-        x: 0.4765625
-        y: 0.6171875
-    - scale:
-        x: 0.0625
-        y: 0.0625
-      pivot:
-        x: -0.96875
-        y: -0.96875
-      tiling:
-        x: 0.0078125
-        y: 0.0078125
-      offset:
-        x: 0.2421875
-        y: 0.125
-    - scale:
         x: 0.6875
-        y: 0.625
+        y: 1
       pivot:
-        x: 0.40625
-        y: 0.3125
+        x: -0.03125
+        y: 0
       tiling:
         x: 0.0859375
-        y: 0.078125
+        y: 0.0625
       offset:
-        x: 0.34375
-        y: 0.796875
-    - scale:
-        x: 0.625
-        y: 0.625
-      pivot:
-        x: 0.5
-        y: 0.375
-      tiling:
-        x: 0.078125
-        y: 0.078125
-      offset:
-        x: 0.828125
-        y: 0.484375
+        x: 0
+        y: 0.62890625
     - scale:
         x: 0.6875
-        y: 0.625
+        y: 1.0625
       pivot:
-        x: 0.53125
-        y: 0.4375
+        x: -0.03125
+        y: 0.03125
       tiling:
         x: 0.0859375
-        y: 0.078125
+        y: 0.06640625
       offset:
-        x: 0.125
-        y: 0.875
-    - scale:
-        x: 0.625
-        y: 0.6875
-      pivot:
-        x: 0.5625
-        y: 0.46875
-      tiling:
-        x: 0.078125
-        y: 0.0859375
-      offset:
-        x: 0.34375
-        y: 0.59375
-    - scale:
-        x: 0.625
-        y: 0.6875
-      pivot:
-        x: 0.5625
-        y: 0.46875
-      tiling:
-        x: 0.078125
-        y: 0.0859375
-      offset:
-        x: 0.34375
-        y: 0.6953125
-    - scale:
-        x: 0.5
-        y: 0.4375
-      pivot:
-        x: 0.625
-        y: 0.59375
-      tiling:
-        x: 0.0625
-        y: 0.0546875
-      offset:
-        x: 0.640625
-        y: 0.578125
-    - scale:
-        x: 0.0625
-        y: 0.0625
-      pivot:
-        x: -0.96875
-        y: -0.96875
-      tiling:
-        x: 0.0078125
-        y: 0.0078125
-      offset:
-        x: 0.171875
-        y: 0.125
+        x: 0.8125
+        y: 0.40625
     - scale:
         x: 0.8125
-        y: 0.625
+        y: 1.0625
       pivot:
-        x: 0.03125
-        y: 0.3125
+        x: -0.03125
+        y: 0.03125
       tiling:
         x: 0.1015625
-        y: 0.078125
+        y: 0.06640625
       offset:
-        x: 0.34375
-        y: 0.5
+        x: 0.7890625
+        y: 0.25
     - scale:
-        x: 0.9375
-        y: 0.625
+        x: 0.8125
+        y: 1
       pivot:
-        x: 0.03125
-        y: 0.5
+        x: -0.03125
+        y: 0
       tiling:
-        x: 0.1171875
-        y: 0.078125
+        x: 0.1015625
+        y: 0.0625
       offset:
-        x: 0.34375
-        y: 0.40625
+        x: 0.46875
+        y: 0.3359375
     - scale:
+        x: 0.8125
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
+        x: 0.8046875
+        y: 0.07421875
+    - scale:
+        x: 0.8125
+        y: 1
+      pivot:
+        x: -0.03125
+        y: 0
+      tiling:
+        x: 0.1015625
+        y: 0.0625
+      offset:
+        x: 0.5859375
+        y: 0.3359375
+    - scale:
+        x: 0.8125
+        y: 1.0625
+      pivot:
+        x: -0.03125
+        y: 0.03125
+      tiling:
+        x: 0.1015625
+        y: 0.06640625
+      offset:
         x: 0.875
-        y: 0.625
-      pivot:
-        x: 0
-        y: 0.625
-      tiling:
-        x: 0.109375
-        y: 0.078125
-      offset:
-        x: 0
-        y: 0.875
-    - scale:
-        x: 1
-        y: 0.5
-      pivot:
-        x: 0
-        y: 0.6875
-      tiling:
-        x: 0.125
-        y: 0.0625
-      offset:
-        x: 0.4765625
-        y: 0.40625
-    - scale:
-        x: 1.0625
-        y: 0.4375
-      pivot:
-        x: -0.03125
-        y: 0.71875
-      tiling:
-        x: 0.1328125
-        y: 0.0546875
-      offset:
-        x: 0.6171875
-        y: 0.40625
-    - scale:
-        x: 1.0625
-        y: 0.375
-      pivot:
-        x: -0.03125
-        y: 0.75
-      tiling:
-        x: 0.1328125
-        y: 0.046875
-      offset:
-        x: 0.765625
-        y: 0.40625
-    - scale:
-        x: 0.0625
-        y: 0.0625
-      pivot:
-        x: -0.96875
-        y: -0.96875
-      tiling:
-        x: 0.0078125
-        y: 0.0078125
-      offset:
-        x: 0.21875
-        y: 0.125
+        y: 0
     - scale:
         x: 1
         y: 1
@@ -533,22 +467,22 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.125
-        y: 0.125
+        y: 0.0625
       offset:
         x: 0.3203125
         y: 0
     - scale:
-        x: 0.75
-        y: 1.3125
+        x: 1
+        y: 1
       pivot:
         x: 0
-        y: -0.03125
+        y: 0
       tiling:
-        x: 0.09375
-        y: 0.1640625
-      offset:
         x: 0.125
-        y: 0.515625
+        y: 0.0625
+      offset:
+        x: 0.4609375
+        y: 0
     - scale:
         x: 0.75
         y: 1.1875
@@ -557,10 +491,10 @@ MonoBehaviour:
         y: -0.09375
       tiling:
         x: 0.09375
-        y: 0.1484375
+        y: 0.07421875
       offset:
         x: 0.234375
-        y: 0.65625
+        y: 0.07421875
     - scale:
         x: 0.75
         y: 1.125
@@ -569,10 +503,10 @@ MonoBehaviour:
         y: -0.125
       tiling:
         x: 0.09375
-        y: 0.140625
+        y: 0.0703125
       offset:
-        x: 0.234375
-        y: 0.8203125
+        x: 0.90625
+        y: 0.25
     - scale:
         x: 0.8125
         y: 1.0625
@@ -581,10 +515,10 @@ MonoBehaviour:
         y: -0.15625
       tiling:
         x: 0.1015625
-        y: 0.1328125
+        y: 0.06640625
       offset:
-        x: 0.734375
-        y: 0
+        x: 0.453125
+        y: 0.07421875
     - scale:
         x: 1.0625
         y: 1.0625
@@ -593,7 +527,7 @@ MonoBehaviour:
         y: -0.03125
       tiling:
         x: 0.1328125
-        y: 0.1328125
+        y: 0.06640625
       offset:
         x: 0
         y: 0
@@ -605,9 +539,9 @@ MonoBehaviour:
         y: -0.21875
       tiling:
         x: 0.140625
-        y: 0.1015625
+        y: 0.05078125
       offset:
-        x: 0.4609375
+        x: 0.6015625
         y: 0
     - scale:
         x: 0.8125
@@ -617,10 +551,10 @@ MonoBehaviour:
         y: -0.09375
       tiling:
         x: 0.1015625
-        y: 0.1328125
+        y: 0.06640625
       offset:
-        x: 0.6171875
-        y: 0
+        x: 0.671875
+        y: 0.25
     - scale:
         x: 1.25
         y: 0.875
@@ -629,7 +563,7 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.15625
-        y: 0.109375
+        y: 0.0546875
       offset:
         x: 0.1484375
         y: 0
@@ -641,10 +575,10 @@ MonoBehaviour:
         y: 0.03125
       tiling:
         x: 0.109375
-        y: 0.1484375
+        y: 0.07421875
       offset:
         x: 0
-        y: 0.1484375
+        y: 0.07421875
     - scale:
         x: 0.75
         y: 1.1875
@@ -653,10 +587,10 @@ MonoBehaviour:
         y: -0.09375
       tiling:
         x: 0.09375
-        y: 0.1484375
+        y: 0.07421875
       offset:
-        x: 0.234375
-        y: 0.4921875
+        x: 0.34375
+        y: 0.07421875
     - scale:
         x: 0.75
         y: 1.3125
@@ -665,10 +599,10 @@ MonoBehaviour:
         y: -0.03125
       tiling:
         x: 0.09375
-        y: 0.1640625
+        y: 0.08203125
       offset:
-        x: 0.234375
-        y: 0.1484375
+        x: 0.65625
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.375
@@ -677,10 +611,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.09375
-        y: 0.171875
+        y: 0.0859375
       offset:
-        x: 0.125
-        y: 0.1484375
+        x: 0.21875
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.375
@@ -689,10 +623,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.09375
-        y: 0.171875
+        y: 0.0859375
       offset:
-        x: 0
-        y: 0.6875
+        x: 0.328125
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.3125
@@ -701,10 +635,10 @@ MonoBehaviour:
         y: -0.03125
       tiling:
         x: 0.09375
-        y: 0.1640625
+        y: 0.08203125
       offset:
-        x: 0.125
-        y: 0.6953125
+        x: 0.546875
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.1875
@@ -713,10 +647,10 @@ MonoBehaviour:
         y: -0.09375
       tiling:
         x: 0.09375
-        y: 0.1484375
+        y: 0.07421875
       offset:
-        x: 0.234375
-        y: 0.328125
+        x: 0.125
+        y: 0.07421875
     - scale:
         x: 0.75
         y: 1.375
@@ -725,10 +659,10 @@ MonoBehaviour:
         y: 0.1875
       tiling:
         x: 0.09375
-        y: 0.171875
+        y: 0.0859375
       offset:
-        x: 0
-        y: 0.5
+        x: 0.109375
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.375
@@ -737,10 +671,10 @@ MonoBehaviour:
         y: 0.125
       tiling:
         x: 0.09375
-        y: 0.171875
+        y: 0.0859375
       offset:
         x: 0
-        y: 0.3125
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.3125
@@ -749,10 +683,10 @@ MonoBehaviour:
         y: 0.03125
       tiling:
         x: 0.09375
-        y: 0.1640625
+        y: 0.08203125
       offset:
-        x: 0.125
-        y: 0.3359375
+        x: 0.4375
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.25
@@ -761,10 +695,10 @@ MonoBehaviour:
         y: 0.0625
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.671875
-        y: 0.1484375
+        x: 0.875
+        y: 0.15625
     - scale:
         x: 0.75
         y: 1.25
@@ -773,10 +707,10 @@ MonoBehaviour:
         y: 0.0625
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.5625
-        y: 0.1484375
+        x: 0
+        y: 0.25
     - scale:
         x: 0.75
         y: 1.25
@@ -785,10 +719,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.453125
-        y: 0.1484375
+        x: 0.109375
+        y: 0.25
     - scale:
         x: 0.75
         y: 1.25
@@ -797,10 +731,10 @@ MonoBehaviour:
         y: 0.0625
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.78125
-        y: 0.1484375
+        x: 0.21875
+        y: 0.25
     - scale:
         x: 0.75
         y: 1.25
@@ -809,10 +743,10 @@ MonoBehaviour:
         y: 0.0625
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.890625
-        y: 0.1484375
+        x: 0.328125
+        y: 0.25
     - scale:
         x: 0.75
         y: 1.25
@@ -821,10 +755,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.09375
-        y: 0.15625
+        y: 0.078125
       offset:
-        x: 0.34375
-        y: 0.1484375
+        x: 0.765625
+        y: 0.15625
     - scale:
         x: 0.25
         y: 0.25
@@ -833,10 +767,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.03125
-        y: 0.03125
+        y: 0.015625
       offset:
-        x: 0.8515625
-        y: 0.09375
+        x: 0
+        y: 0.859375
     - scale:
         x: 0.375
         y: 0.375
@@ -845,10 +779,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.046875
-        y: 0.046875
+        y: 0.0234375
       offset:
-        x: 0.7890625
-        y: 0.578125
+        x: 0
+        y: 0.734375
     - scale:
         x: 0.5
         y: 0.5
@@ -857,10 +791,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.0625
-        y: 0.0625
+        y: 0.03125
       offset:
-        x: 0.546875
-        y: 0.8515625
+        x: 0.921875
+        y: 0.07421875
     - scale:
         x: 0.5
         y: 0.5
@@ -869,10 +803,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.0625
-        y: 0.0625
+        y: 0.03125
       offset:
-        x: 0.546875
-        y: 0.9296875
+        x: 0.921875
+        y: 0.11328125
     - scale:
         x: 0.4375
         y: 0.4375
@@ -881,10 +815,10 @@ MonoBehaviour:
         y: -0.03125
       tiling:
         x: 0.0546875
-        y: 0.0546875
+        y: 0.02734375
       offset:
-        x: 0.71875
-        y: 0.578125
+        x: 0
+        y: 0.69921875
     - scale:
         x: 0.0625
         y: 0.0625
@@ -893,10 +827,10 @@ MonoBehaviour:
         y: -0.96875
       tiling:
         x: 0.0078125
-        y: 0.0078125
+        y: 0.00390625
       offset:
-        x: 0.265625
-        y: 0.125
+        x: 0.1484375
+        y: 0.0625
     - scale:
         x: 0.1875
         y: 0.1875
@@ -905,10 +839,22 @@ MonoBehaviour:
         y: -0.03125
       tiling:
         x: 0.0234375
+        y: 0.01171875
+      offset:
+        x: 0.0625
+        y: 0.734375
+    - scale:
+        x: 0.375
+        y: 0.375
+      pivot:
+        x: 0
+        y: 0
+      tiling:
+        x: 0.046875
         y: 0.0234375
       offset:
-        x: 0.8984375
-        y: 0.09375
+        x: 0
+        y: 0.765625
     - scale:
         x: 0.375
         y: 0.375
@@ -917,10 +863,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.046875
-        y: 0.046875
+        y: 0.0234375
       offset:
-        x: 0.8515625
-        y: 0.578125
+        x: 0
+        y: 0.796875
     - scale:
         x: 0.375
         y: 0.375
@@ -929,22 +875,10 @@ MonoBehaviour:
         y: 0
       tiling:
         x: 0.046875
-        y: 0.046875
+        y: 0.0234375
       offset:
-        x: 0.9140625
-        y: 0.578125
-    - scale:
-        x: 0.375
-        y: 0.375
-      pivot:
         x: 0
-        y: 0
-      tiling:
-        x: 0.046875
-        y: 0.046875
-      offset:
-        x: 0.640625
-        y: 0.6484375
+        y: 0.828125
     - scale:
         x: 0.0625
         y: 0.0625
@@ -953,7 +887,7 @@ MonoBehaviour:
         y: -0.96875
       tiling:
         x: 0.0078125
-        y: 0.0078125
+        y: 0.00390625
       offset:
-        x: 0.2890625
-        y: 0.125
+        x: 0.171875
+        y: 0.0625

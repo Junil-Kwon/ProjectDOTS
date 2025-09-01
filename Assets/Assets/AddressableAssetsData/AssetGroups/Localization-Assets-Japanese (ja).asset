@@ -13,29 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Assets-Japanese (ja)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Japanese (ja)
-  m_GUID: 735aad888a8cd5a4c8c84cf826378fb2
-  m_SerializeEntries:
-  - m_GUID: 214e9f38b3218984ebbabe4789b8b385
-    m_Address: FusionPixel10-ja
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ja
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 71592c4d643bc0b41ad64872136254ea
-    m_Address: FusionPixel12-ja
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ja
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f6dc0be0caa4c5e45856aad6df9161cc
-    m_Address: FusionPixel8-ja
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ja
-    FlaggedDuringContentUpdateRestriction: 0
+  m_GUID: 96f2a4c034b292f47941059ad91e5ded
+  m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: b6462cde5c7bf0547ad0ef3b19429966, type: 2}
-    - {fileID: 11400000, guid: 4dfc53f150fac6f4c8199c9604c760b7, type: 2}
+    - {fileID: 11400000, guid: cbf20112daa2eb14ba934ae332af03eb, type: 2}
+    - {fileID: 11400000, guid: 2a296085f4449184fb7360168bb27c1e, type: 2}

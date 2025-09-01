@@ -1,110 +1,103 @@
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Shadow Shader
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 #ifndef SHADOW_SHADER_H
 #define SHADOW_SHADER_H
 
-	// Definition
+// Constants
 
-	struct ShadowDrawData {
-		float3 position;
-		float2 scale;
-		float2 pivot;
-
-		float2 tiling;
-		float2 offset;
-	};
-
-
-
-	// Fields
-
-	StructuredBuffer<ShadowDrawData> _ShadowDrawData;
+struct ShadowDrawData {
+	float3 Position;
+	float4 Rotation;
+	float2 Scale;
+	float2 Pivot;
+	float2 Tiling;
+	float2 Offset;
+	float3 Center;
+};
 
 
 
-	// Methods
+// Fields
 
-	inline float4x4 TRS(float3 position, float2 scale, float2 pivot, float4x4 camera) {
-		float3 cameraForward = normalize(float3(camera[0][2], 0.0f, camera[2][2]));
-		float  yaw  = atan2(cameraForward.x, cameraForward.z);
-		float  cosY = cos(yaw);
-		float  sinY = sin(yaw);
-		float3 right   = float3(cosY,  0.0f, -sinY);
-		float3 up      = float3(0.0f,  1.0f,  0.0f);
-		float3 forward = float3(sinY,  0.0f,  cosY);
-
-		float4x4 m = 0.0f;
-		m[0][0] = right.x * scale.x;
-		m[1][0] = right.y * scale.x;
-		m[2][0] = right.z * scale.x;
-		m[3][0] = 0.0f;
-		m[0][1] = up.x * scale.y;
-		m[1][1] = up.y * scale.y;
-		m[2][1] = up.z * scale.y;
-		m[3][1] = 0.0f;
-		m[0][2] = forward.x;
-		m[1][2] = forward.y;
-		m[2][2] = forward.z;
-		m[3][2] = 0.0f;
-		m[0][3] = position.x + pivot.x * right.x + pivot.y * up.x;
-		m[1][3] = position.y + pivot.x * right.y + pivot.y * up.y;
-		m[2][3] = position.z + pivot.x * right.z + pivot.y * up.z;
-		m[3][3] = 1.0f;
-		return m;
-	}
-
-	inline float4x4 InverseAffineTransform(float4x4 m) {
-		float3x3 rotation = float3x3(
-			m[1].yzx * m[2].zxy - m[1].zxy * m[2].yzx,
-			m[0].zxy * m[2].yzx - m[0].yzx * m[2].zxy,
-			m[0].yzx * m[1].zxy - m[0].zxy * m[1].yzx);
-		float det = dot(m[0].xyz, rotation[0]);
-		rotation = transpose(rotation);
-		rotation *= rcp(det);
-		float3 position = mul(rotation, -m._14_24_34);
-
-		m._11_21_31_41 = float4(rotation._11_21_31, 0.0f);
-		m._12_22_32_42 = float4(rotation._12_22_32, 0.0f);
-		m._13_23_33_43 = float4(rotation._13_23_33, 0.0f);
-		m._14_24_34_44 = float4(position,           1.0f);
-
-		return m;
-	}
+StructuredBuffer<ShadowDrawData> _ShadowDrawData;
 
 
 
-	// Lifecycle
+// Methods
 
-	void Setup() {
-		#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-			ShadowDrawData data = _ShadowDrawData[unity_InstanceID];
-			unity_ObjectToWorld = TRS(data.position, data.scale, data.pivot, unity_CameraToWorld);
-			unity_WorldToObject = InverseAffineTransform(unity_ObjectToWorld);
-		#endif
-	}
+inline float4x4 CreateTransform(float3 position, float4 rotation, float3 scale) {
+	float4x4 m;
+	m[0][0] = (1 - 2 * (rotation.y * rotation.y + rotation.z * rotation.z)) * scale.x;
+	m[1][0] = (0 + 2 * (rotation.x * rotation.y + rotation.z * rotation.w)) * scale.x;
+	m[2][0] = (0 + 2 * (rotation.x * rotation.z - rotation.y * rotation.w)) * scale.x;
+	m[3][0] = 0;
+	m[0][1] = (0 + 2 * (rotation.x * rotation.y - rotation.z * rotation.w)) * scale.y;
+	m[1][1] = (1 - 2 * (rotation.x * rotation.x + rotation.z * rotation.z)) * scale.y;
+	m[2][1] = (0 + 2 * (rotation.y * rotation.z + rotation.x * rotation.w)) * scale.y;
+	m[3][1] = 0;
+	m[0][2] = (0 + 2 * (rotation.x * rotation.z + rotation.y * rotation.w)) * scale.z;
+	m[1][2] = (0 + 2 * (rotation.y * rotation.z - rotation.x * rotation.w)) * scale.z;
+	m[2][2] = (1 - 2 * (rotation.x * rotation.x + rotation.y * rotation.y)) * scale.z;
+	m[3][2] = 0;
+	m[0][3] = position.x;
+	m[1][3] = position.y;
+	m[2][3] = position.z;
+	m[3][3] = 1;
+	return m;
+}
 
-	void Passthrough_float(
-		in float3 In,
-		in float2 In_Tiling,
-		in float2 In_Offset,
+inline float4x4 InvertTransform(float4x4 m) {
+	float3x3 rotation;
+	rotation[0] = m[1].yzx * m[2].zxy - m[1].zxy * m[2].yzx;
+	rotation[1] = m[0].zxy * m[2].yzx - m[0].yzx * m[2].zxy;
+	rotation[2] = m[0].yzx * m[1].zxy - m[0].zxy * m[1].yzx;
+	rotation = transpose(rotation) * rcp(dot(m[0].xyz, rotation[0]));
+	float3 position = mul(rotation, -m._14_24_34);
 
-		out float3 Out,
-		out float2 Out_Tiling,
-		out float2 Out_Offset) {
+	m._11_21_31_41 = float4(rotation._11_21_31, 0);
+	m._12_22_32_42 = float4(rotation._12_22_32, 0);
+	m._13_23_33_43 = float4(rotation._13_23_33, 0);
+	m._14_24_34_44 = float4(position, 1);
+	return m;
+}
 
-		#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-			ShadowDrawData data = _ShadowDrawData[unity_InstanceID];
-			Out        = In;
-			Out_Tiling = data.tiling;
-			Out_Offset = data.offset;
-		#else
-			Out        = In;
-			Out_Tiling = In_Tiling;
-			Out_Offset = In_Offset;
-		#endif
-	}
+void Setup() {
+	#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+	ShadowDrawData data = _ShadowDrawData[unity_InstanceID];
+	unity_ObjectToWorld = CreateTransform(data.Position, data.Rotation, float3(1, 1, 1));
+	unity_WorldToObject = InvertTransform(unity_ObjectToWorld);
+	#endif
+}
+
+void Passthrough_float(
+	in float2 In_Scale,
+	in float2 In_Pivot,
+	in float2 In_Tiling,
+	in float2 In_Offset,
+	in float3 In_Center,
+
+	out float2 Out_Scale,
+	out float2 Out_Pivot,
+	out float2 Out_Tiling,
+	out float2 Out_Offset,
+	out float3 Out_Center) {
+
+	#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+	ShadowDrawData data = _ShadowDrawData[unity_InstanceID];
+	Out_Scale  = data.Scale;
+	Out_Pivot  = data.Pivot;
+	Out_Tiling = data.Tiling;
+	Out_Offset = data.Offset;
+	Out_Center = data.Center;
+	#else
+	Out_Scale  = In_Scale;
+	Out_Pivot  = In_Pivot;
+	Out_Tiling = In_Tiling;
+	Out_Offset = In_Offset;
+	Out_Center = In_Center;
+	#endif
+}
 
 #endif

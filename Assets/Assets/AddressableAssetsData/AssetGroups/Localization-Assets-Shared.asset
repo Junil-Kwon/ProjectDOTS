@@ -13,48 +13,16 @@ MonoBehaviour:
   m_Name: Localization-Assets-Shared
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-Shared
-  m_GUID: d3464b40dd8285741973aa664477b6ac
+  m_GUID: fff5b43fcd68dd14ea2d2e76285577a9
   m_SerializeEntries:
-  - m_GUID: 1d2aa53276394fe478740e74dcff00a4
-    m_Address: Assets/UI/Locales/FontTable Shared Data.asset
-    m_ReadOnly: 1
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a0638bbdc466bab4990242484fb1cf87
-    m_Address: Galmuri9
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-de
-    - Locale-en
-    - Locale-es
-    - Locale-ko
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a0f5d41df21c04b4c9cdd31e8bf30af8
-    m_Address: Galmuri11Bold
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-de
-    - Locale-en
-    - Locale-es
-    - Locale-ko
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c6c4bb27f7619d4438f6e440195ca549
-    m_Address: Galmuri7
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-de
-    - Locale-en
-    - Locale-es
-    - Locale-ko
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e4fbc5d10cad19f48a8ec4c975bbd1ac
-    m_Address: Assets/UI/Tables/UITable Shared Data.asset
+  - m_GUID: c854644aa37e64f4ea835b63378ed20a
+    m_Address: Assets/UI/Tables/UI Table Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: dd292d3aaae3f1842af0c92a13e9c29a, type: 2}
-    - {fileID: 11400000, guid: 77e04f11580828847b350c9a5032ead2, type: 2}
+    - {fileID: 11400000, guid: a2b8ae060ddb64240abeda91bb669cb6, type: 2}
+    - {fileID: 11400000, guid: c5bbad868cc11db4a9e12a54cb3b1d8d, type: 2}

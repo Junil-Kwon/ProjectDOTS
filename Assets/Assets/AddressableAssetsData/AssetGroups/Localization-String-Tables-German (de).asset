@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-German (de)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-String-Tables-German (de)
-  m_GUID: 9ad9df757a833f243a522709102595e5
+  m_GUID: 159c5f3f68adcbf47a1a748847eb7ff7
   m_SerializeEntries:
-  - m_GUID: 02607a23cd14d8943ad222769f5bd88a
-    m_Address: UITable_de
+  - m_GUID: fcd0eb89be1054648b2bc68714a179b6
+    m_Address: UI Table_de
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-de
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 911aaac446e444044ab368aeb966f326, type: 2}
-    - {fileID: 11400000, guid: b1fbcc9d224b3b9478152ad0928517fa, type: 2}
+    - {fileID: 11400000, guid: b2829a4b048b5bb49a41ace6034464ed, type: 2}
+    - {fileID: 11400000, guid: be134af05e605954a987717153cc675f, type: 2}

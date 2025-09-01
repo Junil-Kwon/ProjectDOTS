@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Toggle
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Toggle")]
-public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubmitHandler {
+[AddComponentMenu("UI Widget/Custom Toggle")]
+public class CustomToggle : Selectable, IWidgetBase, IPointerClickHandler, ISubmitHandler {
 
 	// Editor
 
@@ -25,20 +24,18 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	class CustomToggleEditor : EditorExtensionsSelectable {
 		CustomToggle I => target as CustomToggle;
 		public override void OnInspectorGUI() {
-			Begin("Custom Toggle");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Toggle", EditorStyles.boldLabel);
-			I.PositiveImage    = ObjectField("Positive Image",     I.PositiveImage);
-			I.NegativeImage    = ObjectField("Negative Image",     I.NegativeImage);
-			I.PositiveTextUGUI = ObjectField("Positive Text UGUI", I.PositiveTextUGUI);
-			I.NegativeTextUGUI = ObjectField("Negative Text UGUI", I.NegativeTextUGUI);
-			I.RestoreButton    = ObjectField("Restore Button",     I.RestoreButton);
-			Space();
-			if (I.PositiveTextUGUI) I.PositiveText = TextField("Positive Text", I.PositiveText);
-			if (I.NegativeTextUGUI) I.NegativeText = TextField("Negative Text", I.NegativeText);
+
+			LabelField("Custom Toggle", EditorStyles.boldLabel);
+			I.PositiveImage = ObjectField("Positive Image", I.PositiveImage);
+			I.NegativeImage = ObjectField("Negative Image", I.NegativeImage);
+			I.PositiveText  = ObjectField("Positive Text",  I.PositiveText);
+			I.NegativeText  = ObjectField("Negative Text" , I.NegativeText);
+			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 			Space();
 			I.DefaultValue = Toggle("Default Value", I.DefaultValue);
 			I.CurrentValue = Toggle("Current Value", I.CurrentValue);
@@ -58,8 +55,8 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 
 	[SerializeField] GameObject m_PositiveImage;
 	[SerializeField] GameObject m_NegativeImage;
-	[SerializeField] TextMeshProUGUI m_PositiveTextUGUI;
-	[SerializeField] TextMeshProUGUI m_NegativeTextUGUI;
+	[SerializeField] TextMeshProUGUI m_PositiveText;
+	[SerializeField] TextMeshProUGUI m_NegativeText;
 	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] bool m_DefaultValue;
@@ -80,26 +77,17 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 		get => m_NegativeImage;
 		set => m_NegativeImage = value;
 	}
-	TextMeshProUGUI PositiveTextUGUI {
-		get => m_PositiveTextUGUI;
-		set => m_PositiveTextUGUI = value;
+	TextMeshProUGUI PositiveText {
+		get => m_PositiveText;
+		set => m_PositiveText = value;
 	}
-	TextMeshProUGUI NegativeTextUGUI {
-		get => m_NegativeTextUGUI;
-		set => m_NegativeTextUGUI = value;
+	TextMeshProUGUI NegativeText {
+		get => m_NegativeText;
+		set => m_NegativeText = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
 		set => m_RestoreButton = value;
-	}
-
-	string PositiveText {
-		get => PositiveTextUGUI.text;
-		set => PositiveTextUGUI.text = value;
-	}
-	string NegativeText {
-		get => NegativeTextUGUI.text;
-		set => NegativeTextUGUI.text = value;
 	}
 
 
@@ -124,8 +112,14 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 		}
 	}
 
-	public UnityEvent<bool> OnValueChanged => m_OnValueChanged;
-	public UnityEvent<CustomToggle> OnRefreshed => m_OnRefreshed;
+
+
+	public UnityEvent<bool> OnValueChanged {
+		get => m_OnValueChanged;
+	}
+	public UnityEvent<CustomToggle> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 
@@ -134,8 +128,8 @@ public class CustomToggle : Selectable, IBaseWidget, IPointerClickHandler, ISubm
 	public void Refresh() {
 		if (PositiveImage) PositiveImage.SetActive(CurrentValue);
 		if (NegativeImage) NegativeImage.SetActive(!CurrentValue);
-		if (PositiveTextUGUI) PositiveTextUGUI.gameObject.SetActive(CurrentValue);
-		if (NegativeTextUGUI) NegativeTextUGUI.gameObject.SetActive(!CurrentValue);
+		if (PositiveText) PositiveText.gameObject.SetActive(CurrentValue);
+		if (NegativeText) NegativeText.gameObject.SetActive(!CurrentValue);
 		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
 		OnRefreshed.Invoke(this);
 	}

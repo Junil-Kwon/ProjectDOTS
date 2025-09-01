@@ -5,9 +5,9 @@ using Unity.Mathematics;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Color
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [Serializable]
 public struct color {
@@ -23,16 +23,6 @@ public struct color {
 	const int GShift = 16;
 	const int BShift = 08;
 	const int AShift = 00;
-
-	public static readonly color white = new(Color.white);
-	public static readonly color black = new(Color.black);
-	public static readonly color red = new(Color.red);
-	public static readonly color green = new(Color.green);
-	public static readonly color blue = new(Color.blue);
-	public static readonly color cyan = new(Color.cyan);
-	public static readonly color magenta = new(Color.magenta);
-	public static readonly color yellow = new(Color.yellow);
-	public static readonly color clear = new(Color.clear);
 
 
 
@@ -65,14 +55,12 @@ public struct color {
 
 	// Constructors
 
-	public color(uint data) => this.data = (data << 8) | 0xFF;
-
-	public color(float value) {
+	public color(Color color) {
 		data = 0u;
-		r = value;
-		g = value;
-		b = value;
-		a = 1f;
+		r = color.r;
+		g = color.g;
+		b = color.b;
+		a = color.a;
 	}
 
 	public color(float r, float g, float b, float a = 1f) {
@@ -82,12 +70,9 @@ public struct color {
 		this.b = b;
 		this.a = a;
 	}
-	public color(Color color) {
-		data = 0u;
-		r = color.r;
-		g = color.g;
-		b = color.b;
-		a = color.a;
+
+	public color(uint hexcode) {
+		data = (hexcode << 8) | 0xFF;
 	}
 
 
@@ -97,64 +82,85 @@ public struct color {
 	public static implicit operator color(Color color) {
 		return new(color);
 	}
+
 	public static implicit operator Color(color color) {
 		return new(color.r, color.g, color.b, color.a);
 	}
+
 	public static implicit operator color(Color32 color) {
-		float r = color.r * 0.00392157f;
-		float g = color.g * 0.00392157f;
-		float b = color.b * 0.00392157f;
-		float a = color.a * 0.00392157f;
-		return new(r, g, b, a);
+		uint data = 0u;
+		data |= (uint)(color.r << RShift);
+		data |= (uint)(color.g << GShift);
+		data |= (uint)(color.b << BShift);
+		data |= (uint)(color.a << AShift);
+		return new color { data = data };
 	}
+
 	public static implicit operator Color32(color color) {
-		byte r = (byte)(color.r * 255f);
-		byte g = (byte)(color.g * 255f);
-		byte b = (byte)(color.b * 255f);
-		byte a = (byte)(color.a * 255f);
+		byte r = (byte)((color.data & RMask) >> RShift);
+		byte g = (byte)((color.data & GMask) >> GShift);
+		byte b = (byte)((color.data & BMask) >> BShift);
+		byte a = (byte)((color.data & AMask) >> AShift);
 		return new(r, g, b, a);
 	}
 
+	public static implicit operator color(float4 value) {
+		return new color(value.x, value.y, value.z, value.w);
+	}
 
+	public static implicit operator float4(color value) {
+		return new(value.r, value.g, value.b, value.a);
+	}
+}
+
+
+
+public static class ColorExtensions {
 
 	// Methods
 
-	public static color HSVtoRGB(float h, float s, float v, float a = 1f) {
+	public static Color ToRGB(this Color hsv) {
+		float h = hsv.r;
+		float s = hsv.g;
+		float v = hsv.b;
+		float a = hsv.a;
 		float c = v * s;
-		float p = h % 360f * 0.0166667f;
+		float p = h % 360f / 60f;
 		float x = c * (1f - math.abs(p % 2f - 1f));
 		float m = v - c;
-		color color = new(0f, 0f, 0f, a);
-		switch (p) {
-			case < 1f: color.r = c; color.g = x; color.b = 0; break;
-			case < 2f: color.r = x; color.g = c; color.b = 0; break;
-			case < 3f: color.r = 0; color.g = c; color.b = x; break;
-			case < 4f: color.r = 0; color.g = x; color.b = c; break;
-			case < 5f: color.r = x; color.g = 0; color.b = c; break;
-			default:   color.r = c; color.g = 0; color.b = x; break;
+		Color rgb = new(0f, 0f, 0f, a);
+		switch ((int)p) {
+			case 0: rgb.r = c; rgb.g = x; rgb.b = 0; break;
+			case 1: rgb.r = x; rgb.g = c; rgb.b = 0; break;
+			case 2: rgb.r = 0; rgb.g = c; rgb.b = x; break;
+			case 3: rgb.r = 0; rgb.g = x; rgb.b = c; break;
+			case 4: rgb.r = x; rgb.g = 0; rgb.b = c; break;
+			case 5: rgb.r = c; rgb.g = 0; rgb.b = x; break;
 		}
-		color.r += m;
-		color.g += m;
-		color.b += m;
-		return color;
+		rgb.r += m;
+		rgb.g += m;
+		rgb.b += m;
+		return rgb;
 	}
 
-	public static (float, float, float, float) RGBtoHSV(color color) {
-		float max = math.max(math.max(color.r, color.g), color.b);
-		float min = math.min(math.min(color.r, color.g), color.b);
+	public static Color ToHSV(this Color rgb) {
+		float max = math.max(math.max(rgb.r, rgb.g), rgb.b);
+		float min = math.min(math.min(rgb.r, rgb.g), rgb.b);
 		float delta = max - min;
 		float h = 0f;
 		float s = 0f;
 		float v = max;
-		float a = color.a;
+		float a = rgb.a;
 		if (max != 0f) s = delta / max;
 		if (delta != 0f) {
-			if (color.r == max) h = (color.g - color.b) / delta + 0f;
-			if (color.g == max) h = (color.b - color.r) / delta + 2f;
-			if (color.b == max) h = (color.r - color.g) / delta + 4f;
+			switch (max) {
+				case float n when n == rgb.r: h = (rgb.g - rgb.b) / delta + 0f; break;
+				case float n when n == rgb.g: h = (rgb.b - rgb.r) / delta + 2f; break;
+				case float n when n == rgb.b: h = (rgb.r - rgb.g) / delta + 4f; break;
+			}
 			h *= 60f;
 			if (h < 0f) h += 360f;
 		}
-		return (h, s, v, a);
+		return new(h, s, v, a);
 	}
 }

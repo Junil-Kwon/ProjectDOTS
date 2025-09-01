@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Slider
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Slider")]
-public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDragHandler {
+[AddComponentMenu("UI Widget/Custom Slider")]
+public class CustomSlider : Selectable, IWidgetBase, IPointerClickHandler, IDragHandler {
 
 	// Editor
 
@@ -25,16 +24,17 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	class CustomSliderEditor : EditorExtensionsSelectable {
 		CustomSlider I => target as CustomSlider;
 		public override void OnInspectorGUI() {
-			Begin("Custom Slider");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Slider", EditorStyles.boldLabel);
+
+			LabelField("Custom Slider", EditorStyles.boldLabel);
 			I.BodyRect      = ObjectField("Body Rect",      I.BodyRect);
 			I.FillRect      = ObjectField("Fill Rect",      I.FillRect);
 			I.HandleRect    = ObjectField("Handle Rect",    I.HandleRect);
-			I.TextUGUI      = ObjectField("Text UGUI",      I.TextUGUI);
+			I.ContentText   = ObjectField("Content Text",   I.ContentText);
 			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
 			Space();
 			I.TextFormat = TextField("Text Format", I.TextFormat);
@@ -63,11 +63,10 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 	[SerializeField] RectTransform m_BodyRect;
 	[SerializeField] RectTransform m_FillRect;
 	[SerializeField] RectTransform m_HandleRect;
-	[SerializeField] TextMeshProUGUI m_TextUGUI;
+	[SerializeField] TextMeshProUGUI m_ContentText;
 	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string m_TextFormat = "{0:P0}";
-
 	[SerializeField] float m_MinValue = 0f;
 	[SerializeField] float m_MaxValue = 1f;
 	[SerializeField] float m_Step = 0.1f;
@@ -94,14 +93,16 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		get => m_HandleRect;
 		set => m_HandleRect = value;
 	}
-	TextMeshProUGUI TextUGUI {
-		get => m_TextUGUI;
-		set => m_TextUGUI = value;
+	TextMeshProUGUI ContentText {
+		get => m_ContentText;
+		set => m_ContentText = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
 		set => m_RestoreButton = value;
 	}
+
+
 
 	public string TextFormat {
 		get => m_TextFormat;
@@ -110,9 +111,6 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 			Refresh();
 		}
 	}
-
-
-
 	public float MinValue {
 		get => m_MinValue;
 		set {
@@ -199,9 +197,14 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 		}
 	}
 
-	public UnityEvent<float> OnValueChanged => m_OnValueChanged;
-	public UnityEvent<CustomSlider> OnRefreshed => m_OnRefreshed;
 
+
+	public UnityEvent<float> OnValueChanged {
+		get => m_OnValueChanged;
+	}
+	public UnityEvent<CustomSlider> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 
@@ -220,8 +223,8 @@ public class CustomSlider : Selectable, IBaseWidget, IPointerClickHandler, IDrag
 			anchoredPosition.x = BodyRect.anchoredPosition.x + width;
 			HandleRect.anchoredPosition = anchoredPosition;
 		}
-		if (TextUGUI) try {
-			TextUGUI.text = string.Format(TextFormat, CurrentValue, MinValue, MaxValue);
+		if (ContentText) try {
+			ContentText.text = string.Format(TextFormat, CurrentValue, MinValue, MaxValue);
 		} catch { }
 		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
 		OnRefreshed.Invoke(this);

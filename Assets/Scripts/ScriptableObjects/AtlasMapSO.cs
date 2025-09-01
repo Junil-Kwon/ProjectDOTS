@@ -1,18 +1,17 @@
 using UnityEngine;
 using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using Unity.Mathematics;
+using Unity.Collections;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 
-
-// Texture Atlas Data
 
 [Serializable]
 public struct AtlasData {
@@ -24,11 +23,11 @@ public struct AtlasData {
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Atlas Map SO
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[CreateAssetMenu(fileName = "AtlasMapSO", menuName = "Scriptable Objects/AtlasMap")]
+[CreateAssetMenu(fileName = "AtlasMap", menuName = "Scriptable Objects/AtlasMap")]
 public class AtlasMapSO : ScriptableObject {
 
 	// Editor
@@ -37,33 +36,52 @@ public class AtlasMapSO : ScriptableObject {
 	[CustomEditor(typeof(AtlasMapSO))]
 	class AtlasMapSOEditor : EditorExtensions {
 		AtlasMapSO I => target as AtlasMapSO;
+		int Page { get; set; } = 0;
 		public override void OnInspectorGUI() {
-			Begin("Atlas Map SO");
+			Begin();
 
-			LabelField("Texture", EditorStyles.boldLabel);
-			PropertyField("m_Data");
+			var message = string.Empty;
+			message += $"Source Path textures will be reimported with the following settings:\n";
+			message += "- Texture Type: Default\n";
+			message += "- Read/Write: true\n";
+			message += "- Generate Mipmap: false\n";
+			message += "- Filter Mode: Point (no filter)\n";
+			message += "- Format: RGBA 32 bit";
+			HelpBox(message, MessageType.None);
+			PropertyField("m_LayerData");
 			Space();
+
 			LabelField("Atlas Map", EditorStyles.boldLabel);
 			I.PixelPerUnit = FloatField("Pixel Per Unit", I.PixelPerUnit);
-			I.Padding = IntField("Padding",  I.Padding);
+			I.Padding = IntField("Padding", I.Padding);
 			I.MaxSize = IntField("Max Size", I.MaxSize);
+			I.TrimTransparent = Toggle("Trim Transparent", I.TrimTransparent);
+			I.MergeDuplicates = Toggle("Merge Duplicates", I.MergeDuplicates);
 			BeginHorizontal();
 			PrefixLabel("Generate Atlas Map");
-			if (Button("Clear"))    I.ClearAtlasMap();
+			if (Button("Clear")) I.ClearAtlasMap();
 			if (Button("Generate")) I.GenerateAtlasMap();
+
 			EndHorizontal();
 			Space();
+
 			LabelField("Atlas Map Data", EditorStyles.boldLabel);
-			LabelField("Count", I.Count.ToString());
-			BeginDisabledGroup();
-			int max = Mathf.Min(30, I.Count);
-			for (int i = 0; i < max; i++) {
-				var data = I.ElementAt(i).Value;
-				var uv = new Vector4(data.offset.x, data.offset.y, data.tiling.x, data.tiling.y);
-				Vector4Field(I.AtlasMap.ElementAt(i).Key, uv);
-			}
-			if (max < I.Count) LabelField("...");
-			EndDisabledGroup();
+			LabelField("Atlas Map Count", I.Count.ToString());
+			Page = BookField(I.AtlasMap, 5, Page, (match, index, value) => {
+				BeginDisabledGroup();
+				if (match) {
+					var scale  = value.Value.scale;
+					var pivot  = value.Value.pivot;
+					var tiling = value.Value.tiling;
+					var offset = value.Value.offset;
+					Vector4Field(value.Key, new(scale.x,  scale.y,  pivot.x,  pivot.y));
+					Vector4Field("       ", new(tiling.x, tiling.y, offset.x, offset.y));
+				} else {
+					LabelField(" ");
+					LabelField(" ");
+				}
+				EndDisabledGroup();
+			});
 			Space();
 
 			End();
@@ -76,33 +94,32 @@ public class AtlasMapSO : ScriptableObject {
 	// Constants
 
 	[Serializable]
-	class HashMap : HashMap<string, AtlasData> { }
-
-	[Serializable]
-	public class DataSet {
-		public string SourceTexture = "Assets/Textures";
+	class LayerEntry {
+		public string SourcePath = "Assets/Textures";
 		public Texture2D TargetTexture = null;
-		public Color32 FallbackColor = Color.clear;
+		public Color FallbackColor = new(1f, 1f, 1f, 0f);
 	}
 
 
 
 	// Fields
 
-	[SerializeField] DataSet[] m_Data = new DataSet[] { new() };
+	[SerializeField] LayerEntry[] m_LayerData = new LayerEntry[] { new() };
 
 	[SerializeField] float m_PixelPerUnit = 16f;
 	[SerializeField] int m_Padding = 2;
 	[SerializeField] int m_MaxSize = 16384;
-	[SerializeField] HashMap m_AtlasMap = new();
-
-	bool m_IsDirty = false;
+	[SerializeField] bool m_TrimTransparent = true;
+	[SerializeField] bool m_MergeDuplicates = false;
+	[SerializeField] HashMap<string, AtlasData> m_AtlasMap = new();
 
 
 
 	// Properties
 
-	DataSet[] Data => m_Data;
+	LayerEntry[] LayerData {
+		get => m_LayerData;
+	}
 
 	float PixelPerUnit {
 		get => m_PixelPerUnit;
@@ -116,14 +133,17 @@ public class AtlasMapSO : ScriptableObject {
 		get => m_Padding;
 		set => m_Padding = value;
 	}
-	HashMap AtlasMap {
+	bool TrimTransparent {
+		get => m_TrimTransparent;
+		set => m_TrimTransparent = value;
+	}
+	bool MergeDuplicates {
+		get => m_MergeDuplicates;
+		set => m_MergeDuplicates = value;
+	}
+	HashMap<string, AtlasData> AtlasMap {
 		get => m_AtlasMap;
 		set => m_AtlasMap = value;
-	}
-
-	public bool IsDirty {
-		get => m_IsDirty;
-		set => m_IsDirty = value;
 	}
 
 
@@ -136,19 +156,17 @@ public class AtlasMapSO : ScriptableObject {
 	}
 	public int Count => AtlasMap.Count;
 
-	public HashMap.Enumerator GetEnumerator() => AtlasMap.GetEnumerator();
-	public KeyValuePair<string, AtlasData> ElementAt(int index) => AtlasMap.ElementAt(index);
-
-	public void Add(string key, AtlasData value) => AtlasMap.Add(key, value);
-	public bool TryAdd(string key, AtlasData value) => AtlasMap.TryAdd(key, value);
-	public bool TryGetValue(string key, out AtlasData value) => AtlasMap.TryGetValue(key, out value);
-
-	public void Clear() => AtlasMap.Clear();
-	public bool Remove(string key) => AtlasMap.Remove(key);
-	public bool Remove(string key, out AtlasData value) => AtlasMap.Remove(key, out value);
+	public HashMap<string, AtlasData>.Enumerator GetEnumerator() => AtlasMap.GetEnumerator();
 
 	public bool ContainsKey(string key) => AtlasMap.ContainsKey(key);
-	public bool ContainsValue(AtlasData value) => AtlasMap.ContainsValue(value);
+	public bool ContainsValue(AtlasData data) => AtlasMap.ContainsValue(data);
+	public bool TryGetValue(string key, out AtlasData data) => AtlasMap.TryGetValue(key, out data);
+
+	public void Add(string key, AtlasData data) => AtlasMap.Add(key, data);
+	public bool TryAdd(string key, AtlasData data) => AtlasMap.TryAdd(key, data);
+	public bool Remove(string key) => AtlasMap.Remove(key);
+	public bool Remove(string key, out AtlasData data) => AtlasMap.Remove(key, out data);
+	public void Clear() => AtlasMap.Clear();
 
 	public int EnsureCapacity(int capacity) => AtlasMap.EnsureCapacity(capacity);
 
@@ -157,53 +175,163 @@ public class AtlasMapSO : ScriptableObject {
 	// Utility Methods
 
 	#if UNITY_EDITOR
+	static Texture2D CreateTexture(int width = 1, int height = 1) {
+		return CreateTexture(width, height, Color.clear);
+	}
+
+	static Texture2D CreateTexture(int width, int height, Color color) {
+		var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+		var textureData = texture.GetRawTextureData<Color32>();
+		for (int i = 0; i < textureData.Length; i++) textureData[i] = color;
+		texture.Apply(false);
+		return texture;
+	}
+
+	static void EnsureAtlasable(Texture2D texture) {
+		var path = AssetDatabase.GetAssetPath(texture);
+		var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+		var settings = importer.GetDefaultPlatformTextureSettings();
+		bool match = false;
+		match = match || importer.textureType != TextureImporterType.Default;
+		match = match || importer.isReadable != true;
+		match = match || importer.mipmapEnabled != false;
+		match = match || importer.filterMode != FilterMode.Point;
+		match = match || settings.format != TextureImporterFormat.RGBA32;
+		if (match) {
+			importer.textureType = TextureImporterType.Default;
+			importer.isReadable = true;
+			importer.mipmapEnabled = false;
+			importer.filterMode = FilterMode.Point;
+			settings.format = TextureImporterFormat.RGBA32;
+			settings.textureCompression = TextureImporterCompression.Uncompressed;
+			importer.SetPlatformTextureSettings(settings);
+			importer.SaveAndReimport();
+		}
+	}
+
+	static Texture2D ResizeTexture(Texture2D texture, int width, int height) {
+		var source = new RectInt() {
+			x = (texture.width  - Mathf.Min(texture.width,  width)) / 2,
+			y = (texture.height - Mathf.Min(texture.height, height)) / 2,
+			width  = Mathf.Min(texture.width,  width),
+			height = Mathf.Min(texture.height, height),
+		};
+		var target = new RectInt() {
+			x = (width  - source.width) / 2,
+			y = (height - source.height) / 2,
+			width  = source.width,
+			height = source.height,
+		};
+		var resized = CreateTexture(width, height);
+		var sourceData = texture.GetRawTextureData<Color32>();
+		var targetData = resized.GetRawTextureData<Color32>();
+		for (int y = 0; y < source.height; y++) {
+			int sourceIndex = source.x + (source.y + y) * texture.width;
+			int targetIndex = target.x + (target.y + y) * resized.width;
+			int length = source.width;
+			NativeArray<Color32>.Copy(sourceData, sourceIndex, targetData, targetIndex, length);
+		}
+		resized.Apply(false);
+		return resized;
+	}
+
+	public static Texture2D TrimTexture(Texture2D texture, RectInt rect) {
+		var trim = new RectInt() {
+			x = Mathf.Max(0, rect.x),
+			y = Mathf.Max(0, rect.y),
+			width  = Mathf.Min(texture.width,  rect.x + rect.width)  - Mathf.Max(0, rect.x),
+			height = Mathf.Min(texture.height, rect.y + rect.height) - Mathf.Max(0, rect.y),
+		};
+		var trimmed = CreateTexture(trim.width, trim.height);
+		var sourceData = texture.GetRawTextureData<Color32>();
+		var targetData = trimmed.GetRawTextureData<Color32>();
+		for (int y = 0; y < trim.height; y++) {
+			int sourceIndex = trim.x + (trim.y + y) * texture.width;
+			int targetIndex = 0x0000 + (0x0000 + y) * trimmed.width;
+			int length = trim.width;
+			NativeArray<Color32>.Copy(sourceData, sourceIndex, targetData, targetIndex, length);
+		}
+		trimmed.Apply(false);
+		return trimmed;
+	}
+
+	static Texture2D MergeTextures(Texture2D[] textures) {
+		int width  = textures[0].width;
+		int height = textures[0].height;
+		for (int i = 1; i < textures.Length; i++) {
+			if (width  < textures[i].width)  width  = textures[i].width;
+			if (height < textures[i].height) height = textures[i].height;
+		}
+		for (int i = 0; i < textures.Length; i++) {
+			if (textures[i].width != width || textures[i].height != height) {
+				textures[i] = ResizeTexture(textures[i], width, height);
+			}
+		}
+		var merged = CreateTexture(width, height);
+		var mergedData = merged.GetRawTextureData<Color32>();
+		foreach (var texture in textures) {
+			var textureData = texture.GetRawTextureData<Color32>();
+			for (int i = 0; i < mergedData.Length; i++) {
+				byte r = (byte)Mathf.Min(mergedData[i].r + textureData[i].r, 255);
+				byte g = (byte)Mathf.Min(mergedData[i].g + textureData[i].g, 255);
+				byte b = (byte)Mathf.Min(mergedData[i].b + textureData[i].b, 255);
+				byte a = (byte)Mathf.Min(mergedData[i].a + textureData[i].a, 255);
+				mergedData[i] = new Color32(r, g, b, a);
+			}
+		}
+		merged.Apply(false);
+		return merged;
+	}
+
+	static RectInt GetOpaqueBounds(Texture2D texture) {
+		if (texture == null) return default;
+		int xmin = texture.width;
+		int ymin = texture.height;
+		int xmax = 0;
+		int ymax = 0;
+		var data = texture.GetRawTextureData<Color32>();
+		for (int y = 0; y < texture.height; y++) {
+			for (int x = 0; x < texture.width; x++) {
+				if (data[x + y * texture.width].a != 0) {
+					if (x < xmin) xmin = x;
+					if (y < ymin) ymin = y;
+					if (xmax < x) xmax = x;
+					if (ymax < y) ymax = y;
+				}
+			}
+		}
+		if (xmax < xmin || ymax < ymin) return new RectInt(0, 0, 1, 1);
+		return new RectInt(xmin, ymin, xmax - xmin + 1, ymax - ymin + 1);
+	}
+
 	static T[] LoadAssets<T>(string path) where T : UnityEngine.Object {
 		var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name, new[] { path });
 		var assets = new T[guids.Length];
 		for (int i = 0; i < guids.Length; i++) {
-			string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+			var assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
 			assets[i] = AssetDatabase.LoadAssetAtPath<T>(assetPath);
 		}
 		return assets;
 	}
 
-	static Texture2D CreateTexture(int width = 1, int height = 1) {
-		return CreateTexture(width, height, Color.clear);
-	}
-	static Texture2D CreateTexture(int width, int height, Color color) {
-		var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-		texture.SetPixels(Enumerable.Repeat(color, width * height).ToArray());
-		texture.Apply();
-		return texture;
-	}
-
-	static Texture2D ResizeTexture(Texture2D texture, int width, int height) {
-		return ResizeTexture(texture, new RectInt(0, 0, width, height));
-	}
-	static Texture2D ResizeTexture(Texture2D texture, RectInt rect) {
-		var copy = default(RectInt);
-		copy.x = math.max(0, rect.x);
-		copy.y = math.max(0, rect.y);
-		copy.width  = math.min(texture.width,  rect.width);
-		copy.height = math.min(texture.height, rect.height);
-
-		var resized = CreateTexture(rect.width, rect.height);
-		resized.SetPixels(texture.GetPixels(copy.x, copy.y, copy.width, copy.height));
-		resized.Apply();
-		return resized;
+	static string GetTextureHash(Texture2D texture) {
+		var data = texture.GetRawTextureData<byte>().ToArray();
+		using var sha256 = SHA256.Create();
+		var hashBytes = sha256.ComputeHash(data);
+		return Convert.ToBase64String(hashBytes);
 	}
 	#endif
 
 
 
-	// Atlas Methods
+	// AtlasMap Methods
 
 	#if UNITY_EDITOR
 	public void ClearAtlasMap() {
-		int N = Data.Length;
+		int N = LayerData.Length;
 
 		for (int n = 0; n < N; n++) {
-			var path = AssetDatabase.GetAssetPath(Data[n].TargetTexture);
+			var path = AssetDatabase.GetAssetPath(LayerData[n].TargetTexture);
 			if (path == null || path.Equals("")) {
 				path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(this));
 				path = Path.Combine(path, $"{name}_{n}.png");
@@ -211,114 +339,100 @@ public class AtlasMapSO : ScriptableObject {
 			var atlas = CreateTexture();
 			var bytes = atlas.EncodeToPNG();
 			File.WriteAllBytes(path, bytes);
-			AssetDatabase.Refresh();
-			Data[n].TargetTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+			LayerData[n].TargetTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 		}
 		AtlasMap.Clear();
-		IsDirty = true;
+		AssetDatabase.SaveAssets();
+		AssetDatabase.Refresh();
 	}
 
 	public void GenerateAtlasMap() {
-		int N = Data.Length;
-		int M;
-		var sourceNM = new Texture2D[N][];
-		var targetNM = new Texture2D[N][];
+		int N = LayerData.Length;
+		var sourceNM = new Dictionary<string, Texture2D>[N];
+		var targetNM = new Dictionary<string, Texture2D>[N];
 		for (int n = 0; n < N; n++) {
-			sourceNM[n] = LoadAssets<Texture2D>(Data[n].SourceTexture);
-			targetNM[n] = new Texture2D[sourceNM[0].Length];
+			var textures = LoadAssets<Texture2D>(LayerData[n].SourcePath);
+			sourceNM[n] = new Dictionary<string, Texture2D>();
+			targetNM[n] = new Dictionary<string, Texture2D>();
+			foreach (var texture in textures) {
+				EnsureAtlasable(texture);
+				sourceNM[n][texture.name] = texture;
+			}
 		}
-		M = sourceNM[0].Length;
-		var hash2index = new Dictionary<int, int>();
-		var index2list = new Dictionary<int, List<int>>();
-		var scaleM = new Vector2[M];
-		var pivotM = new Vector2[M];
-		for (int m = 0; m < M; m++) {
+		var hashM = new Dictionary<string, string>();
+		var nameM = new Dictionary<string, string>();
+		float pixel = 1f / PixelPerUnit;
+		AtlasMap.Clear();
 
+		foreach (var (name, texture) in sourceNM[0]) {
 			var tempN = new Texture2D[N];
-			tempN[0] = sourceNM[0][m];
+			tempN[0] = texture;
 			for (int n = 1; n < N; n++) {
-				var temp = sourceNM[n].FirstOrDefault(t => t.name.Equals(tempN[0].name));
-				if (temp) tempN[n] = temp;
-				else {
-					Color color = Data[n].FallbackColor;
-					tempN[n] = CreateTexture(tempN[0].width, tempN[0].height, color);
+				var color = LayerData[n].FallbackColor;
+				if (sourceNM[n].TryGetValue(name, out var value)) tempN[n] = value;
+				else tempN[n] = CreateTexture(texture.width, texture.height, color);
+			}
+			var merged = MergeTextures(tempN);
+			if (TrimTransparent) {
+				var bounds = GetOpaqueBounds(merged);
+				float x = bounds.x + (0.5f * bounds.width)  - (0.5f * merged.width);
+				float y = bounds.y + (0.5f * bounds.height) - (0.5f * merged.height);
+				for (int n = 0; n < N; n++) targetNM[n][name] = TrimTexture(tempN[n], bounds);
+				var atlasMap = default(AtlasData);
+				atlasMap.scale = new(bounds.width * pixel, bounds.height * pixel);
+				atlasMap.pivot = new(x * pixel, y * pixel);
+				AtlasMap[name] = atlasMap;
+			} else {
+				var bounds = new RectInt(0, 0, tempN[0].width, tempN[0].height);
+				for (int n = 0; n < N; n++) targetNM[n][name] = TrimTexture(tempN[n], bounds);
+				var atlasMap = default(AtlasData);
+				atlasMap.scale = new(bounds.width * pixel, bounds.height * pixel);
+				atlasMap.pivot = default;
+				AtlasMap[name] = atlasMap;
+			}
+			if (MergeDuplicates) {
+				var hash = GetTextureHash(merged);
+				if (!hashM.TryAdd(hash, name)) {
+					nameM.Add(name, hashM[hash]);
+					for (int n = 0; n < N; n++) targetNM[n].Remove(name);
 				}
 			}
-
-			int width  = tempN.Select(t => t.width).Max();
-			int height = tempN.Select(t => t.height).Max();
-			for (int n = 0; n < N; n++) tempN[n] = ResizeTexture(tempN[n], width, height);
-			var merged = CreateTexture(width, height);
-			for (int n = 0; n < N; n++) {
-				var mPixels = merged.GetPixels(0, 0, width, height);
-				var tPixels = tempN[n].GetPixels(0, 0, width, height);
-				for (int i = 0; i < mPixels.Length; i++) mPixels[i] += tPixels[i];
-				merged.SetPixels(mPixels);
-			}
-			merged.Apply();
-
-			int xmin = merged.width,  xmax = 0;
-			int ymin = merged.height, ymax = 0;
-			var pixels = merged.GetPixels();
-			for (int y = 0; y < merged.height; y++) {
-				for (int x = 0; x < merged.width; x++) {
-					if (0f < pixels[x + y * merged.width].a) {
-						xmin = math.min(x, xmin);
-						xmax = math.max(x, xmax);
-						ymin = math.min(y, ymin);
-						ymax = math.max(y, ymax);
-					}
-				}
-			}
-			if (xmax < xmin || ymax < ymin) {
-				xmin = 0;
-				xmax = 0;
-				ymin = 0;
-				ymax = 0;
-			}
-			scaleM[m].x = xmax - xmin + 1;
-			scaleM[m].y = ymax - ymin + 1;
-			pivotM[m].x = xmin + scaleM[m].x * 0.5f - merged.width  * 0.5f;
-			pivotM[m].y = ymin + scaleM[m].y * 0.5f - merged.height * 0.5f;
-			var rect = new RectInt(xmin, ymin, (int)scaleM[m].x, (int)scaleM[m].y);
-			for (int n = 0; n < N; n++) targetNM[n][m] = ResizeTexture(tempN[n], rect);
 		}
 
-		var rectM = new Rect[M];
+		var rectM = default(Rect[]);
 		for (int n = 0; n < N; n++) {
-			var path = AssetDatabase.GetAssetPath(Data[n].TargetTexture);
+			var textures = new Texture2D[targetNM[n].Count];
+			targetNM[n].Values.CopyTo(textures, 0);
+			var path = AssetDatabase.GetAssetPath(LayerData[n].TargetTexture);
 			if (path == null || path.Equals("")) {
 				path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(this));
 				path = Path.Combine(path, $"{name}_{n}.png");
 			}
 			var atlas = CreateTexture();
-			var rects = atlas.PackTextures(targetNM[n], Padding, MaxSize);
+			var rects = atlas.PackTextures(textures, Padding, MaxSize);
 			var bytes = atlas.EncodeToPNG();
 			File.WriteAllBytes(path, bytes);
-			AssetDatabase.Refresh();
-			Data[n].TargetTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+			LayerData[n].TargetTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+			if (n == 0) rectM = rects;
+		}
 
-			if (n == 0) {
-				for (int m = 0; m < M; m++) rectM[m] = rects[m];
-				foreach (var i in index2list) foreach (int j in i.Value) {
-					scaleM[j] = scaleM[i.Key];
-					pivotM[j] = pivotM[i.Key];
-					rectM[j]  = rectM[i.Key];
-				}
-			}
+		int m = 0;
+		foreach (var name in sourceNM[0].Keys) {
+			if (nameM.ContainsKey(name)) continue;
+			var atlasMap = AtlasMap[name];
+			atlasMap.tiling = new(rectM[m].width, rectM[m].height);
+			atlasMap.offset = new(rectM[m].x, rectM[m].y);
+			AtlasMap[name] = atlasMap;
+			m++;
 		}
-		AtlasMap.Clear();
-		var inv = 1f / PixelPerUnit;
-		for (int m = 0; m < M; m++) {
-			AtlasMap.Add(sourceNM[0][m].name, new AtlasData {
-				scale = scaleM[m] * inv,
-				pivot = pivotM[m] * inv,
-				tiling = new(rectM[m].width, rectM[m].height),
-				offset = new(rectM[m].x,     rectM[m].y),
-			});
-			var a = AtlasMap.ElementAt(AtlasMap.Count - 1);
+		foreach (var name in nameM.Keys) {
+			var atlasMap = AtlasMap[name];
+			atlasMap.tiling = AtlasMap[nameM[name]].tiling;
+			atlasMap.offset = AtlasMap[nameM[name]].offset;
+			AtlasMap[name] = atlasMap;
 		}
-		IsDirty = true;
+		AssetDatabase.SaveAssets();
+		AssetDatabase.Refresh();
 	}
 	#endif
 }

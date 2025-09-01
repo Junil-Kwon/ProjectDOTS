@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 729723b421527c548ad7773cb09213ff, type: 3}
+  m_Name: MaterialEditor
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: f65d94d651ef1d74f81a2ac430fe2546, type: 2}
+  m_TextureProperty: _Terrain_BaseMap
+  m_SourcePath: Assets/Textures/TerrainBases
+  m_TargetTexture: None

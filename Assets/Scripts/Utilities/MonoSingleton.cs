@@ -2,9 +2,9 @@ using UnityEngine;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Mono Singleton
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [DisallowMultipleComponent]
 public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
@@ -17,20 +17,27 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 
 	// Properties
 
-	protected static T Instance => instance ??= FindAnyObjectByType<T>();
+	protected static T Instance => !instance ?
+		instance = FindAnyObjectByType<T>() :
+		instance;
 
 
 
 	// Methods
 
-	protected void TrySetInstance() => instance ??= this as T;
+	protected K GetOwnComponent<K>() where K : Component {
+		return TryGetComponent(out K component) ? component : null;
+	}
 
-	protected static bool TryGetComponentInChildren<K>(out K component) where K : Component {
-		var transform = Instance.transform;
-		for (int i = 0; i < Instance.transform.childCount; i++) {
-			if (transform.GetChild(i).TryGetComponent(out component)) {
-				return true;
-			}
+	protected K GetChildComponent<K>() where K : Component {
+		return TryGetChildComponentRecursive(transform, out K component) ? component : null;
+	}
+
+	bool TryGetChildComponentRecursive<K>(Transform parent, out K component) where K : Component {
+		for (int i = 0; i < parent.childCount; i++) {
+			var child = parent.GetChild(i);
+			if (child.TryGetComponent(out component)) return true;
+			if (TryGetChildComponentRecursive(child, out component)) return true;
 		}
 		component = null;
 		return false;
@@ -41,7 +48,7 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour {
 	// Lifecycle
 
 	protected virtual void Awake() {
-		TrySetInstance();
+		if (instance == null) instance = this as T;
 		if (Instance == this) DontDestroyOnLoad(gameObject);
 		else DestroyImmediate(gameObject);
 	}

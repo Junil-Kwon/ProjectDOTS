@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CanvasMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: 005f940468e681349aa6824e4b0fe5e7, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Canvas_BaseMap:
+        m_Texture: {fileID: 2800000, guid: af6a3ffde9e95f7449d71f924821d32a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Canvas_MaskMap:
+        m_Texture: {fileID: 2800000, guid: 31767e699056300429dd43a2ea4de460, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Overlay_BaseMap:
+        m_Texture: {fileID: 2800000, guid: af6a3ffde9e95f7449d71f924821d32a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Overlay_MaskMap:
+        m_Texture: {fileID: 2800000, guid: f751e79a855e4254894a2e20c56b93a2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sprite_BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sprite_EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sprite_MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sprite_NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WorldUI_BaseMap:
+        m_Texture: {fileID: 2800000, guid: af6a3ffde9e95f7449d71f924821d32a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WorldUI_MaskMap:
+        m_Texture: {fileID: 2800000, guid: f751e79a855e4254894a2e20c56b93a2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _Sprite_Billboard: 1
+    m_Colors:
+    - _Canvas_BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Canvas_Center: {r: 0, g: 0, b: 0, a: 0}
+    - _Canvas_MaskColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Canvas_Offset: {r: 0, g: 0.5625, b: 0, a: 0}
+    - _Canvas_Pivot: {r: 0, g: 0, b: 0, a: 0}
+    - _Canvas_Scale: {r: 1, g: 1, b: 0, a: 0}
+    - _Canvas_Tiling: {r: 0.25, g: 0.25, b: 0, a: 0}
+    - _Overlay_BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Overlay_Center: {r: 0, g: 0, b: 0, a: 0}
+    - _Overlay_MaskColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Overlay_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Overlay_Pivot: {r: 0, g: 0, b: 0, a: 0}
+    - _Overlay_Scale: {r: 1, g: 1, b: 0, a: 0}
+    - _Overlay_Tiling: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _Sprite_BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Sprite_Emission: {r: 0, g: 0, b: 0, a: 0}
+    - _Sprite_MaskColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Sprite_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Sprite_Pivot: {r: 0, g: 0, b: 0, a: 0}
+    - _Sprite_Position: {r: 0, g: 0, b: 0, a: 0}
+    - _Sprite_Scale: {r: 1, g: 1, b: 1, a: 0}
+    - _Sprite_Tiling: {r: 1, g: 1, b: 0, a: 0}
+    - _WorldUI_BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WorldUI_Center: {r: 0, g: 0, b: 0, a: 0}
+    - _WorldUI_MaskColor: {r: 1, g: 1, b: 1, a: 0}
+    - _WorldUI_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _WorldUI_Pivot: {r: 0, g: 0, b: 0, a: 0}
+    - _WorldUI_Position: {r: 0, g: 0, b: 0, a: 0}
+    - _WorldUI_Scale: {r: 1, g: 1, b: 0, a: 0}
+    - _WorldUI_Tiling: {r: 0.5, g: 0.5, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &6800559862192139495
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10

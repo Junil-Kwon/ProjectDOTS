@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI Table_fr
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: fr
+  m_SharedData: {fileID: 11400000, guid: c854644aa37e64f4ea835b63378ed20a, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1864697636577280
+    m_Localized: Mode Histoire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22036021522432
+    m_Localized: Mode Multijoueur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21939594473472
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22286312419328
+    m_Localized: "Cr\xE9dits"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22376762585088
+    m_Localized: Quitter Le Jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7491805234814976
+    m_Localized: Quitter Le Jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23069791629312
+    m_Localized: "\xCAtes-vous s\xFBr de vouloir quitter le jeu?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23265422356480
+    m_Localized: Quitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23401439440896
+    m_Localized: Annuler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97242318000128
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25046550327296
+    m_Localized: Reprendre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5770654666752
+    m_Localized: "Succ\xE8s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7661073133953024
+    m_Localized: Bestiaire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 146046865408
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5574891084308480
+    m_Localized: Retour Au Menu Principal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7579875531513856
+    m_Localized: Retour Au Menu Principal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25643840188416
+    m_Localized: "\xCAtes-vous s\xFBr de vouloir retourner au menu principal?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25653780688896
+    m_Localized: Retour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25672575365120
+    m_Localized: Annuler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 299419979776
+    m_Localized: Quitter Le Jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7491633830387712
+    m_Localized: Quitter Le Jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25163823067136
+    m_Localized: "\xCAtes-vous s\xFBr de vouloir quitter le jeu?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25183427244032
+    m_Localized: Quitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25227446464512
+    m_Localized: Annuler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7983425986191360
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984335487459328
+    m_Localized: "G\xE9n\xE9ral"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984408178941952
+    m_Localized: "Contr\xF4les"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984454534389760
+    m_Localized: "Avanc\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984526571560960
+    m_Localized: Langue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984618141605888
+    m_Localized: "R\xE9solution"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984815370362880
+    m_Localized: "Plein \xC9cran"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7984913483522048
+    m_Localized: Volume De La Musique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985014738214912
+    m_Localized: Volume Des Bruitages
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985535263924224
+    m_Localized: "Sensibilit\xE9 De La Souris"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985711948980224
+    m_Localized: Haut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985777417871360
+    m_Localized: Bas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985841246789632
+    m_Localized: Gauche
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7985974709542912
+    m_Localized: Droite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986052862009344
+    m_Localized: Sauter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986105898983424
+    m_Localized: Interagir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986155836366848
+    m_Localized: Primaire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986256512245760
+    m_Localized: Secondaire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986298002300928
+    m_Localized: Recharger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986339106480128
+    m_Localized: "Capacit\xE9 1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986408421548032
+    m_Localized: "Capacit\xE9 2"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986457373270016
+    m_Localized: "Capacit\xE9 3"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986496678092800
+    m_Localized: Carte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986541292904448
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

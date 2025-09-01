@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Dropdown
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Dropdown")]
-public class CustomDropdown : TMP_Dropdown, IBaseWidget {
+[AddComponentMenu("UI Widget/Custom Dropdown")]
+public class CustomDropdown : TMP_Dropdown, IWidgetBase {
 
 	// Editor
 
@@ -25,21 +24,21 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	class CustomDropdownEditor : EditorExtensionsSelectable {
 		CustomDropdown I => target as CustomDropdown;
 		public override void OnInspectorGUI() {
-			Begin("Custom Dropdown");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Dropdown", EditorStyles.boldLabel);
-			I.HighlightImage = ObjectField("Highlight Image", I.HighlightImage);
-			I.TextUGUI       = ObjectField("Text UGUI",       I.TextUGUI);
-			I.ItemUGUI       = ObjectField("Item UGUI",       I.ItemUGUI);
-			I.RestoreButton  = ObjectField("Restore Button",  I.RestoreButton);
-			I.Template       = ObjectField("Template",        I.Template);
-			I.FadeDuration   = FloatField("Fade Duration",    I.FadeDuration);
+
+			LabelField("Custom Dropdown", EditorStyles.boldLabel);
+			I.ContentText   = ObjectField("Content Text",   I.ContentText);
+			I.ItemText      = ObjectField("Item Text",      I.ItemText);
+			I.Template      = ObjectField("Template",       I.Template);
+			I.RestoreButton = ObjectField("Restore Button", I.RestoreButton);
+			Space();
+			I.FadeDuration = FloatField("Fade Duration", I.FadeDuration);
 			Space();
 			PropertyField("m_Elements");
-			Space();
 			I.DefaultValue = IntField("Default Value", I.DefaultValue);
 			I.CurrentValue = IntField("Current Value", I.CurrentValue);
 			Space();
@@ -56,11 +55,11 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 
 	// Fields
 
-	[SerializeField] GameObject m_HighlightImage;
 	[SerializeField] GameObject m_RestoreButton;
+	GameObject m_BlockerObject;
+	bool m_IsHighlighting;
 
 	[SerializeField] string[] m_Elements = new[] { "Element 1", "Element 2", "Element 3", };
-
 	[SerializeField] int m_DefaultValue;
 
 	[SerializeField] UnityEvent<CustomDropdown> m_OnRefreshed = new();
@@ -69,25 +68,26 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 
 	// Properties
 
-	GameObject HighlightImage {
-		get => m_HighlightImage;
-		set => m_HighlightImage = value;
+	TextMeshProUGUI ContentText {
+		get => captionText as TextMeshProUGUI;
+		set => captionText = value;
 	}
-	GameObject RestoreButton {
-		get => m_RestoreButton;
-		set => m_RestoreButton = value;
+	TextMeshProUGUI ItemText {
+		get => itemText as TextMeshProUGUI;
+		set => itemText = value;
 	}
 	RectTransform Template {
 		get => template;
 		set => template = value;
 	}
-	TextMeshProUGUI TextUGUI {
-		get => captionText as TextMeshProUGUI;
-		set => captionText = value;
+	GameObject RestoreButton {
+		get => m_RestoreButton;
+		set => m_RestoreButton = value;
 	}
-	TextMeshProUGUI ItemUGUI {
-		get => itemText as TextMeshProUGUI;
-		set => itemText = value;
+
+	bool IsHighlighting {
+		get => m_IsHighlighting;
+		set => m_IsHighlighting = value;
 	}
 	float FadeDuration {
 		get => alphaFadeSpeed;
@@ -109,7 +109,6 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 			}
 		}
 	}
-
 	public int DefaultValue {
 		get => m_DefaultValue;
 		set {
@@ -132,8 +131,14 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 		}
 	}
 
-	public UnityEvent<int> OnValueChanged => onValueChanged;
-	public UnityEvent<CustomDropdown> OnRefreshed => m_OnRefreshed;
+
+
+	public UnityEvent<int> OnValueChanged {
+		get => onValueChanged;
+	}
+	public UnityEvent<CustomDropdown> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 
@@ -152,49 +157,18 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 
 	// Event Handlers
 
-	public override void OnPointerClick(PointerEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnPointerClick(eventData);
-	}
-
 	public override void OnPointerEnter(PointerEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnPointerEnter(eventData);
+		if (interactable) {
+			if (!IsExpanded && UIManager.Selected != this) UIManager.Selected = this;
+			base.OnPointerEnter(eventData);
+		}
 	}
 
 	public override void OnPointerExit(PointerEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnPointerExit(eventData);
-	}
-
-	public override void OnSelect(BaseEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnSelect(eventData);
-	}
-
-	public override void OnDeselect(BaseEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnDeselect(eventData);
-	}
-
-	public override void OnSubmit(BaseEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnSubmit(eventData);
-	}
-
-	public override void OnCancel(BaseEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnCancel(eventData);
-	}
-
-	public override void OnPointerDown(PointerEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnPointerDown(eventData);
-	}
-
-	public override void OnPointerUp(PointerEventData eventData) {
-		if (HighlightImage) HighlightImage.SetActive(!IsExpanded);
-		base.OnPointerUp(eventData);
+		if (interactable) {
+			if (!IsExpanded && UIManager.Selected == this) UIManager.Selected = null;
+			base.OnPointerExit(eventData);
+		}
 	}
 
 
@@ -204,5 +178,22 @@ public class CustomDropdown : TMP_Dropdown, IBaseWidget {
 	protected override void OnEnable() {
 		base.OnEnable();
 		Refresh();
+	}
+
+	void Update() {
+		if (IsExpanded) {
+			IsHighlighting = true;
+			DoStateTransition(SelectionState.Highlighted, true);
+		} else if (IsHighlighting) {
+			IsHighlighting = false;
+			if (InputManager.IsPointerMode) {
+				var transform = (RectTransform)this.transform;
+				var position = InputManager.PointPosition;
+				if (!RectTransformUtility.RectangleContainsScreenPoint(transform, position, null)) {
+					UIManager.Selected = null;
+					DoStateTransition(SelectionState.Normal, false);
+				}
+			}
+		}
 	}
 }

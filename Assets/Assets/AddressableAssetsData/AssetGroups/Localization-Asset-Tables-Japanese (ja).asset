@@ -13,17 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Asset-Tables-Japanese (ja)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Asset-Tables-Japanese (ja)
-  m_GUID: c67f318136157c348a754215337cf01e
-  m_SerializeEntries:
-  - m_GUID: 7c99c2e856e03624c951742dca838176
-    m_Address: FontTable_ja
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ja
-    FlaggedDuringContentUpdateRestriction: 0
+  m_GUID: 4deab2f6521b1624686825e1cabd75df
+  m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 9f5f008eeceed8c4885f3297da3f9185, type: 2}
-    - {fileID: 11400000, guid: 9492962323cab5f41b4b62579f75d36d, type: 2}
+    - {fileID: 11400000, guid: 332cd93969d18ae4cb3241eaa3be3eca, type: 2}
+    - {fileID: 11400000, guid: e7e68192c91281141a66e48a4d63d756, type: 2}

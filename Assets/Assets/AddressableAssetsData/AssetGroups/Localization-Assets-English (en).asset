@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Localization-Assets-English (en)
   m_EditorClassIdentifier: 
   m_GroupName: Localization-Assets-English (en)
-  m_GUID: 6d3a45f04a014ab4f838be5d4f2eb72b
+  m_GUID: 8209c312934f9b8498db1026c94ab4f9
   m_SerializeEntries: []
   m_ReadOnly: 1
-  m_Settings: {fileID: 11400000, guid: 6a39811b2d37845479f8fecfd89a584b, type: 2}
+  m_Settings: {fileID: 11400000, guid: ee3ef149604537740b2ef6695fcc8fb4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: dbb9ef8eb74014547a125b01eb4e4fd7, type: 2}
-    - {fileID: 11400000, guid: 7626bafb7af2ec440baee83eb21791dc, type: 2}
+    - {fileID: 11400000, guid: d505ccedea6545b419e9da897f188235, type: 2}
+    - {fileID: 11400000, guid: 08236acbf2bc4204a84b1d46c10775e6, type: 2}

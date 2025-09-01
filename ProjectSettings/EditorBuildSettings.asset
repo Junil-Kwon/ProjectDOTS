@@ -7,12 +7,11 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/Boot Scene.unity
-    guid: c562efbc00b95c64da97b46293f8c95c
+    guid: 0a2a32ecb60548e4484ebc3d6da3d57e
   - enabled: 1
     path: Assets/Scenes/Main Scene.unity
-    guid: 1668a00f140ae7a4ea0c3cee0d1754d6
+    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
-    com.unity.addressableassets: {fileID: 11400000, guid: db18395c598729c4ba2bae759b2f4a34, type: 2}
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: c95e0661cf2839d45aaedffa79517d33, type: 3}
-    com.unity.localization.settings: {fileID: 11400000, guid: dd0c35ffa8a0b7945984197cf42757db, type: 2}
+    com.unity.addressableassets: {fileID: 11400000, guid: 88dceb6f9cf399440a14cc2957e677ec, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: 26996636a006cee4785890139ba7d201, type: 2}
   m_UseUCBPForAssetBundles: 0

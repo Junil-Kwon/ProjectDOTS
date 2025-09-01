@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
 using TMPro;
 
 #if UNITY_EDITOR
@@ -11,12 +10,12 @@ using UnityEditor;
 
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Custom Stepper
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[AddComponentMenu("UI/Custom Stepper")]
-public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISubmitHandler {
+[AddComponentMenu("UI Widget/Custom Stepper")]
+public class CustomStepper : Selectable, IWidgetBase, IPointerClickHandler, ISubmitHandler {
 
 	// Editor
 
@@ -25,20 +24,19 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 	class CustomStepperEditor : EditorExtensionsSelectable {
 		CustomStepper I => target as CustomStepper;
 		public override void OnInspectorGUI() {
-			Begin("Custom Stepper");
+			Begin();
 
 			LabelField("Selectable", EditorStyles.boldLabel);
 			base.OnInspectorGUI();
 			Space();
-			LabelField("Stepper", EditorStyles.boldLabel);
-			I.BodyRect       = ObjectField("Body Rect",        I.BodyRect);
+
+			LabelField("Custom Stepper", EditorStyles.boldLabel);
 			I.PrevArrowImage = ObjectField("Prev Arrow Image", I.PrevArrowImage);
 			I.NextArrowImage = ObjectField("Next Arrow Image", I.NextArrowImage);
-			I.TextUGUI       = ObjectField("Text UGUI",        I.TextUGUI);
+			I.ContentText    = ObjectField("Content Text",     I.ContentText);
 			I.RestoreButton  = ObjectField("Restore Button",   I.RestoreButton);
 			Space();
 			PropertyField("m_Elements");
-			Space();
 			I.DefaultValue = IntField("Default Value", I.DefaultValue);
 			I.CurrentValue = IntField("Current Value", I.CurrentValue);
 			I.Loop = Toggle("Loop", I.Loop);
@@ -56,14 +54,12 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	// Fields
 
-	[SerializeField] RectTransform m_BodyRect;
 	[SerializeField] GameObject m_PrevArrowImage;
 	[SerializeField] GameObject m_NextArrowImage;
-	[SerializeField] TextMeshProUGUI m_TextUGUI;
+	[SerializeField] TextMeshProUGUI m_ContentText;
 	[SerializeField] GameObject m_RestoreButton;
 
 	[SerializeField] string[] m_Elements = new[] { "Element 1", "Element 2", "Element 3", };
-
 	[SerializeField] int m_DefaultValue;
 	[SerializeField] int m_CurrentValue;
 	[SerializeField] bool m_Loop;
@@ -75,10 +71,6 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	// Properties
 
-	RectTransform BodyRect {
-		get => m_BodyRect;
-		set => m_BodyRect = value;
-	}
 	GameObject PrevArrowImage {
 		get => m_PrevArrowImage;
 		set => m_PrevArrowImage = value;
@@ -87,9 +79,9 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		get => m_NextArrowImage;
 		set => m_NextArrowImage = value;
 	}
-	TextMeshProUGUI TextUGUI {
-		get => m_TextUGUI;
-		set => m_TextUGUI = value;
+	TextMeshProUGUI ContentText {
+		get => m_ContentText;
+		set => m_ContentText = value;
 	}
 	GameObject RestoreButton {
 		get => m_RestoreButton;
@@ -98,7 +90,7 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 
 
-	public string[] Options {
+	public string[] Elements {
 		get => m_Elements;
 		set {
 			if (m_Elements != value) {
@@ -109,13 +101,12 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 			}
 		}
 	}
-
 	public int DefaultValue {
 		get => m_DefaultValue;
 		set {
 			value = Loop switch {
-				true => value % Options.Length,
-				false => Mathf.Max(0, Mathf.Min(value, Options.Length - 1)),
+				true  => (value + Elements.Length) % Elements.Length,
+				false => Mathf.Clamp(value, 0, Elements.Length - 1),
 			};
 			if (m_DefaultValue != value) {
 				m_DefaultValue = value;
@@ -127,8 +118,8 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		get => m_CurrentValue;
 		set {
 			value = Loop switch {
-				true => value % Options.Length,
-				false => Mathf.Max(0, Mathf.Min(value, Options.Length - 1)),
+				true  => (value + Elements.Length) % Elements.Length,
+				false => Mathf.Clamp(value, 0, Elements.Length - 1),
 			};
 			if (m_CurrentValue != value) {
 				m_CurrentValue = value;
@@ -147,8 +138,14 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 		}
 	}
 
-	public UnityEvent<int> OnValueChanged => m_OnValueChanged;
-	public UnityEvent<CustomStepper> OnRefreshed => m_OnRefreshed;
+
+
+	public UnityEvent<int> OnValueChanged {
+		get => m_OnValueChanged;
+	}
+	public UnityEvent<CustomStepper> OnRefreshed {
+		get => m_OnRefreshed;
+	}
 
 
 
@@ -156,8 +153,8 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	public void Refresh() {
 		if (PrevArrowImage) PrevArrowImage.SetActive(Loop || 0 < CurrentValue);
-		if (NextArrowImage) NextArrowImage.SetActive(Loop || CurrentValue < Options.Length - 1);
-		if (TextUGUI) TextUGUI.text = 0 < Options.Length ? Options[CurrentValue] : string.Empty;
+		if (NextArrowImage) NextArrowImage.SetActive(Loop || CurrentValue < Elements.Length - 1);
+		if (ContentText) ContentText.text = 0 < Elements.Length ? Elements[CurrentValue] : null;
 		if (RestoreButton) RestoreButton.SetActive(CurrentValue != DefaultValue);
 		OnRefreshed.Invoke(this);
 	}
@@ -170,10 +167,27 @@ public class CustomStepper : Selectable, IBaseWidget, IPointerClickHandler, ISub
 
 	// Event Handlers
 
+	public override void OnPointerEnter(PointerEventData eventData) {
+		if (interactable) {
+			if (UIManager.Selected != this) UIManager.Selected = this;
+			base.OnPointerEnter(eventData);
+		}
+	}
+
+	public override void OnPointerExit(PointerEventData eventData) {
+		if (interactable) {
+			if (UIManager.Selected == this) UIManager.Selected = null;
+			base.OnPointerExit(eventData);
+		}
+	}
+
+
+
 	public void OnPointerClick(PointerEventData eventData) {
-		if (interactable && BodyRect) {
-			var point = BodyRect.InverseTransformPoint(eventData.position);
-			CurrentValue += (0f < point.x && point.x < BodyRect.rect.width * 0.5f) ? +1 : -1;
+		if (interactable) {
+			var transform = (RectTransform)this.transform;
+			var point = transform.InverseTransformPoint(eventData.position);
+			CurrentValue += (0f < point.x && point.x < transform.rect.width * 0.5f) ? +1 : -1;
 		}
 	}
 
