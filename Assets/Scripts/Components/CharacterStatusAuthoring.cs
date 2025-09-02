@@ -179,39 +179,100 @@ public static class CharacterStatusDataExtensions {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
-public partial class CharacterStatusPresentationSystem : SystemBase {
+[UpdateAfter(typeof(RenderAreaPresentationSystem))]
+public partial class CharacterStatusMainPresentationSystem : SystemBase {
 	IndirectRenderer<CanvasDrawData> CanvasRenderer;
-	EntityQuery CanvasQuery;
+	EntityQuery CharacterQuery;
 
 	protected override void OnCreate() {
-		CanvasRenderer = new(DrawManager.QuadMesh, DrawManager.CanvasMaterial, 0);
-		CanvasQuery = GetEntityQuery(
+		CanvasRenderer = new(DrawManager.QuadMesh, DrawManager.CanvasMaterial);
+		CanvasRenderer.Param.layer = RenderArea.MainLayer;
+		RequireForUpdate<RenderAreaPresentationSystem.Singleton>();
+		CharacterQuery = GetEntityQuery(
 			ComponentType.ReadOnly<CharacterCoreBlob>(),
 			ComponentType.ReadOnly<DrawCharacterStatus>(),
 			ComponentType.ReadOnly<CharacterStatusBlob>(),
 			ComponentType.ReadOnly<CharacterStatusData>(),
-			ComponentType.ReadOnly<LocalToWorld>());
-		RequireForUpdate(CanvasQuery);
+			ComponentType.ReadOnly<LocalToWorld>(),
+			ComponentType.ReadOnly<RenderFilter>());
+		RequireForUpdate(CharacterQuery);
 	}
 
 	protected override void OnUpdate() {
-		var entityArray = CanvasQuery.ToEntityArray(Allocator.TempJob);
+		var renderAreaSystem = SystemAPI.GetSingleton<RenderAreaPresentationSystem.Singleton>();
+		var renderArea = renderAreaSystem.MainRenderArea[0];
+		var entityArray = CharacterQuery.ToEntityArray(Allocator.TempJob);
 		int count = entityArray.Length * 7;
+
 		var canvasBuffer = CanvasRenderer.LockBuffer(count);
-		Dependency = new CharacterStatusDrawJob {
-			CanvasHashMap             = DrawManager.CanvasHashMapReadOnly,
-			EntityArray               = entityArray,
-			CharacterCoreBlobLookup   = GetComponentLookup<CharacterCoreBlob>(true),
-			CharacterStatusBlobLookup = GetComponentLookup<CharacterStatusBlob>(true),
-			CharacterStatusDataLookup = GetComponentLookup<CharacterStatusData>(true),
-			TransformLookup           = GetComponentLookup<LocalToWorld>(true),
-			CanvasBuffer              = canvasBuffer,
-		}.Schedule(entityArray.Length, 64, Dependency);
-		Dependency.Complete();
-		entityArray.Dispose();
+		new CharacterStatusDrawJob {
+			CanvasBuffer     = canvasBuffer,
+			EntityArray      = entityArray,
+			CoreBlobLookup   = GetComponentLookup<CharacterCoreBlob>(true),
+			StatusBlobLookup = GetComponentLookup<CharacterStatusBlob>(true),
+			StatusDataLookup = GetComponentLookup<CharacterStatusData>(true),
+			TransformLookup  = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup     = GetComponentLookup<RenderFilter>(true),
+			CanvasHashMap    = DrawManager.CanvasHashMapReadOnly,
+			Layer            = CanvasRenderer.Param.layer,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
 		CanvasRenderer.UnlockBuffer(count);
 		CanvasRenderer.Draw();
 		CanvasRenderer.Clear();
+
+		entityArray.Dispose();
+	}
+
+	protected override void OnDestroy() {
+		CanvasRenderer.Dispose();
+	}
+}
+
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
+[UpdateBefore(typeof(RenderAreaPresentationSystem))]
+public partial class CharacterStatusTempPresentationSystem : SystemBase {
+	IndirectRenderer<CanvasDrawData> CanvasRenderer;
+	EntityQuery CharacterQuery;
+
+	protected override void OnCreate() {
+		CanvasRenderer = new(DrawManager.QuadMesh, DrawManager.CanvasMaterial);
+		CanvasRenderer.Param.layer = RenderArea.TempLayer;
+		RequireForUpdate<RenderAreaPresentationSystem.Singleton>();
+		CharacterQuery = GetEntityQuery(
+			ComponentType.ReadOnly<CharacterCoreBlob>(),
+			ComponentType.ReadOnly<DrawCharacterStatus>(),
+			ComponentType.ReadOnly<CharacterStatusBlob>(),
+			ComponentType.ReadOnly<CharacterStatusData>(),
+			ComponentType.ReadOnly<RenderFilter>(),
+			ComponentType.ReadOnly<LocalToWorld>());
+		RequireForUpdate(CharacterQuery);
+	}
+
+	protected override void OnUpdate() {
+		var renderAreaSystem = SystemAPI.GetSingleton<RenderAreaPresentationSystem.Singleton>();
+		if (renderAreaSystem.Transition[0] == 0f) return;
+		var renderArea = renderAreaSystem.MainRenderArea[0];
+		EnvironmentManager.LightMode = renderArea.LightMode;
+		var entityArray = CharacterQuery.ToEntityArray(Allocator.TempJob);
+		int count = entityArray.Length * 7;
+
+		var canvasBuffer = CanvasRenderer.LockBuffer(count);
+		new CharacterStatusDrawJob {
+			CanvasBuffer     = canvasBuffer,
+			EntityArray      = entityArray,
+			CanvasHashMap    = DrawManager.CanvasHashMapReadOnly,
+			CoreBlobLookup   = GetComponentLookup<CharacterCoreBlob>(true),
+			StatusBlobLookup = GetComponentLookup<CharacterStatusBlob>(true),
+			StatusDataLookup = GetComponentLookup<CharacterStatusData>(true),
+			TransformLookup  = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup     = GetComponentLookup<RenderFilter>(true),
+			Layer            = CanvasRenderer.Param.layer,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
+		CanvasRenderer.UnlockBuffer(count);
+		CanvasRenderer.Draw();
+		CanvasRenderer.Clear();
+
+		entityArray.Dispose();
 	}
 
 	protected override void OnDestroy() {
@@ -221,20 +282,23 @@ public partial class CharacterStatusPresentationSystem : SystemBase {
 
 [BurstCompile]
 partial struct CharacterStatusDrawJob : IJobParallelFor {
-	[ReadOnly] public NativeHashMap<uint, AtlasData>.ReadOnly CanvasHashMap;
-	[ReadOnly] public NativeArray<Entity> EntityArray;
-	[ReadOnly] public ComponentLookup<CharacterCoreBlob> CharacterCoreBlobLookup;
-	[ReadOnly] public ComponentLookup<CharacterStatusBlob> CharacterStatusBlobLookup;
-	[ReadOnly] public ComponentLookup<CharacterStatusData> CharacterStatusDataLookup;
-	[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
 	[NativeDisableParallelForRestriction] public NativeArray<CanvasDrawData> CanvasBuffer;
+	[ReadOnly] public NativeArray<Entity> EntityArray;
+	[ReadOnly] public NativeHashMap<uint, AtlasData>.ReadOnly CanvasHashMap;
+	[ReadOnly] public ComponentLookup<CharacterCoreBlob> CoreBlobLookup;
+	[ReadOnly] public ComponentLookup<CharacterStatusBlob> StatusBlobLookup;
+	[ReadOnly] public ComponentLookup<CharacterStatusData> StatusDataLookup;
+	[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
+	[ReadOnly] public ComponentLookup<RenderFilter> FilterLookup;
+	[ReadOnly] public int Layer;
 
 	public void Execute(int index) {
 		var entity = EntityArray[index];
-		var coreBlob = CharacterCoreBlobLookup[entity].Value.Value;
-		var statusBlob = CharacterStatusBlobLookup[entity].Value.Value;
-		var statusData = CharacterStatusDataLookup[entity];
+		var coreBlob = CoreBlobLookup[entity].Value.Value;
+		var statusBlob = StatusBlobLookup[entity].Value.Value;
+		var statusData = StatusDataLookup[entity];
 		var transform = TransformLookup[entity];
+		var renderer = FilterLookup[entity];
 
 		float roughHeight = coreBlob.RoughHeight;
 		float roughRadius = coreBlob.RoughRadius;
@@ -275,7 +339,7 @@ partial struct CharacterStatusDrawJob : IJobParallelFor {
 				Tiling    = data.tiling,
 				Offset    = data.offset,
 				Center    = new float3(0f, roughHeight + 1f, 0f),
-				BaseColor = color,
+				BaseColor = new(color.r, color.g, color.b, renderer[Layer]),
 				MaskColor = default,
 			};
 		}

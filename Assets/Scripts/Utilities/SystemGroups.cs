@@ -32,9 +32,11 @@ public partial class DOTSInitializationSystemGroup : ComponentSystemGroup { }
 public partial class DOTSPredictedSimulationSystemGroup : ComponentSystemGroup { }
 
 [WorldSystemFilter(SystemFilter.ServerSimulation, SystemFilter.ServerSimulation)]
+[UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 public partial class DOTSServerSimulationSystemGroup : ComponentSystemGroup { }
 
 [WorldSystemFilter(SystemFilter.ClientSimulation, SystemFilter.ClientSimulation)]
+[UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 public partial class DOTSClientSimulationSystemGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]

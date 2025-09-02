@@ -213,9 +213,8 @@ public sealed class GameManager : MonoSingleton<GameManager> {
 
 	// Event Methods
 
-	public static uint PlayEvent(EventGraphSO eventGraph) {
-		uint eventID = AddInstance(eventGraph?.Entry);
-		return eventID;
+	public static uint PlayEvent(EventGraph eventGraph) {
+		return eventGraph == null ? default : AddInstance(eventGraph.Entry);
 	}
 
 	public static bool IsEventPlaying(uint eventID = default) {

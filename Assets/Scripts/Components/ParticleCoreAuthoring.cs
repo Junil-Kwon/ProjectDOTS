@@ -29,7 +29,6 @@ public enum Pattern {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Component/Particle Core")]
-[RequireComponent(typeof(ParticleRendererAuthoring))]
 public sealed class ParticleCoreAuthoring : MonoComponent<ParticleCoreAuthoring> {
 
 	// Editor
@@ -294,7 +293,7 @@ partial struct ParticleClientSimulationSystem : ISystem {
 		state.Dependency = new ParticleClientSimulationJob {
 			Buffer               = buffer,
 			PhysicsWorld         = physicsWorld,
-			RenderZoneLookup     = SystemAPI.GetComponentLookup<RenderZone>(true),
+			RenderAreaLookup     = SystemAPI.GetComponentLookup<RenderArea>(true),
 			CameraBridgeProperty = cameraBridge.Property[0],
 			DeltaTime            = SystemAPI.Time.DeltaTime,
 		}.ScheduleParallel(state.Dependency);
@@ -308,7 +307,7 @@ partial struct ParticleClientInitializationJob : IJobEntity {
 		EnabledRefRW<ParticleInitialize> initialize,
 		in ParticleCoreBlob coreBlob,
 		ref ParticleCoreData coreData,
-		ref ParticleRenderer renderer,
+		ref SpriteHash hash,
 		Entity entity) {
 
 		initialize.ValueRW = false;
@@ -316,7 +315,7 @@ partial struct ParticleClientInitializationJob : IJobEntity {
 		coreData.Random = new Random(math.hash(seed));
 
 		if (coreBlob.GetPattern(Pattern.FlipRandom)) {
-			renderer.Flip = coreData.Random.NextBool2();
+			hash.Flip = coreData.Random.NextBool2();
 		}
 	}
 }
@@ -325,15 +324,15 @@ partial struct ParticleClientInitializationJob : IJobEntity {
 partial struct ParticleClientSimulationJob : IJobEntity {
 	public EntityCommandBuffer.ParallelWriter Buffer;
 	[ReadOnly] public PhysicsWorld PhysicsWorld;
-	[ReadOnly] public ComponentLookup<RenderZone> RenderZoneLookup;
+	[ReadOnly] public ComponentLookup<RenderArea> RenderAreaLookup;
 	[ReadOnly] public CameraBridge.Property CameraBridgeProperty;
 	[ReadOnly] public float DeltaTime;
 
 	public void Execute(
 		in ParticleCoreBlob coreBlob,
 		ref ParticleCoreData coreData,
-		ref ParticleRenderer renderer,
 		ref LocalTransform transform,
+		ref SpriteHash hash,
 		Entity entity,
 		[ChunkIndexInQuery] int chunkIndex) {
 
@@ -342,13 +341,13 @@ partial struct ParticleClientSimulationJob : IJobEntity {
 			float x = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 			float z = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
 			float yaw = math.atan2(x, z) * math.TODEGREES;
-			renderer.ObjectYaw = yaw - CameraBridgeProperty.Yaw;
+			hash.ObjectYaw = yaw - CameraBridgeProperty.Yaw;
 		}
 		if (coreBlob.GetPattern(Pattern.HasGravity)) {
 			coreData.Velocity += coreBlob.Value.Value.Gravity * DeltaTime;
 		}
 
-		renderer.Time = coreData.Time += DeltaTime;
+		hash.Time = coreData.Time += DeltaTime;
 		if (coreBlob.Value.Value.Duration <= coreData.Time) {
 			Buffer.DestroyEntity(chunkIndex, entity);
 		}

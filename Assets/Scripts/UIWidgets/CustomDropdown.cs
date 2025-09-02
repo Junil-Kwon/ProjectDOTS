@@ -21,7 +21,7 @@ public class CustomDropdown : TMP_Dropdown, IWidgetBase {
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomDropdown))]
-	class CustomDropdownEditor : EditorExtensionsSelectable {
+	class CustomDropdownEditor : SelectableEditorExtensions {
 		CustomDropdown I => target as CustomDropdown;
 		public override void OnInspectorGUI() {
 			Begin();

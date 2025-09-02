@@ -21,7 +21,7 @@ public class CustomInputfield : TMP_InputField, IWidgetBase {
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomInputfield))]
-	class CustomInputfieldEditor : EditorExtensionsSelectable {
+	class CustomInputfieldEditor : SelectableEditorExtensions {
 		CustomInputfield I => target as CustomInputfield;
 		public override void OnInspectorGUI() {
 			Begin();

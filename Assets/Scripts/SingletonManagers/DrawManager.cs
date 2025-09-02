@@ -245,15 +245,15 @@ public sealed class DrawManager : MonoSingleton<DrawManager> {
 	static T LoadAsset<T>(string path) where T : Object {
 		return AssetDatabase.LoadAssetAtPath<T>(path);
 	}
-	static AtlasMapSO GetCanvasAtlasMap() => LoadAsset<AtlasMapSO>(CanvasAtlasMapPath);
-	static AtlasMapSO GetOpaqueAtlasMap() => LoadAsset<AtlasMapSO>(OpaqueAtlasMapPath);
-	static AtlasMapSO GetShadowAtlasMap() => LoadAsset<AtlasMapSO>(ShadowAtlasMapPath);
-	static AtlasMapSO GetSpriteAtlasMap() => LoadAsset<AtlasMapSO>(SpriteAtlasMapPath);
+	static AtlasMap GetCanvasAtlasMap() => LoadAsset<AtlasMap>(CanvasAtlasMapPath);
+	static AtlasMap GetOpaqueAtlasMap() => LoadAsset<AtlasMap>(OpaqueAtlasMapPath);
+	static AtlasMap GetShadowAtlasMap() => LoadAsset<AtlasMap>(ShadowAtlasMapPath);
+	static AtlasMap GetSpriteAtlasMap() => LoadAsset<AtlasMap>(SpriteAtlasMapPath);
 	#else
-	static AtlasMapSO GetCanvasAtlasMap() => null;
-	static AtlasMapSO GetOpaqueAtlasMap() => null;
-	static AtlasMapSO GetShadowAtlasMap() => null;
-	static AtlasMapSO GetSpriteAtlasMap() => null;
+	static AtlasMap GetCanvasAtlasMap() => null;
+	static AtlasMap GetOpaqueAtlasMap() => null;
+	static AtlasMap GetShadowAtlasMap() => null;
+	static AtlasMap GetSpriteAtlasMap() => null;
 	#endif
 
 

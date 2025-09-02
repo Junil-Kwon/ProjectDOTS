@@ -92,21 +92,6 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 			TempTextureRenderer = ObjectField("Temp Texture Renderer", TempTextureRenderer);
 			Space();
 
-			LabelField("Text Instance", EditorStyles.boldLabel);
-			TextTemplate = ObjectField("Text Template", TextTemplate);
-			if (TextTemplate == null) {
-				var message = string.Empty;
-				message += $"Text Template is missing.\n";
-				message += $"Please assign a Text Template here.";
-				HelpBox(message, MessageType.Info);
-				Space();
-			} else {
-				int num = TextInstance.Count;
-				int den = TextInstance.Count + TextPool.Count;
-				LabelField("Text Pool", $"{num} / {den}");
-				Space();
-			}
-
 			LabelField("Screen", EditorStyles.boldLabel);
 			if (ScreenBases?.Length != ScreenCount) ScreenBases = LoadScreenBases();
 			foreach (var screenBase in ScreenBases) {
@@ -138,6 +123,21 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 			}
 			Space();
 
+			LabelField("Text Instance", EditorStyles.boldLabel);
+			TextTemplate = ObjectField("Text Template", TextTemplate);
+			if (TextTemplate == null) {
+				var message = string.Empty;
+				message += $"Text Template is missing.\n";
+				message += $"Please assign a Text Template here.";
+				HelpBox(message, MessageType.Info);
+				Space();
+			} else {
+				int num = TextInstance.Count;
+				int den = TextInstance.Count + TextPool.Count;
+				LabelField("Text Pool", $"{num} / {den}");
+				Space();
+			}
+
 			End();
 		}
 	}
@@ -168,16 +168,16 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 	[SerializeField] RawImage m_TempTextureRenderer;
 	bool m_ScreenBlur = false;
 
+	CanvasScaler m_ScreenScaler;
+	Vector2Int m_ScreenResolution;
+	ScreenBase[] m_ScreenBases;
+	Stack<ScreenBase> m_ScreenStack = new();
+
 	[SerializeField] TextMeshPro m_TextTemplate;
 	Dictionary<uint, (TextMeshPro, float)> m_TextInstance = new();
 	Stack<TextMeshPro> m_TextPool = new();
 	List<uint> m_IDBuffer = new();
 	uint m_NextID;
-
-	CanvasScaler m_ScreenScaler;
-	Vector2Int m_ScreenResolution;
-	ScreenBase[] m_ScreenBases;
-	Stack<ScreenBase> m_ScreenStack = new();
 
 
 
@@ -198,26 +198,6 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 			MainTextureRenderer.material.SetFloat(BlurOffset, value ? CanvasScale : 0f);
 			TempTextureRenderer.material.SetFloat(BlurOffset, value ? CanvasScale : 0f);
 		}
-	}
-
-
-
-	static TextMeshPro TextTemplate {
-		get => Instance.m_TextTemplate;
-		set => Instance.m_TextTemplate = value;
-	}
-	static Dictionary<uint, (TextMeshPro, float)> TextInstance {
-		get => Instance.m_TextInstance;
-	}
-	static Stack<TextMeshPro> TextPool {
-		get => Instance.m_TextPool;
-	}
-	static List<uint> IDBuffer {
-		get => Instance.m_IDBuffer;
-	}
-	static uint NextID {
-		get => Instance.m_NextID;
-		set => Instance.m_NextID = value;
 	}
 
 
@@ -264,98 +244,22 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 
 
-	// Instance Methods
-
-	static (uint, TextMeshPro) GetOrCreateInstance(float duration, int layer) {
-		TextMeshPro instance;
-		while (TextPool.TryPop(out instance) && instance == null);
-		if (instance == null) instance = Instantiate(TextTemplate);
-		instance.gameObject.layer = layer;
-		instance.gameObject.SetActive(true);
-		while (++NextID == default || TextInstance.ContainsKey(NextID));
-		TextInstance.Add(NextID, (instance, Time.time + duration));
-		return (NextID, instance);
+	static TextMeshPro TextTemplate {
+		get => Instance.m_TextTemplate;
+		set => Instance.m_TextTemplate = value;
 	}
-
-	static void UpdateInstances() {
-		foreach (var (textID, (instance, endTime)) in TextInstance) {
-			if (instance) {
-				instance.transform.rotation = CameraManager.Rotation;
-				if (endTime <= Time.time) IDBuffer.Add(textID);
-			} else IDBuffer.Add(textID);
-		}
-		if (0 < IDBuffer.Count) {
-			foreach (var textID in IDBuffer) RemoveInstance(textID);
-			IDBuffer.Clear();
-		}
+	static Dictionary<uint, (TextMeshPro, float)> TextInstance {
+		get => Instance.m_TextInstance;
 	}
-
-	static void RemoveInstance(uint textID) {
-		var (instance, endTime) = TextInstance[textID];
-		if (instance) {
-			instance.gameObject.SetActive(false);
-			TextPool.Push(instance);
-		}
-		TextInstance.Remove(textID);
+	static Stack<TextMeshPro> TextPool {
+		get => Instance.m_TextPool;
 	}
-
-
-
-	// Text Methods
-
-	public static uint AddText(
-		string text, Vector3 position, float duration = 1f, int layer = default) {
-		var (textID, instance) = GetOrCreateInstance(duration, layer);
-		instance.text = text;
-		instance.transform.position = position;
-		return textID;
+	static List<uint> IDBuffer {
+		get => Instance.m_IDBuffer;
 	}
-
-	public static uint AddText(
-		StringBuilder builder, Vector3 position, float duration = 1f, int layer = default) {
-		var (textID, instance) = GetOrCreateInstance(duration, layer);
-		instance.SetText(builder);
-		instance.transform.position = position;
-		return textID;
-	}
-
-	public static void SetTextValue(uint textID, string text) {
-		if (TextInstance.TryGetValue(textID, out var value)) {
-			var (instance, endTime) = value;
-			instance.text = text;
-		}
-	}
-
-	public static void SetTextValue(uint textID, StringBuilder builder) {
-		if (TextInstance.TryGetValue(textID, out var value)) {
-			var (instance, endTime) = value;
-			instance.SetText(builder);
-		}
-	}
-
-	public static void SetTextPosition(uint textID, Vector3 position) {
-		if (TextInstance.TryGetValue(textID, out var value)) {
-			var (instance, endTime) = value;
-			instance.transform.position = position;
-		}
-	}
-
-	public static void SetTextDuration(uint textID, float duration) {
-		if (TextInstance.TryGetValue(textID, out var value)) {
-			var (instance, endTime) = value;
-			TextInstance[textID] = (instance, Time.time + duration);
-		}
-	}
-
-	public static void SetTextLayer(uint textID, int layer) {
-		if (TextInstance.TryGetValue(textID, out var value)) {
-			var (instance, endTime) = value;
-			instance.gameObject.layer = layer;
-		}
-	}
-
-	public static void RemoveText(uint textID) {
-		if (TextInstance.ContainsKey(textID)) RemoveInstance(textID);
+	static uint NextID {
+		get => Instance.m_NextID;
+		set => Instance.m_NextID = value;
 	}
 
 
@@ -471,7 +375,103 @@ public sealed class UIManager : MonoSingleton<UIManager> {
 
 
 
-	// Alert Screen Methods
+	// Instance Methods
+
+	static (uint, TextMeshPro) GetOrCreateInstance(float duration, int layer) {
+		TextMeshPro instance;
+		while (TextPool.TryPop(out instance) && instance == null);
+		if (instance == null) instance = Instantiate(TextTemplate);
+		instance.gameObject.layer = layer;
+		instance.gameObject.SetActive(true);
+		while (++NextID == default || TextInstance.ContainsKey(NextID));
+		TextInstance.Add(NextID, (instance, Time.time + duration));
+		return (NextID, instance);
+	}
+
+	static void UpdateInstances() {
+		foreach (var (textID, (instance, endTime)) in TextInstance) {
+			if (instance) {
+				instance.transform.rotation = CameraManager.Rotation;
+				if (endTime <= Time.time) IDBuffer.Add(textID);
+			} else IDBuffer.Add(textID);
+		}
+		if (0 < IDBuffer.Count) {
+			foreach (var textID in IDBuffer) RemoveInstance(textID);
+			IDBuffer.Clear();
+		}
+	}
+
+	static void RemoveInstance(uint textID) {
+		var (instance, endTime) = TextInstance[textID];
+		if (instance) {
+			instance.gameObject.SetActive(false);
+			TextPool.Push(instance);
+		}
+		TextInstance.Remove(textID);
+	}
+
+
+
+	// Text Methods
+
+	public static uint AddText(
+		string text, Vector3 position, float duration = 1f, int layer = default) {
+		var (textID, instance) = GetOrCreateInstance(duration, layer);
+		instance.text = text;
+		instance.transform.position = position;
+		return textID;
+	}
+
+	public static uint AddText(
+		StringBuilder builder, Vector3 position, float duration = 1f, int layer = default) {
+		var (textID, instance) = GetOrCreateInstance(duration, layer);
+		instance.SetText(builder);
+		instance.transform.position = position;
+		return textID;
+	}
+
+	public static void SetTextValue(uint textID, string text) {
+		if (TextInstance.TryGetValue(textID, out var value)) {
+			var (instance, endTime) = value;
+			instance.text = text;
+		}
+	}
+
+	public static void SetTextValue(uint textID, StringBuilder builder) {
+		if (TextInstance.TryGetValue(textID, out var value)) {
+			var (instance, endTime) = value;
+			instance.SetText(builder);
+		}
+	}
+
+	public static void SetTextPosition(uint textID, Vector3 position) {
+		if (TextInstance.TryGetValue(textID, out var value)) {
+			var (instance, endTime) = value;
+			instance.transform.position = position;
+		}
+	}
+
+	public static void SetTextDuration(uint textID, float duration) {
+		if (TextInstance.TryGetValue(textID, out var value)) {
+			var (instance, endTime) = value;
+			TextInstance[textID] = (instance, Time.time + duration);
+		}
+	}
+
+	public static void SetTextLayer(uint textID, int layer) {
+		if (TextInstance.TryGetValue(textID, out var value)) {
+			var (instance, endTime) = value;
+			instance.gameObject.layer = layer;
+		}
+	}
+
+	public static void RemoveText(uint textID) {
+		if (TextInstance.ContainsKey(textID)) RemoveInstance(textID);
+	}
+
+
+
+		// Alert Screen Methods
 
 	static AlertScreen AlertScreen {
 		get => (AlertScreen)ScreenBases[(int)Screen.Alert];

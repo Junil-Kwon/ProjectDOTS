@@ -16,7 +16,7 @@ MonoBehaviour:
   - Character
   - EventTrigger
   - Particle
-  - RenderZone
+  - RenderArea
   - Terrain
   - 
   - 

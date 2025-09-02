@@ -21,7 +21,7 @@ public class CustomToggle : Selectable, IWidgetBase, IPointerClickHandler, ISubm
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomToggle))]
-	class CustomToggleEditor : EditorExtensionsSelectable {
+	class CustomToggleEditor : SelectableEditorExtensions {
 		CustomToggle I => target as CustomToggle;
 		public override void OnInspectorGUI() {
 			Begin();

@@ -147,8 +147,8 @@ public sealed class EnvironmentManager : MonoSingleton<EnvironmentManager> {
 		set => Instance.m_TimeOfDay = value;
 	}
 	public static float DayLength {
-		get => Instance.m_DayLength;
-		set => Instance.m_DayLength = value;
+		get         => Instance.m_DayLength;
+		private set => Instance.m_DayLength = value;
 	}
 
 

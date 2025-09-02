@@ -24,7 +24,7 @@ MonoBehaviour:
   m_MaxSize: 16384
   m_TrimTransparent: 0
   m_MergeDuplicates: 0
-  m_AtlasMap:
+  m_HashMap:
     m_KList:
     - Bar
     - BarL

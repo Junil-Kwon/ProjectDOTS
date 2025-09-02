@@ -21,7 +21,7 @@ public class CustomSelector : Selectable, IWidgetBase, IUpdateSelectedHandler {
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomSelector))]
-	class CustomSelectorEditor : EditorExtensionsSelectable {
+	class CustomSelectorEditor : SelectableEditorExtensions {
 		CustomSelector I => target as CustomSelector;
 		public override void OnInspectorGUI() {
 			Begin();

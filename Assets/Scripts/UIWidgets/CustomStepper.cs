@@ -21,7 +21,7 @@ public class CustomStepper : Selectable, IWidgetBase, IPointerClickHandler, ISub
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomStepper))]
-	class CustomStepperEditor : EditorExtensionsSelectable {
+	class CustomStepperEditor : SelectableEditorExtensions {
 		CustomStepper I => target as CustomStepper;
 		public override void OnInspectorGUI() {
 			Begin();

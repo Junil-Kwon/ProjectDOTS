@@ -20,7 +20,7 @@ public class CustomButton : Selectable, IWidgetBase, IPointerClickHandler, ISubm
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomButton))]
-	class CustomButtonEditor : EditorExtensionsSelectable {
+	class CustomButtonEditor : SelectableEditorExtensions {
 		CustomButton I => target as CustomButton;
 		public override void OnInspectorGUI() {
 			Begin();

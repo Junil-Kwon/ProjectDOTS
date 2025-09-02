@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: MaterialEditor
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: f65d94d651ef1d74f81a2ac430fe2546, type: 2}
-  m_TextureProperty: _Terrain_BaseMap
-  m_SourcePath: Assets/Textures/TerrainBases
+  m_TextureProperty: _Opaque_BaseMap
+  m_SourcePath: Assets/Textures/OpaqueBases
   m_TargetTexture: None

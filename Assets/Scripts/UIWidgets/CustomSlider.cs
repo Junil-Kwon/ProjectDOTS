@@ -21,7 +21,7 @@ public class CustomSlider : Selectable, IWidgetBase, IPointerClickHandler, IDrag
 
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(CustomSlider))]
-	class CustomSliderEditor : EditorExtensionsSelectable {
+	class CustomSliderEditor : SelectableEditorExtensions {
 		CustomSlider I => target as CustomSlider;
 		public override void OnInspectorGUI() {
 			Begin();

@@ -50,7 +50,7 @@ public sealed class EventTriggerAuthoring : MonoComponent<EventTriggerAuthoring>
 			BeginHorizontal();
 			I.EventGraph = ObjectField("Event Graph", I.EventGraph);
 			if (I.EventGraph == null && Button("Create", GUILayout.Width(64f))) {
-				I.EventGraph = CreateInstance<EventGraphSO>();
+				I.EventGraph = CreateInstance<EventGraph>();
 				I.EventGraph.name = I.gameObject.name;
 			}
 			if (I.EventGraph != null && Button("Open", GUILayout.Width(64f))) {
@@ -113,7 +113,7 @@ public sealed class EventTriggerAuthoring : MonoComponent<EventTriggerAuthoring>
 	[SerializeField] string m_TriggerName;
 	#endif
 
-	[SerializeField] EventGraphSO m_EventGraph;
+	[SerializeField] EventGraph m_EventGraph;
 	[SerializeField] Trigger m_Trigger;
 	[SerializeField] int m_Count = int.MaxValue;
 	[SerializeField] float m_Cooldown = float.MaxValue;
@@ -122,7 +122,7 @@ public sealed class EventTriggerAuthoring : MonoComponent<EventTriggerAuthoring>
 
 	// Properties
 
-	EventGraphSO EventGraph {
+	EventGraph EventGraph {
 		get => m_EventGraph;
 		set => m_EventGraph = value;
 	}
@@ -219,7 +219,7 @@ public struct EventTriggerBlobData {
 
 	// Fields
 
-	public UnityObjectRef<EventGraphSO> EventGraph;
+	public UnityObjectRef<EventGraph> EventGraph;
 }
 
 

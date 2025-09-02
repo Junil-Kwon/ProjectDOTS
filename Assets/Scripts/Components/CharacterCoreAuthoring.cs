@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Properties;
 using Unity.Transforms;
+using Unity.Rendering;
 using Unity.Physics;
 using Unity.Physics.Authoring;
 using Unity.Physics.Extensions;
@@ -149,7 +150,7 @@ public enum PhysicsCategory : byte {
 	Character,
 	EventTrigger,
 	Particle,
-	RenderZone,
+	RenderArea,
 	Terrain,
 }
 
@@ -167,8 +168,8 @@ public static class Physics {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [AddComponentMenu("Component/Character Core")]
-[RequireComponent(typeof(CharacterRendererAuthoring), typeof(PhysicsBodyAuthoring))]
-[RequireComponent(typeof(PhysicsShapeAuthoring), typeof(GhostAuthoringComponent))]
+[RequireComponent(typeof(PhysicsBodyAuthoring), typeof(PhysicsShapeAuthoring))]
+[RequireComponent(typeof(GhostAuthoringComponent))]
 public sealed class CharacterCoreAuthoring : MonoComponent<CharacterCoreAuthoring> {
 
 	// Editor
@@ -934,11 +935,16 @@ partial struct CharacterCoreInitializationSystem : ISystem {
 			CoreData           = SystemAPI.GetComponentLookup<CharacterCoreData>(),
 			TempData           = SystemAPI.GetComponentLookup<CharacterTempData>(),
 			BodyBlob           = SystemAPI.GetComponentLookup<CharacterBodyBlob>(),
-			Renderer           = SystemAPI.GetComponentLookup<CharacterRenderer>(),
 			StatusBlob         = SystemAPI.GetComponentLookup<CharacterStatusBlob>(),
 			StatusData         = SystemAPI.GetComponentLookup<CharacterStatusData>(),
 			EffectBlob         = SystemAPI.GetComponentLookup<CharacterEffectBlob>(),
 			EffectData         = SystemAPI.GetBufferLookup<CharacterEffectData>(),
+			Center             = SystemAPI.GetComponentLookup<SpritePropertyCenter>(),
+			BaseColor          = SystemAPI.GetComponentLookup<SpritePropertyBaseColor>(),
+			MaskColor          = SystemAPI.GetComponentLookup<SpritePropertyMaskColor>(),
+			Emission           = SystemAPI.GetComponentLookup<SpritePropertyEmission>(),
+			Billboard          = SystemAPI.GetComponentLookup<SpritePropertyBillboard>(),
+			Hash               = SystemAPI.GetComponentLookup<SpriteHash>(),
 			Mass               = SystemAPI.GetComponentLookup<PhysicsMass>(),
 			Collider           = SystemAPI.GetComponentLookup<PhysicsCollider>(),
 		}.ScheduleParallel(state.Dependency);
@@ -958,10 +964,12 @@ partial struct CharacterCoreInitializationJob : IJobEntity {
 	public void Execute(
 		EnabledRefRW<CharacterInitialize> initialize,
 		in LocalTransform transform,
+		ref RenderBounds bounds,
 		ref PhysicsMass mass,
 		ref PhysicsGraphicalInterpolationBuffer buffer) {
 
 		initialize.ValueRW = false;
+		bounds.Value.Extents = new float3(8f, 8f, 8f);
 		mass.InverseInertia = default;
 		buffer.PreviousTransform.pos = transform.Position;
 		buffer.PreviousTransform.rot = transform.Rotation;
@@ -1028,11 +1036,16 @@ partial struct CharacterBodySwitchJob : IJobEntity {
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterCoreData> CoreData;
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterTempData> TempData;
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterBodyBlob> BodyBlob;
-	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterRenderer> Renderer;
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterStatusBlob> StatusBlob;
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterStatusData> StatusData;
 	[NativeDisableParallelForRestriction] public ComponentLookup<CharacterEffectBlob> EffectBlob;
 	[NativeDisableParallelForRestriction] public BufferLookup<CharacterEffectData> EffectData;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpritePropertyCenter> Center;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpritePropertyBaseColor> BaseColor;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpritePropertyMaskColor> MaskColor;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpritePropertyEmission> Emission;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpritePropertyBillboard> Billboard;
+	[NativeDisableParallelForRestriction] public ComponentLookup<SpriteHash> Hash;
 	[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsMass> Mass;
 	[NativeDisableParallelForRestriction] public ComponentLookup<PhysicsCollider> Collider;
 
@@ -1045,7 +1058,12 @@ partial struct CharacterBodySwitchJob : IJobEntity {
 		var coreData = CoreData.GetRefRW(entity);
 		var tempData = TempData.GetRefRW(entity);
 		var bodyBlob = BodyBlob.GetRefRW(entity);
-		var renderer = Renderer.GetRefRW(entity);
+		var center = Center.GetRefRW(entity);
+		var baseColor = BaseColor.GetRefRW(entity);
+		var maskColor = MaskColor.GetRefRW(entity);
+		var emission = Emission.GetRefRW(entity);
+		var billboard = Billboard.GetRefRW(entity);
+		var hash = Hash.GetRefRW(entity);
 		var mass = Mass.GetRefRW(entity);
 		var collider = Collider.GetRefRW(entity);
 
@@ -1063,9 +1081,14 @@ partial struct CharacterBodySwitchJob : IJobEntity {
 			coreData.ValueRW.Time    = CoreData[prefab].Time;
 			coreData.ValueRW.Data    = CoreData[prefab].Data;
 			bodyBlob.ValueRW.Value   = BodyBlob[prefab].Value;
-			renderer.ValueRW.Sprite  = Renderer[prefab].Sprite;
-			renderer.ValueRW.Motion  = Renderer[prefab].Motion;
-			renderer.ValueRW.Center  = Renderer[prefab].Center;
+			center.ValueRW.Value     = Center[prefab].Value;
+			baseColor.ValueRW.Value  = BaseColor[prefab].Value;
+			emission.ValueRW.Value   = Emission[prefab].Value;
+			billboard.ValueRW.Value  = Billboard[prefab].Value;
+			hash.ValueRW.Sprite      = Hash[prefab].Sprite;
+			hash.ValueRW.Motion      = Hash[prefab].Motion;
+			hash.ValueRW.Tick        = Hash[prefab].Tick;
+			hash.ValueRW.Flip        = Hash[prefab].Flip;
 			mass.ValueRW.InverseMass = Mass[prefab].InverseMass;
 			collider.ValueRW.Value   = Collider[prefab].Value;
 
@@ -1318,8 +1341,8 @@ partial struct CharacterClientSimulationJob : IJobEntity {
 		in CharacterCoreBlob coreBlob,
 		in CharacterCoreData coreData,
 		ref CharacterTempData tempData,
-		ref CharacterRenderer renderer,
 		in LocalTransform transform,
+		ref SpriteHash hash,
 		Entity entity,
 		[ChunkIndexInQuery] int chunkIndex) {
 
@@ -1327,9 +1350,9 @@ partial struct CharacterClientSimulationJob : IJobEntity {
 		float x = 0.0f + 2.0f * (rotation.y * rotation.w + rotation.x * rotation.z);
 		float z = 1.0f - 2.0f * (rotation.y * rotation.y + rotation.z * rotation.z);
 		float yaw = math.atan2(x, z) * math.TODEGREES;
-		renderer.Motion = coreData.Motion;
-		renderer.ObjectYaw = yaw - CameraBridgeProperty.Yaw;
-		renderer.Time = coreData.Time;
+		hash.Motion = coreData.Motion;
+		hash.ObjectYaw = yaw - CameraBridgeProperty.Yaw;
+		hash.Time = coreData.Time;
 
 		bool isPredicted = PredictedLookup.HasComponent(entity);
 		bool isFullTick = !NetworkTime.IsPartialTick;
@@ -1366,5 +1389,230 @@ partial struct CharacterClientSimulationJob : IJobEntity {
 		var entity = Buffer.Instantiate(chunkIndex, prefab);
 		Buffer.SetComponent(chunkIndex, entity, transform);
 		Buffer.SetComponent(chunkIndex, entity, new ParticleCoreData { Velocity = velocity });
+	}
+}
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Character Renderer Presentation System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
+[UpdateAfter(typeof(RenderAreaPresentationSystem))]
+public partial class CharacterRendererMainPresentationSystem : SystemBase {
+	IndirectRenderer<SpriteDrawData> RiseShadowRenderer;
+	IndirectRenderer<ShadowDrawData> FlatShadowRenderer;
+	EntityQuery CharacterQuery;
+
+	protected override void OnCreate() {
+		RiseShadowRenderer = new(DrawManager.QuadMesh, DrawManager.SpriteMaterial);
+		FlatShadowRenderer = new(DrawManager.QuadMesh, DrawManager.ShadowMaterial);
+		RiseShadowRenderer.Param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		FlatShadowRenderer.Param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		RiseShadowRenderer.Param.layer = RenderArea.MainLayer;
+		FlatShadowRenderer.Param.layer = RenderArea.MainLayer;
+		RequireForUpdate<RenderAreaPresentationSystem.Singleton>();
+		CharacterQuery = GetEntityQuery(
+			ComponentType.ReadOnly<LocalToWorld>(),
+			ComponentType.ReadOnly<RenderFilter>(),
+			ComponentType.ReadOnly<SpritePropertyCenter>(),
+			ComponentType.ReadOnly<SpriteHash>());
+		RequireForUpdate(CharacterQuery);
+	}
+
+	protected override void OnUpdate() {
+		var renderAreaSystem = SystemAPI.GetSingleton<RenderAreaPresentationSystem.Singleton>();
+		var renderArea = renderAreaSystem.MainRenderArea[0];
+		var entityArray = CharacterQuery.ToEntityArray(Allocator.TempJob);
+		int count = entityArray.Length;
+
+		var riseShadowBuffer = RiseShadowRenderer.LockBuffer(count);
+		new CharacterRiseShadowPresentationJob {
+			SpriteBuffer    = riseShadowBuffer,
+			EntityArray     = entityArray,
+			TransformLookup = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup    = GetComponentLookup<RenderFilter>(true),
+			CenterLookup    = GetComponentLookup<SpritePropertyCenter>(true),
+			HashLookup      = GetComponentLookup<SpriteHash>(true),
+			SpriteHashMap   = DrawManager.SpriteHashMapReadOnly,
+			GlobalYaw       = EnvironmentManager.Rotation.eulerAngles.y,
+			Mask            = renderArea.CullingMask,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
+		RiseShadowRenderer.UnlockBuffer(count);
+		RiseShadowRenderer.Draw();
+		RiseShadowRenderer.Clear();
+
+		var flatShadowBuffer = FlatShadowRenderer.LockBuffer(count);
+		new CharacterFlatShadowPresentationJob {
+			ShadowBuffer    = flatShadowBuffer,
+			EntityArray     = entityArray,
+			TransformLookup = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup    = GetComponentLookup<RenderFilter>(true),
+			CenterLookup    = GetComponentLookup<SpritePropertyCenter>(true),
+			HashLookup      = GetComponentLookup<SpriteHash>(true),
+			ShadowHashMap   = DrawManager.ShadowHashMapReadOnly,
+			GlobalYaw       = CameraManager.Yaw,
+			Mask            = renderArea.CullingMask,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
+		FlatShadowRenderer.UnlockBuffer(count);
+		FlatShadowRenderer.Draw();
+		FlatShadowRenderer.Clear();
+
+		entityArray.Dispose();
+	}
+
+	protected override void OnDestroy() {
+		RiseShadowRenderer.Dispose();
+		FlatShadowRenderer.Dispose();
+	}
+}
+
+[UpdateInGroup(typeof(DOTSPresentationSystemGroup))]
+[UpdateBefore(typeof(RenderAreaPresentationSystem))]
+public partial class CharacterRendererTempPresentationSystem : SystemBase {
+	IndirectRenderer<SpriteDrawData> RiseShadowRenderer;
+	IndirectRenderer<ShadowDrawData> FlatShadowRenderer;
+	EntityQuery CharacterQuery;
+
+	protected override void OnCreate() {
+		RiseShadowRenderer = new(DrawManager.QuadMesh, DrawManager.SpriteMaterial);
+		FlatShadowRenderer = new(DrawManager.QuadMesh, DrawManager.ShadowMaterial);
+		RiseShadowRenderer.Param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		FlatShadowRenderer.Param.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+		RiseShadowRenderer.Param.layer = RenderArea.TempLayer;
+		FlatShadowRenderer.Param.layer = RenderArea.TempLayer;
+		RequireForUpdate<RenderAreaPresentationSystem.Singleton>();
+		CharacterQuery = GetEntityQuery(
+			ComponentType.ReadOnly<LocalToWorld>(),
+			ComponentType.ReadOnly<RenderFilter>(),
+			ComponentType.ReadOnly<SpritePropertyCenter>(),
+			ComponentType.ReadOnly<SpritePropertyBaseColor>(),
+			ComponentType.ReadOnly<SpritePropertyMaskColor>(),
+			ComponentType.ReadOnly<SpritePropertyEmission>(),
+			ComponentType.ReadOnly<SpriteHash>());
+		RequireForUpdate(CharacterQuery);
+	}
+
+	protected override void OnUpdate() {
+		var renderAreaSystem = SystemAPI.GetSingleton<RenderAreaPresentationSystem.Singleton>();
+		if (renderAreaSystem.Transition[0] == 0f) return;
+		var renderArea = renderAreaSystem.TempRenderArea[0];
+		EnvironmentManager.LightMode = renderArea.LightMode;
+		var entityArray = CharacterQuery.ToEntityArray(Allocator.TempJob);
+		int count = entityArray.Length;
+
+		var riseShadowBuffer = RiseShadowRenderer.LockBuffer(count);
+		new CharacterRiseShadowPresentationJob {
+			SpriteBuffer    = riseShadowBuffer,
+			EntityArray     = entityArray,
+			SpriteHashMap   = DrawManager.SpriteHashMapReadOnly,
+			TransformLookup = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup    = GetComponentLookup<RenderFilter>(true),
+			CenterLookup    = GetComponentLookup<SpritePropertyCenter>(true),
+			HashLookup      = GetComponentLookup<SpriteHash>(true),
+			GlobalYaw       = EnvironmentManager.Rotation.eulerAngles.y,
+			Mask            = renderArea.CullingMask,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
+		RiseShadowRenderer.UnlockBuffer(count);
+		RiseShadowRenderer.Draw();
+		RiseShadowRenderer.Clear();
+
+		var flatShadowBuffer = FlatShadowRenderer.LockBuffer(count);
+		new CharacterFlatShadowPresentationJob {
+			ShadowBuffer    = flatShadowBuffer,
+			EntityArray     = entityArray,
+			ShadowHashMap   = DrawManager.ShadowHashMapReadOnly,
+			TransformLookup = GetComponentLookup<LocalToWorld>(true),
+			FilterLookup    = GetComponentLookup<RenderFilter>(true),
+			CenterLookup    = GetComponentLookup<SpritePropertyCenter>(true),
+			HashLookup      = GetComponentLookup<SpriteHash>(true),
+			GlobalYaw       = CameraManager.Yaw,
+			Mask            = renderArea.CullingMask,
+		}.Schedule(entityArray.Length, 64, Dependency).Complete();
+		FlatShadowRenderer.UnlockBuffer(count);
+		FlatShadowRenderer.Draw();
+		FlatShadowRenderer.Clear();
+
+		entityArray.Dispose();
+	}
+
+	protected override void OnDestroy() {
+		RiseShadowRenderer.Dispose();
+		FlatShadowRenderer.Dispose();
+	}
+}
+
+[BurstCompile]
+partial struct CharacterRiseShadowPresentationJob : IJobParallelFor {
+	[NativeDisableParallelForRestriction] public NativeArray<SpriteDrawData> SpriteBuffer;
+	[ReadOnly] public NativeArray<Entity> EntityArray;
+	[ReadOnly] public NativeHashMap<uint, AtlasData>.ReadOnly SpriteHashMap;
+	[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
+	[ReadOnly] public ComponentLookup<RenderFilter> FilterLookup;
+	[ReadOnly] public ComponentLookup<SpritePropertyCenter> CenterLookup;
+	[ReadOnly] public ComponentLookup<SpriteHash> HashLookup;
+	[ReadOnly] public float GlobalYaw;
+	[ReadOnly] public int Mask;
+
+	public void Execute(int index) {
+		var entity = EntityArray[index];
+		var renderer = FilterLookup[entity];
+		var hash = HashLookup[entity];
+		var data = DrawSpriteJob.GetSpriteData(SpriteHashMap, new SpriteHash() {
+			Sprite    = hash.Sprite,
+			Motion    = hash.Motion,
+			Direction = default,
+			ObjectYaw = hash.ObjectYaw - GlobalYaw,
+			Time      = hash.Time,
+		}, false);
+		SpriteBuffer[index] = new SpriteDrawData() {
+			Position  = TransformLookup[entity].Position,
+			Rotation  = quaternion.Euler(new float3(0f, GlobalYaw, 0f) * math.TORADIANS).value,
+			Scale     = (renderer.MainCullingMask & Mask) != 0 ? data.scale : default,
+			Pivot     = data.pivot,
+			Tiling    = data.tiling,
+			Offset    = data.offset,
+			Center    = CenterLookup[entity].Value,
+			BaseColor = new float4(1f, 1f, 1f, 1f),
+			MaskColor = new float4(1f, 1f, 1f, 0f),
+			Emission  = new float4(0f, 0f, 0f, 0f),
+			Billboard = 0f,
+		};
+	}
+}
+
+[BurstCompile]
+partial struct CharacterFlatShadowPresentationJob : IJobParallelFor {
+	[NativeDisableParallelForRestriction] public NativeArray<ShadowDrawData> ShadowBuffer;
+	[ReadOnly] public NativeArray<Entity> EntityArray;
+	[ReadOnly] public NativeHashMap<uint, AtlasData>.ReadOnly ShadowHashMap;
+	[ReadOnly] public ComponentLookup<LocalToWorld> TransformLookup;
+	[ReadOnly] public ComponentLookup<RenderFilter> FilterLookup;
+	[ReadOnly] public ComponentLookup<SpritePropertyCenter> CenterLookup;
+	[ReadOnly] public ComponentLookup<SpriteHash> HashLookup;
+	[ReadOnly] public float GlobalYaw;
+	[ReadOnly] public int Mask;
+
+	public void Execute(int index) {
+		var entity = EntityArray[index];
+		var renderer = FilterLookup[entity];
+		var hash = HashLookup[entity];
+		var data = DrawShadowJob.GetShadowData(ShadowHashMap, new ShadowHash() {
+			Sprite    = hash.Sprite,
+			Motion    = hash.Motion,
+			Direction = default,
+			ObjectYaw = hash.ObjectYaw,
+			Time      = hash.Time,
+		}, false);
+		ShadowBuffer[index] = new ShadowDrawData() {
+			Position  = TransformLookup[entity].Position,
+			Rotation  = quaternion.Euler(new float3(90f, GlobalYaw, 0f) * math.TORADIANS).value,
+			Scale     = (renderer.MainCullingMask & Mask) != 0 ? data.scale : default,
+			Pivot     = data.pivot,
+			Tiling    = data.tiling,
+			Offset    = data.offset,
+			Center    = new(0f, 0.1f, 0f),
+		};
 	}
 }

@@ -217,8 +217,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70ad611a14a11984e90b4e6315dd1ace, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  m_SourcePath: Assets/Prefabs/Structures
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainContainerAuthoring
+  m_SourcePath: Assets/Prefabs/Terrains
   m_TerrainList: 
   m_PrefabData:
   - {fileID: 0}
@@ -510,7 +510,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3436640871187973598, guid: 5b4f3e0fb9cf8e9468702caf106ebd23, type: 3}
       propertyPath: m_Name
-      value: World Regulator
+      value: Global State
       objectReference: {fileID: 0}
     - target: {fileID: 4735127312874121415, guid: 5b4f3e0fb9cf8e9468702caf106ebd23, type: 3}
       propertyPath: m_LocalPosition.x
